@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -32,7 +33,7 @@ export default {
 				/* Glassmorphism surfaces */
 				'glass-surface': 'hsl(var(--glass-surface))',
 				'glass-border': 'hsl(var(--glass-border))',
-				'glass-bg': 'var(--glass-bg)',
+				'glass-bg': 'hsl(var(--glass-bg))',
 				
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
