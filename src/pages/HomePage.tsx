@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
+import SEO from "@/components/SEO";
 import { 
   Server, 
   Gamepad2, 
@@ -73,8 +74,21 @@ const HomePage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
-      <Navigation />
+    <>
+      <SEO
+        title="CoreNode Hosting – Game & Web Servers"
+        description="Premium game server hosting with AMP panel and Miami latency. Plans from $3.49/month."
+        keywords="minecraft server hosting, cheap ark server hosting, game servers miami"
+        canonical="https://example.com/"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'CoreNode Hosting',
+          url: 'https://example.com/'
+        }}
+      />
+      <div className="min-h-screen bg-gradient-hero">
+        <Navigation />
       
       {/* Hero Section */}
       <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
@@ -201,6 +215,7 @@ const HomePage = () => {
         </div>
       </footer>
     </div>
+    </>
   );
 };
 

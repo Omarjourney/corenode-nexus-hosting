@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import Navigation from "@/components/Navigation";
+import SEO from "@/components/SEO";
 import { Badge } from "@/components/ui/badge";
 import { 
   Server, 
@@ -75,8 +76,28 @@ const MinecraftPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
-      <Navigation />
+    <>
+      <SEO
+        title="Fast Minecraft Hosting – $3.49/mo Miami Servers"
+        description="Get low-lag Minecraft servers with AMP Panel. Host in Miami for LATAM speed – starting at $3.49/month."
+        keywords="minecraft server hosting, fast minecraft hosting, miami servers"
+        canonical="https://example.com/minecraft"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: 'Minecraft Server Hosting',
+          description:
+            'Fast Minecraft hosting with Miami servers for LATAM players starting at $3.49/mo.',
+          offers: {
+            '@type': 'Offer',
+            price: '3.49',
+            priceCurrency: 'USD',
+            availability: 'https://schema.org/InStock'
+          }
+        }}
+      />
+      <div className="min-h-screen bg-gradient-hero">
+        <Navigation />
       
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
@@ -336,6 +357,7 @@ const MinecraftPage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
