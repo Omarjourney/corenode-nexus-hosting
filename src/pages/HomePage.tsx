@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
+import LiveStatsBar from "@/components/LiveStatsBar";
+import PricingGlowCards from "@/components/PricingGlowCards";
 import { 
   Server, 
   Gamepad2, 
@@ -75,6 +77,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <Navigation />
+      <LiveStatsBar />
       
       {/* Hero Section */}
       <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
@@ -159,6 +162,16 @@ const HomePage = () => {
               </Card>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-orbitron font-bold text-gradient-primary text-center mb-12">
+            Plans & Pricing
+          </h2>
+          <PricingGlowCards />
         </div>
       </section>
 
