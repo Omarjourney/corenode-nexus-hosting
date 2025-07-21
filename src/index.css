@@ -92,7 +92,7 @@
   }
 
   .glass-nav {
-    @apply backdrop-blur-md bg-glass-bg/50 border-b border-glass-border;
+    @apply backdrop-blur-md bg-glass-bg border-b border-glass-border;
   }
 
   /* Neon glow effects */
