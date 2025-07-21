@@ -1,4 +1,11 @@
 import { useState } from "react";
+
+interface ServerConfig {
+  ram: number[];
+  cpu: number[];
+  storage: number[];
+  slots: number[];
+}
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,14 +26,14 @@ import {
 } from "lucide-react";
 
 const MinecraftPage = () => {
-  const [javaConfig, setJavaConfig] = useState({
+  const [javaConfig, setJavaConfig] = useState<ServerConfig>({
     ram: [4],
     cpu: [2],
     storage: [25],
     slots: [20]
   });
 
-  const [bedrockConfig, setBedrockConfig] = useState({
+  const [bedrockConfig, setBedrockConfig] = useState<ServerConfig>({
     ram: [2],
     cpu: [1], 
     storage: [10],
@@ -68,7 +75,7 @@ const MinecraftPage = () => {
     }
   };
 
-  const calculatePrice = (config: any, isPremium = false) => {
+  const calculatePrice = (config: ServerConfig, isPremium = false): string => {
     const basePrice = isPremium ? plans.premium.price : plans.basic.price;
     const ramPrice = config.ram[0] * 2;
     const storagePrice = Math.max(0, (config.storage[0] - 25) * 0.2);

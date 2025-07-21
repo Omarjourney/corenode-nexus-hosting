@@ -4,7 +4,7 @@ import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
 
 const posts = Object.entries(
-  import.meta.glob("../../blog/*.md", { eager: true, as: "raw" })
+  import.meta.glob("../../blog/*.md", { eager: true, import: "default", query: "?raw" })
 ).map(([path, content]) => {
   const metaMatch = /^---\n([\s\S]*?)\n---/.exec(content as string);
   const metadata: Record<string, string> = {};

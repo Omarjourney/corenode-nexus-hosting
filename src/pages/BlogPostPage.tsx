@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
 
-const posts = import.meta.glob("../../blog/*.md", { eager: true, as: "raw" });
+const posts = import.meta.glob("../../blog/*.md", { eager: true, import: "default", query: "?raw" });
 
 const BlogPostPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -19,7 +19,7 @@ const BlogPostPage = () => {
   }
   const raw = content as string;
   const metaMatch = /^---\n([\s\S]*?)\n---/.exec(raw);
-  let meta: Record<string, string> = {};
+  const meta: Record<string, string> = {};
   let body = raw;
   if (metaMatch) {
     metaMatch[1].split("\n").forEach((line) => {

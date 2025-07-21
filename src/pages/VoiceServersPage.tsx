@@ -5,6 +5,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import Navigation from "@/components/Navigation";
 import { Badge } from "@/components/ui/badge";
+
+interface VoiceConfig {
+  slots: number[];
+  storage: number[];
+}
+
+interface VoicePlatform {
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+  description: string;
+  features: string[];
+  pricing: {
+    base: number;
+    perSlot: number;
+  };
+}
 import { 
   Mic, 
   Users, 
@@ -19,12 +36,12 @@ import {
 } from "lucide-react";
 
 const VoiceServersPage = () => {
-  const [teamSpeakConfig, setTeamSpeakConfig] = useState({
+  const [teamSpeakConfig, setTeamSpeakConfig] = useState<VoiceConfig>({
     slots: [25],
     storage: [1]
   });
 
-  const [mumbleConfig, setMumbleConfig] = useState({
+  const [mumbleConfig, setMumbleConfig] = useState<VoiceConfig>({
     slots: [50],
     storage: [1]
   });
@@ -86,7 +103,10 @@ const VoiceServersPage = () => {
     }
   ];
 
-  const calculatePrice = (platform: any, config: any) => {
+  const calculatePrice = (
+    platform: VoicePlatform,
+    config: VoiceConfig | Record<string, number[]>
+  ): string => {
     if (platform.name === "Discord Bot") {
       return platform.pricing.base.toFixed(2);
     }
