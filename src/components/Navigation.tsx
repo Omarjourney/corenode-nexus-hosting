@@ -105,9 +105,11 @@ const Navigation = () => {
 
           {/* CTA Button */}
           <div className="hidden lg:block">
-            <Button className="bg-gradient-primary hover:scale-105 glow-primary font-orbitron font-medium">
-              Start My Server
-            </Button>
+            <Link to="/order">
+              <Button className="bg-gradient-primary hover:scale-105 glow-primary font-orbitron font-medium">
+                Start My Server
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -144,12 +146,11 @@ const Navigation = () => {
               </Link>
             ))}
             <div className="pt-4 pb-2">
-              <Button 
-                className="w-full bg-gradient-primary glow-primary font-orbitron font-medium"
-                onClick={() => setIsOpen(false)}
-              >
-                Start My Server
-              </Button>
+              <Link to="/order" onClick={() => setIsOpen(false)}>
+                <Button className="w-full bg-gradient-primary glow-primary font-orbitron font-medium">
+                  Start My Server
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

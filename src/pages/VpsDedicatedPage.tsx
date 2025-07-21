@@ -121,7 +121,14 @@ const VpsDedicatedPage = () => {
     "Migration Assistance"
   ];
 
-  const calculateVpsPrice = (config: any) => {
+  interface VpsConfig {
+    vCPU: number
+    ram: number
+    ssd: number
+    os: string
+  }
+
+  const calculateVpsPrice = (config: VpsConfig) => {
     const basePrice = vpsConfigs.find(c => 
       c.vCPU === config.vCPU && 
       c.ram === config.ram && 

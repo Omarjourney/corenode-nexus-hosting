@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import MinecraftPage from "./pages/MinecraftPage";
 import GameServersPage from "./pages/GameServersPage";
+import ServerOrderPage from "./pages/ServerOrderPage";
 import VoiceServersPage from "./pages/VoiceServersPage";
 import WebHostingPage from "./pages/WebHostingPage";
 import VpsDedicatedPage from "./pages/VpsDedicatedPage";
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/voice-servers" element={<VoiceServersPage />} />
           <Route path="/web-hosting" element={<WebHostingPage />} />
           <Route path="/vps-dedicated" element={<VpsDedicatedPage />} />
+          <Route path="/order" element={<ServerOrderPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -67,7 +67,14 @@ const MinecraftPage = () => {
     }
   };
 
-  const calculatePrice = (config: any, isPremium = false) => {
+  interface ServerConfig {
+    ram: number[]
+    cpu: number[]
+    storage: number[]
+    slots: number[]
+  }
+
+  const calculatePrice = (config: ServerConfig, isPremium = false) => {
     const basePrice = isPremium ? plans.premium.price : plans.basic.price;
     const ramPrice = config.ram[0] * 2;
     const storagePrice = Math.max(0, (config.storage[0] - 25) * 0.2);
