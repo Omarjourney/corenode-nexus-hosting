@@ -2,95 +2,158 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* CoreNode Hosting - Premium Futuristic Design System
+   Glassmorphism with neon blue/purple/teal accents
+   All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core theme colors */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Glass morphism surfaces */
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --glass-surface: 240 10% 8%;
+    --glass-border: 240 5% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 240 10% 8%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Neon accent colors */
+    --primary: 194 100% 50%; /* Neon cyan */
+    --primary-foreground: 240 10% 3.9%;
+    --primary-glow: 194 100% 70%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 260 100% 70%; /* Neon purple */
+    --secondary-foreground: 0 0% 98%;
+    --secondary-glow: 260 100% 85%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --tertiary: 180 100% 60%; /* Neon teal */
+    --tertiary-foreground: 240 10% 3.9%;
+    --tertiary-glow: 180 100% 80%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* UI states */
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 194 100% 50%;
+    --accent-foreground: 240 10% 3.9%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 240 5% 15%;
+    --input: 240 10% 8%;
+    --ring: 194 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 12px;
 
-    --sidebar-background: 0 0% 98%;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(194 100% 50%), hsl(260 100% 70%));
+    --gradient-secondary: linear-gradient(135deg, hsl(260 100% 70%), hsl(180 100% 60%));
+    --gradient-tertiary: linear-gradient(135deg, hsl(180 100% 60%), hsl(194 100% 50%));
+    --gradient-hero: linear-gradient(135deg, hsl(240 10% 3.9%) 0%, hsl(240 15% 8%) 50%, hsl(240 10% 3.9%) 100%);
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Shadows & Glows */
+    --shadow-neon-primary: 0 0 20px hsl(194 100% 50% / 0.3), 0 0 40px hsl(194 100% 50% / 0.1);
+    --shadow-neon-secondary: 0 0 20px hsl(260 100% 70% / 0.3), 0 0 40px hsl(260 100% 70% / 0.1);
+    --shadow-neon-tertiary: 0 0 20px hsl(180 100% 60% / 0.3), 0 0 40px hsl(180 100% 60% / 0.1);
+    --shadow-glass: 0 8px 32px hsl(240 10% 3.9% / 0.3);
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Glassmorphism */
+    --glass-bg: hsl(240 10% 8% / 0.3);
+    --glass-border: hsl(240 5% 15% / 0.3);
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    /* Sidebar colors */
+    --sidebar-background: 240 10% 5%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 194 100% 50%;
+    --sidebar-primary-foreground: 240 10% 3.9%;
+    --sidebar-accent: 240 10% 10%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 240 5% 15%;
+    --sidebar-ring: 194 100% 50%;
 
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+}
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+/* Custom utility classes for CoreNode Hosting */
+@layer components {
+  /* Glassmorphism effects */
+  .glass-card {
+    @apply backdrop-blur-xl bg-glass-bg border border-glass-border shadow-glass;
+  }
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+  .glass-nav {
+    @apply backdrop-blur-md bg-glass-bg/50 border-b border-glass-border;
+  }
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+  /* Neon glow effects */
+  .glow-primary {
+    box-shadow: var(--shadow-neon-primary);
+  }
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+  .glow-secondary {
+    box-shadow: var(--shadow-neon-secondary);
+  }
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+  .glow-tertiary {
+    box-shadow: var(--shadow-neon-tertiary);
+  }
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+  /* Interactive elements */
+  .hover-glow-primary:hover {
+    box-shadow: var(--shadow-neon-primary);
+    transition: var(--transition-smooth);
+  }
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+  .hover-glow-secondary:hover {
+    box-shadow: var(--shadow-neon-secondary);
+    transition: var(--transition-smooth);
+  }
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+  .hover-scale:hover {
+    transform: scale(1.05);
+    transition: var(--transition-smooth);
+  }
+
+  /* Gradient backgrounds */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+
+  .gradient-tertiary {
+    background: var(--gradient-tertiary);
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  /* Text gradients */
+  .text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-secondary {
+    background: var(--gradient-secondary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
 
