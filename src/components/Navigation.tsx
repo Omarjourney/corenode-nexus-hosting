@@ -34,13 +34,19 @@ const Navigation = () => {
       name: "Web Hosting",
       href: "/web-hosting",
       dropdown: true,
-      sections: ["Basic", "Premium", "Business"]
+      sections: ["Basic", "Standard", "Premium"]
     },
     {
-      name: "VPS & Dedicated",
-      href: "/vps-dedicated",
+      name: "VPS Hosting",
+      href: "/vps",
       dropdown: true,
-      sections: ["VPS Servers", "Dedicated Servers", "Custom Solutions"]
+      sections: ["Lite", "Max", "Extreme"]
+    },
+    {
+      name: "Dedicated Servers",
+      href: "/dedicated",
+      dropdown: true,
+      sections: ["Entry", "Pro", "Extreme"]
     }
   ];
 

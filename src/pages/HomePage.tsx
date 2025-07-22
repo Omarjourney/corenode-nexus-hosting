@@ -67,10 +67,17 @@ const HomePage = () => {
     },
     {
       icon: HardDrive,
-      title: "VPS & Dedicated",
-      description: "Scalable virtual and dedicated servers",
+      title: "VPS Hosting",
+      description: "Scalable virtual servers",
       color: "secondary",
-      link: "/vps-dedicated"
+      link: "/vps"
+    },
+    {
+      icon: Server,
+      title: "Dedicated Servers",
+      description: "High performance bare metal",
+      color: "tertiary",
+      link: "/dedicated"
     }
   ];
 
