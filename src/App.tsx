@@ -8,6 +8,9 @@ import MinecraftPage from "./pages/MinecraftPage";
 import GameServersPage from "./pages/GameServersPage";
 import VoiceServersPage from "./pages/VoiceServersPage";
 import WebHostingPage from "./pages/WebHostingPage";
+import VpsPage from "./pages/VpsPage";
+import DedicatedPage from "./pages/DedicatedPage";
+import CheckoutPage from "./pages/CheckoutPage";
 import VpsDedicatedPage from "./pages/VpsDedicatedPage";
 import NotFound from "./pages/NotFound";
 
@@ -25,6 +28,11 @@ const App = () => (
           <Route path="/game-servers" element={<GameServersPage />} />
           <Route path="/voice-servers" element={<VoiceServersPage />} />
           <Route path="/web-hosting" element={<WebHostingPage />} />
+          <Route path="/web-hosting/checkout" element={<CheckoutPage title="Web Hosting" />} />
+          <Route path="/vps" element={<VpsPage />} />
+          <Route path="/vps/checkout" element={<CheckoutPage title="VPS" />} />
+          <Route path="/dedicated" element={<DedicatedPage />} />
+          <Route path="/dedicated/checkout" element={<CheckoutPage title="Dedicated" />} />
           <Route path="/vps-dedicated" element={<VpsDedicatedPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
