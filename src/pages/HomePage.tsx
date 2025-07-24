@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
@@ -104,12 +105,15 @@ const HomePage = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button 
+              <Button
+                asChild
                 size="lg"
                 className="bg-gradient-primary hover:scale-105 glow-primary font-orbitron font-semibold px-8 py-4 text-lg group"
               >
-                Start Your Server Now
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <Link to="/minecraft">
+                  Start Your Server Now
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Link>
               </Button>
               <Button 
                 size="lg"
@@ -158,12 +162,15 @@ const HomePage = () => {
                   </div>
                   <h3 className="text-xl font-orbitron font-semibold text-foreground">{type.title}</h3>
                   <p className="text-muted-foreground font-inter">{type.description}</p>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    asChild
+                    variant="ghost"
                     className={`text-${type.color} hover:bg-${type.color}/10 font-inter group-hover:glow-${type.color}`}
                   >
-                    Learn More
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    <Link to={type.link}>
+                      Learn More
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
                   </Button>
                 </div>
               </Card>
