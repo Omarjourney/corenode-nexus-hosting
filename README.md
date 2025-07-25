@@ -71,3 +71,7 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+## Pull Requests
+
+Run `./create_pr.sh` after committing your changes. The script checks if a pull request already exists for your current branch using `gh pr view`. If a pull request is found, the script prints its URL and exits. Otherwise, it creates a new pull request using the GitHub CLI.
