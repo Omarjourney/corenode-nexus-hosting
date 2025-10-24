@@ -25,12 +25,11 @@ const MinecraftPage = () => {
     slots: [20]
   });
 
-  const [bedrockConfig, setBedrockConfig] = useState({
-    ram: [2],
-    cpu: [1], 
-    storage: [10],
-    slots: [10]
-  });
+  // Bedrock configuration values for backend submission
+  const [ramValue, setRamValue] = useState([2]);
+  const [cpuCores, setCpuCores] = useState([1]);
+  const [storageSize, setStorageSize] = useState([25]);
+  const [playerSlots, setPlayerSlots] = useState([10]);
 
   const javaVersions = [
     { name: "Vanilla", description: "Official Minecraft server" },
@@ -67,12 +66,12 @@ const MinecraftPage = () => {
     }
   };
 
-  interface ServerConfig {
-    ram: number[]
-    cpu: number[]
-    storage: number[]
-    slots: number[]
-  }
+  type ServerConfig = {
+    ram: number[];
+    cpu: number[];
+    storage: number[];
+    slots: number[];
+  };
 
   const calculatePrice = (config: ServerConfig, isPremium = false) => {
     const basePrice = isPremium ? plans.premium.price : plans.basic.price;
@@ -273,6 +272,83 @@ const MinecraftPage = () => {
                             <p className="text-sm text-muted-foreground font-inter">{version.description}</p>
                           </Card>
                         ))}
+                      </div>
+                    </div>
+
+                    {/* Resource Configuration */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="font-orbitron font-medium text-foreground flex items-center">
+                            <HardDrive className="w-4 h-4 mr-2 text-tertiary" />
+                            RAM: {ramValue[0]}GB
+                          </label>
+                          <Badge variant="secondary">Recommended: 2GB</Badge>
+                        </div>
+                        <Slider
+                          value={ramValue}
+                          onValueChange={setRamValue}
+                          max={64}
+                          min={1}
+                          step={1}
+                          color="tertiary"
+                          className="mb-6"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="font-orbitron font-medium text-foreground flex items-center">
+                            <Cpu className="w-4 h-4 mr-2 text-tertiary" />
+                            CPU Cores: {cpuCores[0]}
+                          </label>
+                        </div>
+                        <Slider
+                          value={cpuCores}
+                          onValueChange={setCpuCores}
+                          max={8}
+                          min={1}
+                          step={1}
+                          color="tertiary"
+                          className="mb-6"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="font-orbitron font-medium text-foreground flex items-center">
+                            <Server className="w-4 h-4 mr-2 text-tertiary" />
+                            Storage: {storageSize[0]}GB
+                          </label>
+                        </div>
+                        <Slider
+                          value={storageSize}
+                          onValueChange={setStorageSize}
+                          max={100}
+                          min={10}
+                          step={5}
+                          color="tertiary"
+                          className="mb-6"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="font-orbitron font-medium text-foreground flex items-center">
+                            <Users className="w-4 h-4 mr-2 text-tertiary" />
+                            Player Slots: {playerSlots[0]}
+                          </label>
+                          <Badge variant="secondary">Recommended: 10</Badge>
+                        </div>
+                        <Slider
+                          value={playerSlots}
+                          onValueChange={setPlayerSlots}
+                          max={100}
+                          min={1}
+                          step={1}
+                          color="tertiary"
+                          className="mb-6"
+                        />
                       </div>
                     </div>
 

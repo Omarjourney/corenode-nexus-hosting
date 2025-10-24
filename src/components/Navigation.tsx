@@ -3,10 +3,12 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ConfiguratorPanel from "@/components/ConfiguratorPanel";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
   const location = useLocation();
 
   const navItems = [
@@ -32,19 +34,26 @@ const Navigation = () => {
       name: "Web Hosting",
       href: "/web-hosting",
       dropdown: true,
-      sections: ["Basic", "Premium", "Business"]
+      sections: ["Basic", "Standard", "Premium"]
     },
     {
-      name: "VPS & Dedicated",
-      href: "/vps-dedicated",
+      name: "VPS Hosting",
+      href: "/vps",
       dropdown: true,
-      sections: ["VPS Servers", "Dedicated Servers", "Custom Solutions"]
+      sections: ["Lite", "Max", "Extreme"]
+    },
+    {
+      name: "Dedicated Servers",
+      href: "/dedicated",
+      dropdown: true,
+      sections: ["Entry", "Pro", "Extreme"]
     }
   ];
 
   const isActive = (href: string) => location.pathname === href;
 
   return (
+    <>
     <nav className="fixed top-0 left-0 right-0 z-50 glass-nav">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -105,11 +114,12 @@ const Navigation = () => {
 
           {/* CTA Button */}
           <div className="hidden lg:block">
-            <Link to="/order">
-              <Button className="bg-gradient-primary hover:scale-105 glow-primary font-orbitron font-medium">
-                Start My Server
-              </Button>
-            </Link>
+            <Button
+              className="bg-gradient-primary hover:scale-105 glow-primary font-orbitron font-medium"
+              onClick={() => setPanelOpen(true)}
+            >
+              Start My Server
+            </Button>
           </div>
 
           {/* Mobile menu button */}
@@ -146,16 +156,22 @@ const Navigation = () => {
               </Link>
             ))}
             <div className="pt-4 pb-2">
-              <Link to="/order" onClick={() => setIsOpen(false)}>
-                <Button className="w-full bg-gradient-primary glow-primary font-orbitron font-medium">
-                  Start My Server
-                </Button>
-              </Link>
+              <Button
+                className="w-full bg-gradient-primary glow-primary font-orbitron font-medium"
+                onClick={() => {
+                  setPanelOpen(true);
+                  setIsOpen(false);
+                }}
+              >
+                Start My Server
+              </Button>
             </div>
           </div>
         </div>
       )}
     </nav>
+    <ConfiguratorPanel open={panelOpen} onOpenChange={setPanelOpen} />
+    </>
   );
 };
 

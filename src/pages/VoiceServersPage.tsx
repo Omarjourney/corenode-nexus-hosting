@@ -86,20 +86,19 @@ const VoiceServersPage = () => {
     }
   ];
 
+  interface Pricing {
+    base: number;
+    perSlot: number;
+  }
   interface VoicePlatform {
-    name: string
-    pricing: {
-      base: number
-      perSlot: number
-    }
+    name: string;
+    pricing: Pricing;
+  }
+  interface SlotConfig {
+    slots: number[];
   }
 
-  interface VoiceConfig {
-    slots: number[]
-    storage: number[]
-  }
-
-  const calculatePrice = (platform: VoicePlatform, config: VoiceConfig) => {
+  const calculatePrice = (platform: VoicePlatform, config: SlotConfig) => {
     if (platform.name === "Discord Bot") {
       return platform.pricing.base.toFixed(2);
     }

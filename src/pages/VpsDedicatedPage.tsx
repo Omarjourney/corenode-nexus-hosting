@@ -122,10 +122,10 @@ const VpsDedicatedPage = () => {
   ];
 
   interface VpsConfig {
-    vCPU: number
-    ram: number
-    ssd: number
-    os: string
+    vCPU: number;
+    ram: number;
+    ssd: number;
+    os: string;
   }
 
   const calculateVpsPrice = (config: VpsConfig) => {
