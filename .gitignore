@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Lovable generated artifacts
+src/tailwind.config.lov.json
+.lov.tailwind.config.js

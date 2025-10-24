@@ -1,7 +1,9 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
-import SEO from "@/components/SEO";
+import LiveStatsBar from "@/components/LiveStatsBar";
+import PricingGlowCards from "@/components/PricingGlowCards";
 import { 
   Server, 
   Gamepad2, 
@@ -66,29 +68,24 @@ const HomePage = () => {
     },
     {
       icon: HardDrive,
-      title: "VPS & Dedicated",
-      description: "Scalable virtual and dedicated servers",
+      title: "VPS Hosting",
+      description: "Scalable virtual servers",
       color: "secondary",
-      link: "/vps-dedicated"
+      link: "/vps"
+    },
+    {
+      icon: Server,
+      title: "Dedicated Servers",
+      description: "High performance bare metal",
+      color: "tertiary",
+      link: "/dedicated"
     }
   ];
 
   return (
-    <>
-      <SEO
-        title="CoreNode Hosting – Game & Web Servers"
-        description="Premium game server hosting with AMP panel and Miami latency. Plans from $3.49/month."
-        keywords="minecraft server hosting, cheap ark server hosting, game servers miami"
-        canonical="https://example.com/"
-        jsonLd={{
-          '@context': 'https://schema.org',
-          '@type': 'WebSite',
-          name: 'CoreNode Hosting',
-          url: 'https://example.com/'
-        }}
-      />
-      <div className="min-h-screen bg-gradient-hero">
-        <Navigation />
+    <div className="min-h-screen bg-gradient-hero">
+      <Navigation />
+      <LiveStatsBar />
       
       {/* Hero Section */}
       <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
@@ -108,12 +105,15 @@ const HomePage = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button 
+              <Button
+                asChild
                 size="lg"
                 className="bg-gradient-primary hover:scale-105 glow-primary font-orbitron font-semibold px-8 py-4 text-lg group"
               >
-                Start Your Server Now
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <Link to="/minecraft">
+                  Start Your Server Now
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Link>
               </Button>
               <Button 
                 size="lg"
@@ -162,17 +162,30 @@ const HomePage = () => {
                   </div>
                   <h3 className="text-xl font-orbitron font-semibold text-foreground">{type.title}</h3>
                   <p className="text-muted-foreground font-inter">{type.description}</p>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    asChild
+                    variant="ghost"
                     className={`text-${type.color} hover:bg-${type.color}/10 font-inter group-hover:glow-${type.color}`}
                   >
-                    Learn More
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    <Link to={type.link}>
+                      Learn More
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
                   </Button>
                 </div>
               </Card>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-orbitron font-bold text-gradient-primary text-center mb-12">
+            Plans & Pricing
+          </h2>
+          <PricingGlowCards />
         </div>
       </section>
 
