@@ -7,6 +7,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import Navigation from "@/components/Navigation";
 import { Badge } from "@/components/ui/badge";
+
+interface VpsConfig {
+  vCPU: number;
+  ram: number;
+  ssd: number;
+  os: string;
+}
 import { 
   Server, 
   Cpu, 
@@ -21,7 +28,7 @@ import {
 } from "lucide-react";
 
 const VpsDedicatedPage = () => {
-  const [vpsConfig, setVpsConfig] = useState({
+  const [vpsConfig, setVpsConfig] = useState<VpsConfig>({
     vCPU: 1,
     ram: 1,
     ssd: 25,
