@@ -62,7 +62,7 @@ const ConfiguratorPanel = ({ open, onOpenChange }: ConfiguratorPanelProps) => {
 
         <div className="flex items-center justify-between">
           <span className="font-orbitron text-sm text-foreground">Mod Support</span>
-          <Checkbox checked={mods} onCheckedChange={setMods} />
+          <Checkbox checked={mods} onCheckedChange={(checked) => setMods(checked === true)} />
         </div>
 
         <Progress value={progress} className="glow-primary" />

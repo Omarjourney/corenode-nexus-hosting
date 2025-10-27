@@ -363,7 +363,7 @@ const VoiceServersPage = () => {
                     <div className="text-center mb-6">
                       <h4 className="text-xl font-orbitron font-semibold text-foreground">Discord Bot Hosting</h4>
                       <div className="text-3xl font-orbitron font-bold text-gradient-tertiary mt-2">
-                        ${calculatePrice(voicePlatforms[2], {})}/mo
+                        ${calculatePrice(voicePlatforms[2], { slots: [0] })}/mo
                       </div>
                       <p className="text-sm text-muted-foreground font-inter mt-2">
                         24/7 uptime • Auto-scaling

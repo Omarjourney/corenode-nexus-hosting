@@ -3,7 +3,13 @@ import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
 
-const posts = Object.entries(
+interface BlogPost {
+  slug: string;
+  title?: string;
+  [key: string]: string | undefined;
+}
+
+const posts: BlogPost[] = Object.entries(
   import.meta.glob("../../blog/*.md", { eager: true, import: "default", query: "?raw" })
 ).map(([path, content]) => {
   const metaMatch = /^---\n([\s\S]*?)\n---/.exec(content as string);
@@ -35,7 +41,7 @@ const BlogIndex = () => (
           {posts.map((post) => (
             <li key={post.slug}>
               <Link to={`/blog/${post.slug}`} className="text-primary underline">
-                {post.title}
+                {post.title || post.slug}
               </Link>
             </li>
           ))}
