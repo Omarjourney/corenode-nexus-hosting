@@ -32,12 +32,15 @@ const MinecraftPage = () => {
     storage: [25],
     slots: [20]
   });
+  const [selectedJavaVersion, setSelectedJavaVersion] = useState<string | null>(null);
 
   // Bedrock configuration values for backend submission
   const [ramValue, setRamValue] = useState([2]);
   const [cpuCores, setCpuCores] = useState([1]);
   const [storageSize, setStorageSize] = useState([25]);
   const [playerSlots, setPlayerSlots] = useState([10]);
+  const [selectedBedrockVersion, setSelectedBedrockVersion] = useState<string | null>(null);
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
 
   const javaVersions = [
     { name: "Vanilla", description: "Official Minecraft server" },
@@ -149,7 +152,17 @@ const MinecraftPage = () => {
                       <h4 className="font-orbitron font-medium text-foreground mb-4">Server Type</h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {javaVersions.map((version, index) => (
-                          <Card key={index} className="glass-card p-4 cursor-pointer hover-scale hover-glow-primary">
+                          <Card
+                            key={index}
+                            onClick={() => setSelectedJavaVersion(version.name)}
+                            className={
+                              `glass-card p-4 cursor-pointer hover-scale hover-glow-primary ${
+                                selectedJavaVersion === version.name ? 'ring-2 ring-primary border-primary/50' : ''
+                              }`
+                            }
+                            role="button"
+                            aria-pressed={selectedJavaVersion === version.name}
+                          >
                             <h5 className="font-orbitron font-medium text-primary">{version.name}</h5>
                             <p className="text-sm text-muted-foreground font-inter">{version.description}</p>
                           </Card>
@@ -299,7 +312,17 @@ const MinecraftPage = () => {
                       <h4 className="font-orbitron font-medium text-foreground mb-4">Server Type</h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {bedrockVersions.map((version, index) => (
-                          <Card key={index} className="glass-card p-4 cursor-pointer hover-scale hover-glow-tertiary">
+                          <Card
+                            key={index}
+                            onClick={() => setSelectedBedrockVersion(version.name)}
+                            className={
+                              `glass-card p-4 cursor-pointer hover-scale hover-glow-tertiary ${
+                                selectedBedrockVersion === version.name ? 'ring-2 ring-tertiary border-tertiary/50' : ''
+                              }`
+                            }
+                            role="button"
+                            aria-pressed={selectedBedrockVersion === version.name}
+                          >
                             <h5 className="font-orbitron font-medium text-tertiary">{version.name}</h5>
                             <p className="text-sm text-muted-foreground font-inter">{version.description}</p>
                           </Card>
@@ -443,8 +466,22 @@ const MinecraftPage = () => {
                     <span className="text-primary font-orbitron font-semibold">${addon.price}/mo</span>
                   </div>
                   <p className="text-sm text-muted-foreground font-inter mb-3">{addon.description}</p>
-                  <Button asChild size="sm" variant="outline" className="w-full border-primary/50 text-primary hover:bg-primary/10">
-                    <a href={`/order?category=minecraft&addon=${encodeURIComponent(addon.name)}`}>Add to Plan</a>
+                  <Button
+                    size="sm"
+                    variant={selectedAddOns.includes(addon.name) ? 'default' : 'outline'}
+                    className={
+                      `w-full ${selectedAddOns.includes(addon.name) ? 'bg-gradient-primary text-primary-foreground' : 'border-primary/50 text-primary hover:bg-primary/10'}`
+                    }
+                    onClick={() =>
+                      setSelectedAddOns((prev) =>
+                        prev.includes(addon.name)
+                          ? prev.filter((n) => n !== addon.name)
+                          : [...prev, addon.name]
+                      )
+                    }
+                    aria-pressed={selectedAddOns.includes(addon.name)}
+                  >
+                    {selectedAddOns.includes(addon.name) ? 'Added' : 'Add to Plan'}
                   </Button>
                 </Card>
               ))}
