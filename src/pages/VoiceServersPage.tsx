@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import Navigation from "@/components/Navigation";
+import SEO from "@/components/SEO";
 import { Badge } from "@/components/ui/badge";
 
 interface VoiceConfig {
@@ -124,6 +125,11 @@ const VoiceServersPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
+      <SEO
+        title="Voice Server Hosting – TeamSpeak, Mumble & Discord | CoreNode"
+        description="Professional voice hosting with low-latency audio, advanced permissions, and 24/7 reliability. TeamSpeak, Mumble, and Discord bot hosting."
+        keywords="teamspeak hosting, mumble hosting, discord bot hosting, voice servers"
+      />
       <Navigation />
       
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">

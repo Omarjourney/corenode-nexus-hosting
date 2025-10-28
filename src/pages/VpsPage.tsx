@@ -1,4 +1,5 @@
 import Navigation from "@/components/Navigation";
+import SEO from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AddOns from "@/components/AddOns";
@@ -14,6 +15,11 @@ const plans = [
 
 const VpsPage = () => (
   <div className="min-h-screen bg-gradient-hero">
+    <SEO
+      title="VPS Hosting – Scalable SSD VPS with Root Access | CoreNode"
+      description="Scalable VPS with SSD storage, full root access, and instant setup. Choose from Lite to Extreme plans."
+      keywords="vps hosting, ssd vps, root access, scalable servers"
+    />
     <Navigation />
     <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">

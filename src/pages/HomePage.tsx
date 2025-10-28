@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
+import SEO from "@/components/SEO";
 import LiveStatsBar from "@/components/LiveStatsBar";
 import PricingGlowCards from "@/components/PricingGlowCards";
 import DeploySimulator from "@/components/DeploySimulator";
@@ -85,6 +86,11 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
+      <SEO
+        title="CoreNode Hosting – Premium Game, Voice, Web & VPS Hosting"
+        description="Instant setup for Minecraft, 80+ game servers, TeamSpeak/Mumble/Discord hosting, web hosting, and dedicated/VPS servers. DDoS protection and 99.9% uptime."
+        keywords="game server hosting, minecraft hosting, voice servers, web hosting, vps, dedicated servers"
+      />
       <Navigation />
       <LiveStatsBar />
       

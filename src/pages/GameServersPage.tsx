@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import Navigation from "@/components/Navigation";
+import SEO from "@/components/SEO";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -232,6 +233,11 @@ const GameServersPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
+      <SEO
+        title="Game Server Hosting – 80+ Games | CoreNode"
+        description="Instant deployment for 80+ games including Rust, ARK, Valheim and more. Custom resources, mod support, and expert 24/7 support."
+        keywords="game server hosting, rust server, valheim server, ark server, instant deploy"
+      />
       <Navigation />
 
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">

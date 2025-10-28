@@ -1,9 +1,14 @@
 import Navigation from '@/components/Navigation';
+import SEO from '@/components/SEO';
 import LatencyMap from '@/components/LatencyMap';
 
 export default function LatencyPage() {
   return (
     <div className="min-h-screen bg-gradient-hero">
+      <SEO
+        title="Latency Map – Region Ping Preview | CoreNode"
+        description="Preview estimated latency from your location to CoreNode regions to choose the best performance."
+      />
       <Navigation />
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto space-y-6">
@@ -17,4 +22,3 @@ export default function LatencyPage() {
     </div>
   );
 }
-

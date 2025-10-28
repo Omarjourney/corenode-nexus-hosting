@@ -3,6 +3,7 @@ import Navigation from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import SEO from "@/components/SEO";
 
 const plans = [
   {
@@ -54,6 +55,11 @@ const WebHostingPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
+      <SEO
+        title="Web Hosting – Fast & Reliable cPanel | CoreNode"
+        description="Affordable web hosting with free SSL, backups, and CDN. Choose Basic, Standard, or Premium plans with instant activation."
+        keywords="web hosting, cpanel hosting, ssl, backups, cdn"
+      />
       <Navigation />
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">

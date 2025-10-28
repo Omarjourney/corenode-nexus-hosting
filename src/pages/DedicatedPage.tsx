@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
+import SEO from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,11 @@ const DedicatedPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
+      <SEO
+        title="Dedicated Servers – High Performance Bare Metal | CoreNode"
+        description="High-performance dedicated servers with Ryzen/Xeon CPUs, NVMe storage, and 10Gbps networking. Low latency locations."
+        keywords="dedicated servers, bare metal, ryzen server, xeon server, nvme"
+      />
       <Navigation />
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">

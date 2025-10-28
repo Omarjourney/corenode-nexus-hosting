@@ -1,4 +1,5 @@
 import Navigation from '@/components/Navigation';
+import SEO from '@/components/SEO';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,10 @@ export default function LaunchLabPage() {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
+      <SEO
+        title="Launch Lab – Visual Server Builder | CoreNode"
+        description="Build your server visually with live pricing for CPU, RAM, and storage. Share your configuration and deploy in seconds."
+      />
       <Navigation />
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto space-y-8">
@@ -59,4 +64,3 @@ export default function LaunchLabPage() {
     </div>
   );
 }
-
