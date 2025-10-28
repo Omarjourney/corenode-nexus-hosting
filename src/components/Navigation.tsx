@@ -11,7 +11,8 @@ const Navigation = () => {
   const [panelOpen, setPanelOpen] = useState(false);
   const location = useLocation();
 
-  const navItems = [
+  type Section = string | { label: string; to: string };
+  const navItems: { name: string; href: string; dropdown?: boolean; sections?: Section[] }[] = [
     {
       name: "Minecraft",
       href: "/minecraft",
@@ -47,6 +48,16 @@ const Navigation = () => {
       href: "/dedicated",
       dropdown: true,
       sections: ["Entry", "Pro", "Extreme"]
+    },
+    {
+      name: "Labs",
+      href: "/launch-lab",
+      dropdown: true,
+      sections: [
+        { label: "Launch Lab", to: "/launch-lab" },
+        { label: "Pro Configurator", to: "/pro-configurator" },
+        { label: "Latency Map", to: "/latency" },
+      ]
     }
   ];
 
@@ -96,15 +107,21 @@ const Navigation = () => {
                       onMouseEnter={() => setActiveDropdown(item.name)}
                       onMouseLeave={() => setActiveDropdown(null)}
                     >
-                      {item.sections.map((section, index) => (
-                        <Link
-                          key={index}
-                          to={`${item.href}#${section.toLowerCase().replace(/\s+/g, '-')}`}
-                          className="block px-4 py-2 text-sm text-foreground/80 hover:text-primary hover:bg-glass-surface transition-all duration-200"
-                        >
-                          {section}
-                        </Link>
-                      ))}
+                      {item.sections?.map((section, index) => {
+                        const label = typeof section === 'string' ? section : section.label;
+                        const to = typeof section === 'string'
+                          ? `${item.href}#${section.toLowerCase().replace(/\s+/g, '-')}`
+                          : section.to;
+                        return (
+                          <Link
+                            key={index}
+                            to={to}
+                            className="block px-4 py-2 text-sm text-foreground/80 hover:text-primary hover:bg-glass-surface transition-all duration-200"
+                          >
+                            {label}
+                          </Link>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
