@@ -222,8 +222,8 @@ const VoiceServersPage = () => {
                         {teamSpeakConfig.slots[0]} slots • {teamSpeakConfig.storage[0]}GB storage
                       </p>
                     </div>
-                    <Button className="w-full bg-gradient-primary glow-primary font-orbitron mb-4">
-                      Deploy TeamSpeak Server
+                    <Button asChild className="w-full bg-gradient-primary glow-primary font-orbitron mb-4">
+                      <a href={`/order?category=voice&type=TeamSpeak&slots=${teamSpeakConfig.slots[0]}&storage=${teamSpeakConfig.storage[0]}`}>Deploy TeamSpeak Server</a>
                     </Button>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-xs">
@@ -295,8 +295,8 @@ const VoiceServersPage = () => {
                         {mumbleConfig.slots[0]} slots • Ultra-low latency
                       </p>
                     </div>
-                    <Button className="w-full bg-gradient-secondary glow-secondary font-orbitron mb-4">
-                      Deploy Mumble Server
+                    <Button asChild className="w-full bg-gradient-secondary glow-secondary font-orbitron mb-4">
+                      <a href={`/order?category=voice&type=Mumble&slots=${mumbleConfig.slots[0]}`}>Deploy Mumble Server</a>
                     </Button>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-xs">
@@ -369,8 +369,8 @@ const VoiceServersPage = () => {
                         24/7 uptime • Auto-scaling
                       </p>
                     </div>
-                    <Button className="w-full bg-gradient-tertiary glow-tertiary font-orbitron mb-4">
-                      Deploy Discord Bot
+                    <Button asChild className="w-full bg-gradient-tertiary glow-tertiary font-orbitron mb-4">
+                      <a href={`/order?category=voice&type=DiscordBot`}>Deploy Discord Bot</a>
                     </Button>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-xs">

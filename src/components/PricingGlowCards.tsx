@@ -71,8 +71,8 @@ const PricingCard = ({ plan }: { plan: Plan }) => {
         <p className="text-4xl font-orbitron font-bold text-gradient-primary">
           ${plan.price}
         </p>
-        <Button variant="ghost" className="hover-glow-primary">
-          Select Plan
+        <Button asChild variant="ghost" className="hover-glow-primary">
+          <a href={`/order?plan=${encodeURIComponent(plan.name)}&price=${plan.price}`}>Select Plan</a>
         </Button>
       </div>
 

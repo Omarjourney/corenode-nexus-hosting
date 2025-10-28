@@ -116,12 +116,15 @@ const HomePage = () => {
                 </Link>
               </Button>
               <Button 
+                asChild
                 size="lg"
                 variant="outline"
                 className="border-primary/50 text-primary hover:bg-primary/10 font-orbitron font-medium px-8 py-4 text-lg group hover-glow-primary"
               >
-                <Play className="mr-2 h-5 w-5" />
-                Watch Demo
+                <Link to="/game-servers">
+                  <Play className="mr-2 h-5 w-5" />
+                  Watch Demo
+                </Link>
               </Button>
             </div>
           </div>

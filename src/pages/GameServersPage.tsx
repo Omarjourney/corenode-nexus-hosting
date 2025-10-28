@@ -342,11 +342,14 @@ const GameServersPage = () => {
 
                   <div className="pt-2">
                     <Button
+                      asChild
                       size="sm"
                       className="w-full bg-gradient-primary glow-primary font-orbitron text-xs"
                     >
-                      Configure & Deploy
-                      <ArrowRight className="ml-1 h-3 w-3" />
+                      <a href={`/order?game=${encodeURIComponent(game.name)}`}> 
+                        Configure & Deploy
+                        <ArrowRight className="ml-1 h-3 w-3" />
+                      </a>
                     </Button>
                   </div>
                 </div>

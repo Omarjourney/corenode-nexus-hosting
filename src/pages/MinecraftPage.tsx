@@ -250,8 +250,10 @@ const MinecraftPage = () => {
                         </li>
                       ))}
                     </ul>
-                    <Button className="w-full bg-gradient-primary glow-primary font-orbitron">
-                      Start Basic Server
+                    <Button asChild className="w-full bg-gradient-primary glow-primary font-orbitron">
+                      <a href={`/order?category=minecraft&edition=java&plan=basic&ram=${javaConfig.ram[0]}&cpu=${javaConfig.cpu[0]}&storage=${javaConfig.storage[0]}&slots=${javaConfig.slots[0]}`}>
+                        Start Basic Server
+                      </a>
                     </Button>
                   </Card>
 
@@ -272,8 +274,10 @@ const MinecraftPage = () => {
                         </li>
                       ))}
                     </ul>
-                    <Button className="w-full bg-gradient-secondary glow-secondary font-orbitron">
-                      Start Premium Server
+                    <Button asChild className="w-full bg-gradient-secondary glow-secondary font-orbitron">
+                      <a href={`/order?category=minecraft&edition=java&plan=premium&ram=${javaConfig.ram[0]}&cpu=${javaConfig.cpu[0]}&storage=${javaConfig.storage[0]}&slots=${javaConfig.slots[0]}`}>
+                        Start Premium Server
+                      </a>
                     </Button>
                   </Card>
                 </div>
@@ -417,8 +421,10 @@ const MinecraftPage = () => {
                         24/7 support
                       </li>
                     </ul>
-                    <Button className="w-full bg-gradient-tertiary glow-tertiary font-orbitron">
-                      Start Bedrock Server
+                    <Button asChild className="w-full bg-gradient-tertiary glow-tertiary font-orbitron">
+                      <a href={`/order?category=minecraft&edition=bedrock&ram=${ramValue[0]}&cpu=${cpuCores[0]}&storage=${storageSize[0]}&slots=${playerSlots[0]}`}>
+                        Start Bedrock Server
+                      </a>
                     </Button>
                   </Card>
                 </div>
@@ -437,8 +443,8 @@ const MinecraftPage = () => {
                     <span className="text-primary font-orbitron font-semibold">${addon.price}/mo</span>
                   </div>
                   <p className="text-sm text-muted-foreground font-inter mb-3">{addon.description}</p>
-                  <Button size="sm" variant="outline" className="w-full border-primary/50 text-primary hover:bg-primary/10">
-                    Add to Plan
+                  <Button asChild size="sm" variant="outline" className="w-full border-primary/50 text-primary hover:bg-primary/10">
+                    <a href={`/order?category=minecraft&addon=${encodeURIComponent(addon.name)}`}>Add to Plan</a>
                   </Button>
                 </Card>
               ))}
