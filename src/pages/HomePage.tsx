@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
 import LiveStatsBar from "@/components/LiveStatsBar";
 import PricingGlowCards from "@/components/PricingGlowCards";
+import DeploySimulator from "@/components/DeploySimulator";
 import { 
   Server, 
   Gamepad2, 
@@ -126,6 +127,7 @@ const HomePage = () => {
                   Watch Demo
                 </Link>
               </Button>
+              <DeploySimulator />
             </div>
           </div>
 
