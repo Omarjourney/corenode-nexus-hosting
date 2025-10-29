@@ -58,7 +58,7 @@ export default function LatencyMap() {
     <Card className="glass-card p-6">
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 min-h-[260px] bg-glass-surface rounded relative overflow-hidden grid place-items-center">
-          <RotatingGlobe user={user} />
+          <RotatingGlobe user={user} measure={measure} />
           <div className="absolute top-3 left-3 text-xs text-muted-foreground">Latency Preview</div>
           {user && (
             <div className="absolute bottom-3 left-3 text-xs text-foreground">
@@ -98,7 +98,7 @@ export default function LatencyMap() {
   );
 }
 
-function RotatingGlobe({ user }: { user: Region | null }) {
+function RotatingGlobe({ user, measure }: { user: Region | null; measure: { name: string; ms: number }[] }) {
   const R = 110; // radius in px for drawing
   // current central longitude (degrees). Start at 0, animate to user.lon.
   const [centerLon, setCenterLon] = useState(0);
@@ -166,6 +166,26 @@ function RotatingGlobe({ user }: { user: Region | null }) {
     REGIONS.map((r) => ({ r, pt: project(r.lat, r.lon, centerLon, R) })).filter((x) => !!x.pt) as { r: Region; pt: { x: number; y: number } }[],
   [centerLon]);
 
+  function msFor(name: string) {
+    return measure.find((m) => m.name === name)?.ms;
+  }
+
+  function arcPath(a: { x: number; y: number }, b: { x: number; y: number }) {
+    const mx = (a.x + b.x) / 2;
+    const my = (a.y + b.y) / 2;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.sqrt(dx * dx + dy * dy) || 1;
+    // perpendicular normal
+    const nx = -dy / len;
+    const ny = dx / len;
+    // lift control point proportional to distance
+    const lift = Math.min(20, len * 0.2);
+    const cx = mx + nx * lift;
+    const cy = my + ny * lift;
+    return `M ${a.x} ${a.y} Q ${cx} ${cy} ${b.x} ${b.y}`;
+  }
+
   return (
     <svg width={R * 2 + 20} height={R * 2 + 20} viewBox={`${-R - 10} ${-R - 10} ${R * 2 + 20} ${R * 2 + 20}`}>
       {/* Globe circle + gradients */}
@@ -178,6 +198,10 @@ function RotatingGlobe({ user }: { user: Region | null }) {
           <stop offset="0%" stopColor="rgba(80,120,255,0.2)" />
           <stop offset="100%" stopColor="rgba(80,120,255,0.0)" />
         </radialGradient>
+        <style>{`
+          @keyframes dashMove { to { stroke-dashoffset: -40; } }
+          .arc { stroke-dasharray: 6 8; animation: dashMove 2.2s linear infinite; }
+        `}</style>
       </defs>
       <circle cx={0} cy={0} r={R} fill="url(#ocean)" stroke="rgba(255,255,255,0.15)" />
       <circle cx={0} cy={0} r={R} fill="url(#atmo)" />
@@ -199,17 +223,30 @@ function RotatingGlobe({ user }: { user: Region | null }) {
           </text>
         </g>
       )}
-      {/* Regions and connections */}
+      {/* Regions and animated connections */}
       <g>
-        {regionPoints.map(({ r, pt }) => (
-          <g key={r.name}>
-            {userPoint && (
-              <line x1={userPoint.x} y1={userPoint.y} x2={pt.x} y2={pt.y} stroke="rgba(255,255,255,0.12)" strokeWidth={0.8} />
-            )}
-            <circle cx={pt.x} cy={pt.y} r={2.5} fill="#10b981" />
-            <text x={pt.x + 5} y={pt.y + 3} fontSize={9} fill="rgba(255,255,255,0.7)">{r.name}</text>
-          </g>
-        ))}
+        {regionPoints.map(({ r, pt }, idx) => {
+          const ms = msFor(r.name) ?? 60;
+          const rad = Math.max(2, 6 - ms / 40); // bigger for better (lower) latency
+          const hue = Math.max(0, 130 - ms); // rough color shift by latency
+          const stroke = `hsla(${hue},70%,60%,0.5)`;
+          return (
+            <g key={r.name}>
+              {userPoint && (
+                <path
+                  d={arcPath(userPoint, pt)}
+                  stroke={stroke}
+                  className="arc"
+                  strokeWidth={1.2}
+                  fill="none"
+                  style={{ animationDelay: `${(idx % 3) * 0.3}s` }}
+                />
+              )}
+              <circle cx={pt.x} cy={pt.y} r={rad} fill="#10b981" />
+              <text x={pt.x + 5} y={pt.y + 3} fontSize={9} fill="rgba(255,255,255,0.7)">{r.name}</text>
+            </g>
+          );
+        })}
       </g>
     </svg>
   );
