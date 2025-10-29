@@ -54,17 +54,11 @@ export default function LatencyMap() {
     );
   }, [user]);
 
-  const [mode, setMode] = useState<'map' | 'globe'>('map');
-
   return (
     <Card className="glass-card p-6">
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 min-h-[260px] bg-glass-surface rounded relative overflow-hidden grid place-items-center">
-          {mode === 'globe' ? (
-            <RotatingGlobe user={user} measure={measure} />
-          ) : (
-            <FlatMap user={user} measure={measure} />
-          )}
+          <RotatingGlobe user={user} measure={measure} />
           <div className="absolute top-3 left-3 text-xs text-muted-foreground">Latency Preview</div>
           {user && (
             <div className="absolute bottom-3 left-3 text-xs text-foreground">
@@ -75,11 +69,7 @@ export default function LatencyMap() {
         <div className="w-full lg:w-72">
           <div className="flex items-center justify-between mb-2">
             <h4 className="font-orbitron font-semibold">Regions</h4>
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant={mode === 'map' ? 'default' : 'outline'} onClick={() => setMode('map')}>Map</Button>
-              <Button size="sm" variant={mode === 'globe' ? 'default' : 'outline'} onClick={() => setMode('globe')}>Globe</Button>
-              <Button size="sm" variant="outline" onClick={() => setUser(null)}>Reset</Button>
-            </div>
+            <Button size="sm" variant="outline" onClick={() => setUser(null)}>Reset</Button>
           </div>
           <ul className="space-y-2">
             {REGIONS.map((r) => {
@@ -276,66 +266,4 @@ function project(latDeg: number, lonDeg: number, centerLonDeg: number, R: number
   return { x, y };
 }
 
-function FlatMap({ user, measure }: { user: Region | null; measure: { name: string; ms: number }[] }) {
-  const W = 440;
-  const H = 240;
-  const pad = 12;
-  const userXY = useMemo(() => (user ? llToXY(user.lat, user.lon, W, H, pad) : null), [user]);
-  function msFor(name: string) {
-    return measure.find((m) => m.name === name)?.ms;
-  }
-  return (
-    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="rounded">
-      <defs>
-        <linearGradient id="mapBg" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="#0b1220" />
-          <stop offset="100%" stopColor="#0e1b33" />
-        </linearGradient>
-      </defs>
-      <rect x={0} y={0} width={W} height={H} fill="url(#mapBg)" />
-      {/* World land overlay: prefer local asset; external public-domain fallback */}
-      <image href="/maps/world-110m.svg" x={pad} y={pad} width={W - pad * 2} height={H - pad * 2} preserveAspectRatio="none" opacity={0.4} />
-      <image href="/maps/world.svg" x={pad} y={pad} width={W - pad * 2} height={H - pad * 2} preserveAspectRatio="none" opacity={0.35} />
-      <image href="https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg" x={pad} y={pad} width={W - pad * 2} height={H - pad * 2} preserveAspectRatio="none" opacity={0.3} />
-      {/* Graticule */}
-      <g stroke="rgba(255,255,255,0.08)" strokeWidth={1}>
-        {Array.from({ length: 12 }).map((_, i) => (
-          <line key={`v${i}`} x1={pad + ((W - pad * 2) / 11) * i} y1={pad} x2={pad + ((W - pad * 2) / 11) * i} y2={H - pad} />
-        ))}
-        {Array.from({ length: 6 }).map((_, i) => (
-          <line key={`h${i}`} x1={pad} y1={pad + ((H - pad * 2) / 5) * i} x2={W - pad} y2={pad + ((H - pad * 2) / 5) * i} />
-        ))}
-      </g>
-      {/* Regions + connections */}
-      {REGIONS.map((r, idx) => {
-        const pt = llToXY(r.lat, r.lon, W, H, pad);
-        const ms = msFor(r.name) ?? 60;
-        const rad = Math.max(2, 6 - ms / 40);
-        const hue = Math.max(0, 130 - ms);
-        const stroke = `hsla(${hue},70%,60%,0.5)`;
-        return (
-          <g key={r.name}>
-            {userXY && (
-              <line x1={userXY.x} y1={userXY.y} x2={pt.x} y2={pt.y} stroke={stroke} strokeWidth={1.2} />
-            )}
-            <circle cx={pt.x} cy={pt.y} r={rad} fill="#10b981" />
-            <text x={pt.x + 6} y={pt.y - 6} fontSize={10} fill="rgba(255,255,255,0.85)">{r.name}</text>
-          </g>
-        );
-      })}
-      {/* User */}
-      {userXY && (
-        <g>
-          <circle cx={userXY.x} cy={userXY.y} r={3} fill="#7c3aed" />
-          <text x={userXY.x + 6} y={userXY.y - 6} fontSize={10} fill="rgba(255,255,255,0.85)">You</text>
-        </g>
-      )}
-    </svg>
-  );
-}
-
-function llToXY(lat: number, lon: number, W: number, H: number, pad: number) {
-  const x = pad + ((lon + 180) / 360) * (W - pad * 2);
-  const y = pad + ((90 - lat) / 180) * (H - pad * 2);
-  return { x, y };
-}
+// Map view removed per request; globe only
