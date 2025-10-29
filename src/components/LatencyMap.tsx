@@ -166,6 +166,59 @@ function RotatingGlobe({ user, measure }: { user: Region | null; measure: { name
     REGIONS.map((r) => ({ r, pt: project(r.lat, r.lon, centerLon, R) })).filter((x) => !!x.pt) as { r: Region; pt: { x: number; y: number } }[],
   [centerLon]);
 
+  // Very rough continent outlines (lat, lon) polylines
+  const LAND_OUTLINES: Array<Array<[number, number]>> = useMemo(() => [
+    // North America (very coarse)
+    [
+      [70, -150], [60, -160], [55, -150], [50, -140], [45, -130], [40, -125], [35, -120], [32, -117],
+      [28, -114], [25, -108], [22, -104], [20, -100], [18, -94], [25, -90], [29, -85], [25, -80],
+      [30, -80], [35, -78], [40, -82], [45, -90], [50, -95], [55, -100], [60, -105]
+    ],
+    // South America
+    [
+      [12, -81], [5, -79], [0, -78], [-5, -77], [-10, -75], [-15, -72], [-20, -70], [-25, -66],
+      [-30, -60], [-35, -57], [-40, -55], [-45, -58], [-50, -62], [-53, -70], [-50, -75], [-40, -78],
+      [-30, -78], [-20, -78], [-10, -80], [0, -81]
+    ],
+    // Europe + North Africa
+    [
+      [72, -10], [60, -5], [55, 0], [50, 5], [48, 10], [45, 15], [42, 10], [40, 5], [36, -6],
+      [34, 0], [32, 5], [30, 10], [28, 15], [26, 10], [24, 5], [22, 0], [20, -5], [25, -10], [30, -10]
+    ],
+    // Africa (very coarse loop)
+    [
+      [36, -6], [30, 0], [25, 5], [20, 10], [10, 12], [5, 15], [0, 15], [-5, 12], [-10, 15], [-15, 18],
+      [-20, 20], [-25, 20], [-30, 15], [-35, 10], [-35, 0], [-30, -5], [-25, -10], [-15, -10], [-5, -5], [5, -2], [15, -4], [25, -5], [30, -2], [36, -6]
+    ],
+    // Asia
+    [
+      [55, 30], [60, 45], [60, 60], [55, 75], [50, 90], [40, 100], [30, 110], [22, 120], [20, 130], [22, 140], [30, 145], [40, 135], [50, 120], [55, 100], [55, 80], [50, 60], [45, 45], [40, 35]
+    ],
+    // Australia
+    [
+      [-10, 130], [-15, 135], [-20, 140], [-25, 145], [-30, 147], [-35, 150], [-37, 145], [-35, 140], [-30, 135], [-25, 132], [-20, 130]
+    ]
+  ], []);
+
+  const landSegments = useMemo(() => {
+    const segs: Array<{ x1: number; y1: number; x2: number; y2: number }> = [];
+    for (const poly of LAND_OUTLINES) {
+      let prev: { x: number; y: number } | null = null;
+      for (const [lat, lon] of poly) {
+        const p = project(lat, lon, centerLon, R);
+        if (p && prev) {
+          segs.push({ x1: prev.x, y1: prev.y, x2: p.x, y2: p.y });
+          prev = p;
+        } else if (p) {
+          prev = p;
+        } else {
+          prev = null;
+        }
+      }
+    }
+    return segs;
+  }, [LAND_OUTLINES, centerLon]);
+
   function msFor(name: string) {
     return measure.find((m) => m.name === name)?.ms;
   }
@@ -205,6 +258,12 @@ function RotatingGlobe({ user, measure }: { user: Region | null; measure: { name
       </defs>
       <circle cx={0} cy={0} r={R} fill="url(#ocean)" stroke="rgba(255,255,255,0.15)" />
       <circle cx={0} cy={0} r={R} fill="url(#atmo)" />
+      {/* Land outlines */}
+      <g stroke="rgba(255,255,255,0.28)" strokeWidth={0.6} fill="none">
+        {landSegments.map((l, i) => (
+          <line key={`land-${i}`} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />
+        ))}
+      </g>
       {/* Graticule */}
       <g stroke="rgba(255,255,255,0.2)" strokeWidth={0.5}>
         {meridians.map((l, i) => (
