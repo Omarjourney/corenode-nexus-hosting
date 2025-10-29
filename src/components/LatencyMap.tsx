@@ -293,6 +293,8 @@ function FlatMap({ user, measure }: { user: Region | null; measure: { name: stri
         </linearGradient>
       </defs>
       <rect x={0} y={0} width={W} height={H} fill="url(#mapBg)" />
+      {/* World land silhouette (lightweight) */}
+      <image href="/maps/world.svg" x={pad} y={pad} width={W - pad * 2} height={H - pad * 2} preserveAspectRatio="none" opacity={0.35} />
       {/* Graticule */}
       <g stroke="rgba(255,255,255,0.08)" strokeWidth={1}>
         {Array.from({ length: 12 }).map((_, i) => (

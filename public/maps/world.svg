@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 180" width="360" height="180">
+  <defs>
+    <linearGradient id="land" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#1f4a6e"/>
+      <stop offset="100%" stop-color="#23608f"/>
+    </linearGradient>
+  </defs>
+  <rect width="360" height="180" fill="#0b1220"/>
+  <!-- Extremely simplified land silhouettes for fast, lightweight hint of continents -->
+  <!-- Americas -->
+  <path fill="url(#land)" opacity="0.9" d="M60,35 C50,55 65,75 55,90 C45,105 55,120 70,130 C85,140 90,150 85,160 C110,150 125,145 135,135 C140,125 140,115 135,105 C130,95 130,85 120,75 C110,65 100,60 95,50 C90,40 80,35 60,35 Z"/>
+  <!-- Africa/Europe -->
+  <path fill="url(#land)" opacity="0.9" d="M180,45 C195,40 210,38 225,42 C235,45 240,55 238,63 C235,72 225,78 220,86 C215,94 218,102 210,108 C200,116 190,118 182,114 C175,110 172,102 168,95 C165,88 162,80 165,72 C168,64 170,55 180,45 Z"/>
+  <!-- Asia -->
+  <path fill="url(#land)" opacity="0.9" d="M240,50 C255,45 270,46 285,52 C298,58 310,66 315,76 C318,82 314,90 306,92 C300,94 294,92 288,90 C280,88 272,88 266,92 C260,96 252,98 246,96 C240,94 238,88 236,82 C234,76 232,68 236,62 C238,58 240,54 240,50 Z"/>
+  <!-- Australia -->
+  <path fill="url(#land)" opacity="0.9" d="M280,130 C288,126 298,126 306,130 C312,134 318,140 316,148 C314,154 308,156 302,156 C296,156 290,154 286,150 C282,146 280,140 280,136 Z"/>
+  <!-- Greenland -->
+  <path fill="url(#land)" opacity="0.9" d="M130,18 C138,16 146,18 150,22 C154,26 154,32 150,36 C146,40 138,40 132,38 C128,36 126,32 126,28 Z"/>
+</svg>
+
