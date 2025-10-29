@@ -84,7 +84,12 @@ const Navigation = () => {
           <div className="hidden lg:block">
             <div className="ml-10 flex items-baseline space-x-8">
               {navItems.map((item) => (
-                <div key={item.name} className="relative group">
+                <div
+                  key={item.name}
+                  className="relative group"
+                  onMouseEnter={() => setActiveDropdown(item.name)}
+                  onMouseLeave={() => setActiveDropdown(null)}
+                >
                   <Link
                     to={item.href}
                     className={cn(
@@ -93,8 +98,6 @@ const Navigation = () => {
                         ? "text-primary glow-primary" 
                         : "text-foreground/80 hover-glow-primary"
                     )}
-                    onMouseEnter={() => setActiveDropdown(item.name)}
-                    onMouseLeave={() => setActiveDropdown(null)}
                   >
                     <span>{item.name}</span>
                     {item.dropdown && <ChevronDown className="w-4 h-4" />}
@@ -103,9 +106,7 @@ const Navigation = () => {
                   {/* Dropdown Menu */}
                   {item.dropdown && activeDropdown === item.name && (
                     <div 
-                      className="absolute top-full left-0 w-64 glass-card mt-2 py-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"
-                      onMouseEnter={() => setActiveDropdown(item.name)}
-                      onMouseLeave={() => setActiveDropdown(null)}
+                      className="absolute top-full left-0 w-64 glass-card mt-2 py-4 shadow-xl border border-glass-border"
                     >
                       {item.sections?.map((section, index) => {
                         const label = typeof section === 'string' ? section : section.label;
