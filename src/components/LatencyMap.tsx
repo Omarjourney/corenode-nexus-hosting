@@ -34,12 +34,14 @@ export default function LatencyMap() {
   const [measure, setMeasure] = useState<{ name: string; ms: number }[]>([]);
 
   useEffect(() => {
+    // Show a reasonable default immediately, then try to refine via geolocation
+    setUser({ name: 'You', lat: 40.7, lon: -74.0 }); // NYC fallback
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           setUser({ name: 'You', lat: pos.coords.latitude, lon: pos.coords.longitude });
         },
-        () => setUser(null),
+        () => {/* keep fallback */},
         { enableHighAccuracy: false, timeout: 2000 }
       );
     }
@@ -62,7 +64,9 @@ export default function LatencyMap() {
           </div>
           <div className="absolute top-3 left-3 text-xs text-muted-foreground">Latency Preview</div>
           {user && (
-            <div className="absolute bottom-3 left-3 text-xs text-foreground">Your position detected ✓</div>
+            <div className="absolute bottom-3 left-3 text-xs text-foreground">
+              {`Using ${'geolocation' in navigator ? 'your location' : 'fallback location'}`}
+            </div>
           )}
         </div>
         <div className="w-full lg:w-72">
@@ -81,21 +85,18 @@ export default function LatencyMap() {
               );
             })}
           </ul>
-          {!user && (
-            <Button className="mt-4 w-full" onClick={() => {
-              if ('geolocation' in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                  (pos) => setUser({ name: 'You', lat: pos.coords.latitude, lon: pos.coords.longitude }),
-                  () => setUser({ name: 'You', lat: 40.7, lon: -74.0 })
-                );
-              } else {
-                setUser({ name: 'You', lat: 40.7, lon: -74.0 });
-              }
-            }}>Detect Location</Button>
-          )}
+          <Button className="mt-4 w-full" onClick={() => {
+            if ('geolocation' in navigator) {
+              navigator.geolocation.getCurrentPosition(
+                (pos) => setUser({ name: 'You', lat: pos.coords.latitude, lon: pos.coords.longitude }),
+                () => setUser({ name: 'You', lat: 40.7, lon: -74.0 })
+              );
+            } else {
+              setUser({ name: 'You', lat: 40.7, lon: -74.0 });
+            }
+          }}>Detect Location</Button>
         </div>
       </div>
     </Card>
   );
 }
-
