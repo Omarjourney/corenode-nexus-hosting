@@ -162,17 +162,25 @@ function RotatingGlobe({ user }: { user: Region | null }) {
   }, [centerLon]);
 
   const userPoint = user ? project(user.lat, user.lon, centerLon, R) : null;
+  const regionPoints = useMemo(() =>
+    REGIONS.map((r) => ({ r, pt: project(r.lat, r.lon, centerLon, R) })).filter((x) => !!x.pt) as { r: Region; pt: { x: number; y: number } }[],
+  [centerLon]);
 
   return (
     <svg width={R * 2 + 20} height={R * 2 + 20} viewBox={`${-R - 10} ${-R - 10} ${R * 2 + 20} ${R * 2 + 20}`}>
-      {/* Globe circle */}
+      {/* Globe circle + gradients */}
       <defs>
-        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgba(125,125,255,0.15)" />
-          <stop offset="100%" stopColor="rgba(125,125,255,0.02)" />
+        <radialGradient id="ocean" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stopColor="#0a2342" />
+          <stop offset="100%" stopColor="#0d2e59" />
+        </radialGradient>
+        <radialGradient id="atmo" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="rgba(80,120,255,0.2)" />
+          <stop offset="100%" stopColor="rgba(80,120,255,0.0)" />
         </radialGradient>
       </defs>
-      <circle cx={0} cy={0} r={R} fill="url(#glow)" stroke="rgba(255,255,255,0.1)" />
+      <circle cx={0} cy={0} r={R} fill="url(#ocean)" stroke="rgba(255,255,255,0.15)" />
+      <circle cx={0} cy={0} r={R} fill="url(#atmo)" />
       {/* Graticule */}
       <g stroke="rgba(255,255,255,0.2)" strokeWidth={0.5}>
         {meridians.map((l, i) => (
@@ -191,6 +199,18 @@ function RotatingGlobe({ user }: { user: Region | null }) {
           </text>
         </g>
       )}
+      {/* Regions and connections */}
+      <g>
+        {regionPoints.map(({ r, pt }) => (
+          <g key={r.name}>
+            {userPoint && (
+              <line x1={userPoint.x} y1={userPoint.y} x2={pt.x} y2={pt.y} stroke="rgba(255,255,255,0.12)" strokeWidth={0.8} />
+            )}
+            <circle cx={pt.x} cy={pt.y} r={2.5} fill="#10b981" />
+            <text x={pt.x + 5} y={pt.y + 3} fontSize={9} fill="rgba(255,255,255,0.7)">{r.name}</text>
+          </g>
+        ))}
+      </g>
     </svg>
   );
 }
