@@ -12,16 +12,9 @@ const REGIONS: Region[] = [
   { name: 'Frankfurt', lat: 50.1109, lon: 8.6821 },
   { name: 'São Paulo', lat: -23.5505, lon: -46.6333 },
 ];
+type RegionLatency = { region: Region; latency: number | null };
 
-type Marker = { location: [number, number]; size: number };
-const STATIC_MARKERS: Marker[] = [
-  { location: [37.7595, -122.4367], size: 0.03 },
-  { location: [40.7128, -74.006], size: 0.1 },
-  { location: [51.5074, -0.1278], size: 0.05 },
-  { location: [35.6762, 139.6503], size: 0.05 },
-  { location: [22.3193, 114.1694], size: 0.03 },
-  { location: [-33.8688, 151.2093], size: 0.03 },
-];
+type Marker = { location: [number, number]; size: number; color?: [number, number, number] };
 type RegionLatency = { region: Region; latency: number | null };
 
 function approximateLatencyKm(km: number) {
@@ -78,31 +71,91 @@ export default function LatencyMap() {
     [measure],
   );
 
+  const bestRegion = useMemo(() => {
+    const sorted = regionLatencies
+      .filter((entry) => entry.latency !== null)
+      .sort((a, b) => (a.latency ?? Infinity) - (b.latency ?? Infinity));
+    return sorted[0] ?? null;
+  }, [regionLatencies]);
+
   const statusText = user
-    ? `Using ${'geolocation' in navigator ? 'your location' : 'fallback location'}`
+    ? `Using ${'geolocation' in navigator ? 'your live location' : 'fallback location'}`
     : 'Detect your location to personalise latency estimates';
 
   return (
-    <Card className="bg-[#080b15] text-white">
-      <div className="flex flex-col gap-8 lg:flex-row">
-        <div className="flex-1 rounded-xl border border-white/10 bg-[#0f1323] p-6">
-          <div className="text-sm uppercase tracking-[0.3em] text-cyan-200/70">Latency Preview</div>
-          <div className="mt-4 aspect-[4/3] w-full overflow-hidden rounded-xl border border-cyan-500/30 bg-[#05070f]">
-            <div className="relative h-full w-full">
-              <LatencyGlobe user={user} />
-              <div className="pointer-events-none absolute inset-0 rounded-full border border-cyan-500/40" />
-              <div className="pointer-events-none absolute inset-[12%] rounded-full border border-cyan-500/10" />
+    <Card className="relative overflow-hidden border border-white/10 bg-black/40 p-0 text-white">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-10 top-1/3 h-64 w-64 rounded-full bg-sky-500/30 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-violet-500/20 blur-3xl" />
+      </div>
+      <div className="relative grid gap-10 p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="relative flex flex-col items-center justify-center">
+          <div className="relative mx-auto aspect-square w-full max-w-lg">
+            <div className="absolute inset-0 rounded-full border border-white/20" />
+            <div className="absolute inset-10 rounded-full bg-gradient-to-br from-sky-500/10 via-indigo-500/5 to-transparent blur-2xl" />
+            <LatencyGlobe user={user} regions={regionLatencies} />
+            <div className="pointer-events-none absolute left-6 top-6 rounded-full bg-black/60 px-3 py-1 text-xs uppercase tracking-wide text-white/70 backdrop-blur">
+              Latency preview
             </div>
+            {user && (
+              <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-4 py-1 text-xs text-white/70 backdrop-blur">
+                {statusText}
+              </div>
+            )}
           </div>
-          <div className="mt-4 text-xs text-cyan-100/70">{statusText}</div>
         </div>
-        <div className="w-full max-w-sm space-y-6">
-          <div className="flex items-center justify-between">
-            <h4 className="font-orbitron text-lg font-semibold text-white">Regions</h4>
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h4 className="font-orbitron text-lg font-semibold tracking-wide text-white">
+              Region latency snapshot
+            </h4>
+            <p className="text-sm text-white/70">
+              Compare our core locations and see how close you are to blazing-fast performance. Latencies update instantly when you detect your location.
+            </p>
+          </div>
+          {bestRegion && (
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div className="text-xs uppercase tracking-[0.3em] text-white/60">Best match</div>
+              <div className="mt-2 flex items-baseline justify-between">
+                <div className="text-2xl font-semibold text-white">{bestRegion.region.name}</div>
+                <div className="font-mono text-lg text-emerald-300">{bestRegion.latency} ms</div>
+              </div>
+              <p className="mt-2 text-xs text-white/60">
+                Shortest estimated round-trip time from your current location.
+              </p>
+            </div>
+          )}
+          <div className="space-y-3">
+            {regionLatencies.map(({ region, latency }) => {
+              const fill = latency ? Math.max(8, ((160 - Math.min(latency, 160)) / 160) * 100) : 0;
+              const isBest = bestRegion?.region.name === region.name;
+              return (
+                <div
+                  key={region.name}
+                  className={`rounded-2xl border border-white/10 bg-white/5 p-4 transition ${
+                    isBest ? 'border-emerald-300/60 bg-emerald-400/10' : ''
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-sm font-medium">
+                    <span>{region.name}</span>
+                    <span className="font-mono text-xs text-white/70">
+                      {latency ? `${latency} ms` : '—'}
+                    </span>
+                  </div>
+                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-sky-400 to-violet-500"
+                      style={{ width: latency ? `${fill}%` : '0%' }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
             <Button
-              size="sm"
-              variant="outline"
-              className="border-cyan-500/40 bg-transparent text-cyan-100/80 hover:bg-cyan-500/10"
+              variant="secondary"
+              className="w-full bg-white/10 text-white hover:bg-white/20"
               onClick={() => {
                 setUser(null);
                 setMeasure([]);
@@ -110,35 +163,22 @@ export default function LatencyMap() {
             >
               Reset
             </Button>
+            <Button
+              className="w-full bg-gradient-to-r from-sky-500 via-indigo-500 to-violet-500 text-white hover:from-sky-400 hover:via-indigo-400 hover:to-violet-400"
+              onClick={() => {
+                if ('geolocation' in navigator) {
+                  navigator.geolocation.getCurrentPosition(
+                    (pos) => setUser({ name: 'You', lat: pos.coords.latitude, lon: pos.coords.longitude }),
+                    () => setUser({ name: 'You', lat: 40.7, lon: -74.0 }),
+                  );
+                } else {
+                  setUser({ name: 'You', lat: 40.7, lon: -74.0 });
+                }
+              }}
+            >
+              Detect Location
+            </Button>
           </div>
-          <ul className="space-y-3 text-sm text-white/80">
-            {regionLatencies.map(({ region, latency }) => (
-              <li
-                key={region.name}
-                className="flex items-center justify-between rounded-lg border border-white/5 bg-white/5 px-4 py-3"
-              >
-                <span>{region.name}</span>
-                <span className="font-mono text-white">
-                  {latency ? `${latency} ms` : '—'}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <Button
-            className="w-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-white hover:from-cyan-400 hover:to-indigo-400"
-            onClick={() => {
-              if ('geolocation' in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                  (pos) => setUser({ name: 'You', lat: pos.coords.latitude, lon: pos.coords.longitude }),
-                  () => setUser({ name: 'You', lat: 40.7, lon: -74.0 }),
-                );
-              } else {
-                setUser({ name: 'You', lat: 40.7, lon: -74.0 });
-              }
-            }}
-          >
-            Detect Location
-          </Button>
           <p className="text-xs text-white/50">
             We never store your position—your browser shares it once to personalise these estimates.
           </p>
@@ -148,12 +188,12 @@ export default function LatencyMap() {
   );
 }
 
-function LatencyGlobe({ user }: { user: Region | null }) {
+function LatencyGlobe({ user, regions }: { user: Region | null; regions: RegionLatency[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const phiRef = useRef(0);
   const targetPhiRef = useRef(0);
   const markersRef = useRef<Marker[]>([]);
-  const markers = useMemo(() => mapMarkers(user), [user]);
+  const markers = useMemo(() => mapMarkers(user, regions), [user, regions]);
 
   useEffect(() => {
     markersRef.current = markers;
@@ -172,20 +212,20 @@ function LatencyGlobe({ user }: { user: Region | null }) {
       width: 1000,
       height: 1000,
       phi: 0,
-      theta: 0,
+      theta: 0.2,
       dark: 1,
       diffuse: 1.2,
       scale: 1,
       mapSamples: 16000,
       mapBrightness: 6,
-      baseColor: [0.3, 0.3, 0.9],
+      baseColor: [0.04, 0.08, 0.2],
       markerColor: [0.9, 0.5, 1],
-      glowColor: [0.2, 0.2, 1],
+      glowColor: [0.2, 0.3, 0.9],
       offset: [0, 0],
       markers: markersRef.current,
       onRender: (state) => {
         const diff = targetPhiRef.current - phiRef.current;
-        phiRef.current += diff * 0.05;  // Rotation logic for centering on user
+        phiRef.current += diff * 0.05;
         state.phi = phiRef.current;
         state.theta = 0.25;
         state.markers = markersRef.current;
@@ -207,13 +247,27 @@ function LatencyGlobe({ user }: { user: Region | null }) {
   );
 }
 
-function mapMarkers(user: Region | null): Marker[] {
-  const markers = [...STATIC_MARKERS];
+function mapMarkers(user: Region | null, regions: RegionLatency[]): Marker[] {
+  const markers = regions.map(({ region, latency }) => {
+    const normalized = latency ? Math.min(latency, 180) / 180 : 0.4;
+    const size = latency ? Math.max(0.03, 0.12 - normalized * 0.06) : 0.04;
+    const color: [number, number, number] = [
+      0.2 + (1 - normalized) * 0.3,
+      0.7 - normalized * 0.4,
+      1 - normalized * 0.3,
+    ];
+    return {
+      location: [region.lat, region.lon] as [number, number],
+      size,
+      color,
+    };
+  });
 
   if (user) {
     markers.unshift({
       location: [user.lat, user.lon],
-      size: 0.18,
+      size: 0.16,
+      color: [0.75, 0.4, 1],
     });
   }
 
