@@ -200,7 +200,7 @@ function LatencyGlobe({ user, regions }: { user: Region | null; regions: RegionL
   }, [markers]);
 
   useEffect(() => {
-    targetPhiRef.current = user ? (-user.lon * Math.PI) / 180 : 0;
+    targetPhiRef.current = user ? (user.lon * Math.PI) / 180 : 0;
   }, [user]);
 
   useEffect(() => {
@@ -224,7 +224,7 @@ function LatencyGlobe({ user, regions }: { user: Region | null; regions: RegionL
       offset: [0, 0],
       markers: markersRef.current,
       onRender: (state) => {
-        const diff = targetPhiRef.current - phiRef.current;
+        const diff = shortestAngularDistance(phiRef.current, targetPhiRef.current);
         phiRef.current += diff * 0.05; // Rotation logic for centering on user
         state.phi = phiRef.current;
         state.theta = 0.25;
@@ -272,4 +272,8 @@ function mapMarkers(user: Region | null, regions: RegionLatency[]): Marker[] {
   }
 
   return markers;
+}
+
+function shortestAngularDistance(from: number, to: number) {
+  return Math.atan2(Math.sin(to - from), Math.cos(to - from));
 }
