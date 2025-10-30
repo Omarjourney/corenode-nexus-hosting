@@ -225,7 +225,7 @@ function LatencyGlobe({ user, regions }: { user: Region | null; regions: RegionL
       markers: markersRef.current,
       onRender: (state) => {
         const diff = targetPhiRef.current - phiRef.current;
-        phiRef.current += diff * 0.05;
+        phiRef.current += diff * 0.05; // Rotation logic for centering on user
         state.phi = phiRef.current;
         state.theta = 0.25;
         state.markers = markersRef.current;
