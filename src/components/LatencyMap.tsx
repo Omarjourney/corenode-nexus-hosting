@@ -12,6 +12,7 @@ const REGIONS: Region[] = [
   { name: 'Frankfurt', lat: 50.1109, lon: 8.6821 },
   { name: 'São Paulo', lat: -23.5505, lon: -46.6333 },
 ];
+type RegionLatency = { region: Region; latency: number | null };
 
 type Marker = { location: [number, number]; size: number; color?: [number, number, number] };
 type RegionLatency = { region: Region; latency: number | null };
