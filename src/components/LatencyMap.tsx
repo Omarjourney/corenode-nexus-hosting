@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import createGlobe from 'cobe';
+
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -8,8 +10,11 @@ const REGIONS: Region[] = [
   { name: 'Dallas', lat: 32.7767, lon: -96.7970 },
   { name: 'Los Angeles', lat: 34.0522, lon: -118.2437 },
   { name: 'Frankfurt', lat: 50.1109, lon: 8.6821 },
-  { name: 'São Paulo', lat: -23.5505, lon: -46.6333 }
+  { name: 'São Paulo', lat: -23.5505, lon: -46.6333 },
 ];
+
+type Marker = { location: [number, number]; size: number; color?: [number, number, number] };
+type RegionLatency = { region: Region; latency: number | null };
 
 function approximateLatencyKm(km: number) {
   // ~5ms per 1000km baseline + 15ms overhead
@@ -41,8 +46,10 @@ export default function LatencyMap() {
         (pos) => {
           setUser({ name: 'You', lat: pos.coords.latitude, lon: pos.coords.longitude });
         },
-        () => {/* keep fallback */},
-        { enableHighAccuracy: false, timeout: 2000 }
+        () => {
+          /* keep fallback */
+        },
+        { enableHighAccuracy: false, timeout: 2000 },
       );
     }
   }, []);
@@ -50,279 +57,218 @@ export default function LatencyMap() {
   useEffect(() => {
     if (!user) return;
     setMeasure(
-      REGIONS.map((r) => ({ name: r.name, ms: approximateLatencyKm(haversine(user, r)) }))
+      REGIONS.map((r) => ({ name: r.name, ms: approximateLatencyKm(haversine(user, r)) })),
     );
   }, [user]);
 
+  const regionLatencies: RegionLatency[] = useMemo(
+    () =>
+      REGIONS.map((region) => ({
+        region,
+        latency: measure.find((m) => m.name === region.name)?.ms ?? null,
+      })),
+    [measure],
+  );
+
+  const bestRegion = useMemo(() => {
+    const sorted = regionLatencies
+      .filter((entry) => entry.latency !== null)
+      .sort((a, b) => (a.latency ?? Infinity) - (b.latency ?? Infinity));
+    return sorted[0] ?? null;
+  }, [regionLatencies]);
+
+  const statusText = user
+    ? `Using ${'geolocation' in navigator ? 'your live location' : 'fallback location'}`
+    : 'Detect your location to personalise latency estimates';
+
   return (
-    <Card className="glass-card p-6">
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="flex-1 min-h-[260px] bg-glass-surface rounded relative overflow-hidden grid place-items-center">
-          <RotatingGlobe user={user} measure={measure} />
-          <div className="absolute top-3 left-3 text-xs text-muted-foreground">Latency Preview</div>
-          {user && (
-            <div className="absolute bottom-3 left-3 text-xs text-foreground">
-              {`Using ${'geolocation' in navigator ? 'your location' : 'fallback location'}`}
+    <Card className="relative overflow-hidden border border-white/10 bg-black/40 p-0 text-white">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-10 top-1/3 h-64 w-64 rounded-full bg-sky-500/30 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-violet-500/20 blur-3xl" />
+      </div>
+      <div className="relative grid gap-10 p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="relative flex flex-col items-center justify-center">
+          <div className="relative mx-auto aspect-square w-full max-w-lg">
+            <div className="absolute inset-0 rounded-full border border-white/20" />
+            <div className="absolute inset-10 rounded-full bg-gradient-to-br from-sky-500/10 via-indigo-500/5 to-transparent blur-2xl" />
+            <LatencyGlobe user={user} regions={regionLatencies} />
+            <div className="pointer-events-none absolute left-6 top-6 rounded-full bg-black/60 px-3 py-1 text-xs uppercase tracking-wide text-white/70 backdrop-blur">
+              Latency preview
+            </div>
+            {user && (
+              <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-4 py-1 text-xs text-white/70 backdrop-blur">
+                {statusText}
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h4 className="font-orbitron text-lg font-semibold tracking-wide text-white">
+              Region latency snapshot
+            </h4>
+            <p className="text-sm text-white/70">
+              Compare our core locations and see how close you are to blazing-fast performance. Latencies update instantly when you detect your location.
+            </p>
+          </div>
+          {bestRegion && (
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div className="text-xs uppercase tracking-[0.3em] text-white/60">Best match</div>
+              <div className="mt-2 flex items-baseline justify-between">
+                <div className="text-2xl font-semibold text-white">{bestRegion.region.name}</div>
+                <div className="font-mono text-lg text-emerald-300">{bestRegion.latency} ms</div>
+              </div>
+              <p className="mt-2 text-xs text-white/60">
+                Shortest estimated round-trip time from your current location.
+              </p>
             </div>
           )}
-        </div>
-        <div className="w-full lg:w-72">
-          <div className="flex items-center justify-between mb-2">
-            <h4 className="font-orbitron font-semibold">Regions</h4>
-            <Button size="sm" variant="outline" onClick={() => setUser(null)}>Reset</Button>
-          </div>
-          <ul className="space-y-2">
-            {REGIONS.map((r) => {
-              const latency = measure.find((m) => m.name === r.name)?.ms;
+          <div className="space-y-3">
+            {regionLatencies.map(({ region, latency }) => {
+              const fill = latency ? Math.max(8, ((160 - Math.min(latency, 160)) / 160) * 100) : 0;
+              const isBest = bestRegion?.region.name === region.name;
               return (
-                <li key={r.name} className="flex items-center justify-between text-sm">
-                  <span>{r.name}</span>
-                  <span className="font-mono">{latency ? `${latency} ms` : '—'}</span>
-                </li>
+                <div
+                  key={region.name}
+                  className={`rounded-2xl border border-white/10 bg-white/5 p-4 transition ${
+                    isBest ? 'border-emerald-300/60 bg-emerald-400/10' : ''
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-sm font-medium">
+                    <span>{region.name}</span>
+                    <span className="font-mono text-xs text-white/70">
+                      {latency ? `${latency} ms` : '—'}
+                    </span>
+                  </div>
+                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-sky-400 to-violet-500"
+                      style={{ width: latency ? `${fill}%` : '0%' }}
+                    />
+                  </div>
+                </div>
               );
             })}
-          </ul>
-          <Button className="mt-4 w-full" onClick={() => {
-            if ('geolocation' in navigator) {
-              navigator.geolocation.getCurrentPosition(
-                (pos) => setUser({ name: 'You', lat: pos.coords.latitude, lon: pos.coords.longitude }),
-                () => setUser({ name: 'You', lat: 40.7, lon: -74.0 })
-              );
-            } else {
-              setUser({ name: 'You', lat: 40.7, lon: -74.0 });
-            }
-          }}>Detect Location</Button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant="secondary"
+              className="w-full bg-white/10 text-white hover:bg-white/20"
+              onClick={() => {
+                setUser(null);
+                setMeasure([]);
+              }}
+            >
+              Reset
+            </Button>
+            <Button
+              className="w-full bg-gradient-to-r from-sky-500 via-indigo-500 to-violet-500 text-white hover:from-sky-400 hover:via-indigo-400 hover:to-violet-400"
+              onClick={() => {
+                if ('geolocation' in navigator) {
+                  navigator.geolocation.getCurrentPosition(
+                    (pos) => setUser({ name: 'You', lat: pos.coords.latitude, lon: pos.coords.longitude }),
+                    () => setUser({ name: 'You', lat: 40.7, lon: -74.0 }),
+                  );
+                } else {
+                  setUser({ name: 'You', lat: 40.7, lon: -74.0 });
+                }
+              }}
+            >
+              Detect Location
+            </Button>
+          </div>
+          <p className="text-xs text-white/50">
+            We never store your position—your browser shares it once to personalise these estimates.
+          </p>
         </div>
       </div>
     </Card>
   );
 }
 
-function RotatingGlobe({ user, measure }: { user: Region | null; measure: { name: string; ms: number }[] }) {
-  const R = 110; // radius in px for drawing
-  // current central longitude (degrees). Start at 0, animate to user.lon.
-  const [centerLon, setCenterLon] = useState(0);
-  const raf = useRef<number | null>(null);
-  const targetLon = user?.lon ?? 0;
-
-  // Normalize angles to [-180,180]
-  function normDeg(d: number) {
-    const x = ((d + 180) % 360 + 360) % 360 - 180;
-    return x;
-  }
+function LatencyGlobe({ user, regions }: { user: Region | null; regions: RegionLatency[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const phiRef = useRef(0);
+  const targetPhiRef = useRef(0);
+  const markersRef = useRef<Marker[]>([]);
+  const markers = useMemo(() => mapMarkers(user, regions), [user, regions]);
 
   useEffect(() => {
-    const start = centerLon;
-    const delta = normDeg(targetLon - start);
-    const duration = 1200; // ms
-    const t0 = performance.now();
-    if (raf.current) cancelAnimationFrame(raf.current);
-    const step = (t: number) => {
-      const p = Math.min(1, (t - t0) / duration);
-      const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
-      setCenterLon(normDeg(start + delta * eased));
-      if (p < 1) raf.current = requestAnimationFrame(step);
-    };
-    raf.current = requestAnimationFrame(step);
+    markersRef.current = markers;
+  }, [markers]);
+
+  useEffect(() => {
+    targetPhiRef.current = user ? (-user.lon * Math.PI) / 180 : 0;
+  }, [user]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const globe = createGlobe(canvas, {
+      devicePixelRatio: 2,
+      width: 1000,
+      height: 1000,
+      phi: 0,
+      theta: 0.2,
+      dark: 1,
+      diffuse: 1.2,
+      scale: 1,
+      mapSamples: 16000,
+      mapBrightness: 6,
+      baseColor: [0.04, 0.08, 0.2],
+      markerColor: [0.9, 0.5, 1],
+      glowColor: [0.2, 0.3, 0.9],
+      offset: [0, 0],
+      markers: markersRef.current,
+      onRender: (state) => {
+        const diff = targetPhiRef.current - phiRef.current;
+        phiRef.current += diff * 0.05;
+        state.phi = phiRef.current;
+        state.theta = 0.25;
+        state.markers = markersRef.current;
+      },
+    });
+
     return () => {
-      if (raf.current) cancelAnimationFrame(raf.current);
+      globe.destroy();
     };
-  }, [targetLon, centerLon]);
-
-  // Precompute grid lines (meridians/parallels)
-  const meridians = useMemo(() => {
-    const lines: { x1: number; y1: number; x2: number; y2: number }[] = [];
-    for (let lon = -150; lon <= 150; lon += 30) {
-      // project several points and draw polyline approximation as many small segments
-      const segs = [] as { x: number; y: number }[];
-      for (let lat = -80; lat <= 80; lat += 10) {
-        const pt = project(lat, lon, centerLon, R);
-        if (pt) segs.push({ x: pt.x, y: pt.y });
-      }
-      for (let i = 1; i < segs.length; i++) {
-        lines.push({ x1: segs[i - 1].x, y1: segs[i - 1].y, x2: segs[i].x, y2: segs[i].y });
-      }
-    }
-    return lines;
-  }, [centerLon]);
-
-  const parallels = useMemo(() => {
-    const lines: { x1: number; y1: number; x2: number; y2: number }[] = [];
-    for (let lat = -60; lat <= 60; lat += 30) {
-      const segs = [] as { x: number; y: number }[];
-      for (let lon = -180; lon <= 180; lon += 10) {
-        const pt = project(lat, lon, centerLon, R);
-        if (pt) segs.push({ x: pt.x, y: pt.y });
-      }
-      for (let i = 1; i < segs.length; i++) {
-        lines.push({ x1: segs[i - 1].x, y1: segs[i - 1].y, x2: segs[i].x, y2: segs[i].y });
-      }
-    }
-    return lines;
-  }, [centerLon]);
-
-  const userPoint = user ? project(user.lat, user.lon, centerLon, R) : null;
-  const regionPoints = useMemo(() =>
-    REGIONS.map((r) => ({ r, pt: project(r.lat, r.lon, centerLon, R) })).filter((x) => !!x.pt) as { r: Region; pt: { x: number; y: number } }[],
-  [centerLon]);
-
-  // Very rough continent outlines (lat, lon) polylines
-  const LAND_OUTLINES: Array<Array<[number, number]>> = useMemo(() => [
-    // North America (very coarse)
-    [
-      [70, -150], [60, -160], [55, -150], [50, -140], [45, -130], [40, -125], [35, -120], [32, -117],
-      [28, -114], [25, -108], [22, -104], [20, -100], [18, -94], [25, -90], [29, -85], [25, -80],
-      [30, -80], [35, -78], [40, -82], [45, -90], [50, -95], [55, -100], [60, -105]
-    ],
-    // South America
-    [
-      [12, -81], [5, -79], [0, -78], [-5, -77], [-10, -75], [-15, -72], [-20, -70], [-25, -66],
-      [-30, -60], [-35, -57], [-40, -55], [-45, -58], [-50, -62], [-53, -70], [-50, -75], [-40, -78],
-      [-30, -78], [-20, -78], [-10, -80], [0, -81]
-    ],
-    // Europe + North Africa
-    [
-      [72, -10], [60, -5], [55, 0], [50, 5], [48, 10], [45, 15], [42, 10], [40, 5], [36, -6],
-      [34, 0], [32, 5], [30, 10], [28, 15], [26, 10], [24, 5], [22, 0], [20, -5], [25, -10], [30, -10]
-    ],
-    // Africa (very coarse loop)
-    [
-      [36, -6], [30, 0], [25, 5], [20, 10], [10, 12], [5, 15], [0, 15], [-5, 12], [-10, 15], [-15, 18],
-      [-20, 20], [-25, 20], [-30, 15], [-35, 10], [-35, 0], [-30, -5], [-25, -10], [-15, -10], [-5, -5], [5, -2], [15, -4], [25, -5], [30, -2], [36, -6]
-    ],
-    // Asia
-    [
-      [55, 30], [60, 45], [60, 60], [55, 75], [50, 90], [40, 100], [30, 110], [22, 120], [20, 130], [22, 140], [30, 145], [40, 135], [50, 120], [55, 100], [55, 80], [50, 60], [45, 45], [40, 35]
-    ],
-    // Australia
-    [
-      [-10, 130], [-15, 135], [-20, 140], [-25, 145], [-30, 147], [-35, 150], [-37, 145], [-35, 140], [-30, 135], [-25, 132], [-20, 130]
-    ]
-  ], []);
-
-  const landSegments = useMemo(() => {
-    const segs: Array<{ x1: number; y1: number; x2: number; y2: number }> = [];
-    for (const poly of LAND_OUTLINES) {
-      let prev: { x: number; y: number } | null = null;
-      for (const [lat, lon] of poly) {
-        const p = project(lat, lon, centerLon, R);
-        if (p && prev) {
-          segs.push({ x1: prev.x, y1: prev.y, x2: p.x, y2: p.y });
-          prev = p;
-        } else if (p) {
-          prev = p;
-        } else {
-          prev = null;
-        }
-      }
-    }
-    return segs;
-  }, [LAND_OUTLINES, centerLon]);
-
-  function msFor(name: string) {
-    return measure.find((m) => m.name === name)?.ms;
-  }
-
-  function arcPath(a: { x: number; y: number }, b: { x: number; y: number }) {
-    const mx = (a.x + b.x) / 2;
-    const my = (a.y + b.y) / 2;
-    const dx = b.x - a.x;
-    const dy = b.y - a.y;
-    const len = Math.sqrt(dx * dx + dy * dy) || 1;
-    // perpendicular normal
-    const nx = -dy / len;
-    const ny = dx / len;
-    // lift control point proportional to distance
-    const lift = Math.min(20, len * 0.2);
-    const cx = mx + nx * lift;
-    const cy = my + ny * lift;
-    return `M ${a.x} ${a.y} Q ${cx} ${cy} ${b.x} ${b.y}`;
-  }
+  }, []);
 
   return (
-    <svg width={R * 2 + 20} height={R * 2 + 20} viewBox={`${-R - 10} ${-R - 10} ${R * 2 + 20} ${R * 2 + 20}`}>
-      {/* Globe circle + gradients */}
-      <defs>
-        <radialGradient id="ocean" cx="50%" cy="50%" r="60%">
-          <stop offset="0%" stopColor="#0a2342" />
-          <stop offset="100%" stopColor="#0d2e59" />
-        </radialGradient>
-        <radialGradient id="atmo" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgba(80,120,255,0.2)" />
-          <stop offset="100%" stopColor="rgba(80,120,255,0.0)" />
-        </radialGradient>
-        <style>{`
-          @keyframes dashMove { to { stroke-dashoffset: -40; } }
-          .arc { stroke-dasharray: 6 8; animation: dashMove 2.2s linear infinite; }
-        `}</style>
-      </defs>
-      <circle cx={0} cy={0} r={R} fill="url(#ocean)" stroke="rgba(255,255,255,0.15)" />
-      <circle cx={0} cy={0} r={R} fill="url(#atmo)" />
-      {/* Land outlines */}
-      <g stroke="rgba(255,255,255,0.28)" strokeWidth={0.6} fill="none">
-        {landSegments.map((l, i) => (
-          <line key={`land-${i}`} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />
-        ))}
-      </g>
-      {/* Graticule */}
-      <g stroke="rgba(255,255,255,0.2)" strokeWidth={0.5}>
-        {meridians.map((l, i) => (
-          <line key={`m-${i}`} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />
-        ))}
-        {parallels.map((l, i) => (
-          <line key={`p-${i}`} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />
-        ))}
-      </g>
-      {/* User marker if visible */}
-      {userPoint && (
-        <g>
-          <circle cx={userPoint.x} cy={userPoint.y} r={3} fill="#7c3aed" />
-          <text x={userPoint.x + 6} y={userPoint.y - 6} fontSize={10} fill="rgba(255,255,255,0.8)">
-            You
-          </text>
-        </g>
-      )}
-      {/* Regions and animated connections */}
-      <g>
-        {regionPoints.map(({ r, pt }, idx) => {
-          const ms = msFor(r.name) ?? 60;
-          const rad = Math.max(2, 6 - ms / 40); // bigger for better (lower) latency
-          const hue = Math.max(0, 130 - ms); // rough color shift by latency
-          const stroke = `hsla(${hue},70%,60%,0.5)`;
-          return (
-            <g key={r.name}>
-              {userPoint && (
-                <path
-                  d={arcPath(userPoint, pt)}
-                  stroke={stroke}
-                  className="arc"
-                  strokeWidth={1.2}
-                  fill="none"
-                  style={{ animationDelay: `${(idx % 3) * 0.3}s` }}
-                />
-              )}
-              <circle cx={pt.x} cy={pt.y} r={rad} fill="#10b981" />
-              <text x={pt.x + 5} y={pt.y + 3} fontSize={9} fill="rgba(255,255,255,0.7)">{r.name}</text>
-            </g>
-          );
-        })}
-      </g>
-    </svg>
+    <canvas
+      ref={canvasRef}
+      id="cobe"
+      className="h-full w-full select-none rounded-full border border-white/10 bg-black/50"
+      style={{ aspectRatio: '1 / 1' }}
+    />
   );
 }
 
-function project(latDeg: number, lonDeg: number, centerLonDeg: number, R: number) {
-  const φ = (latDeg * Math.PI) / 180;
-  const λ = (lonDeg * Math.PI) / 180;
-  const λ0 = (centerLonDeg * Math.PI) / 180;
-  const cosφ = Math.cos(φ);
-  const sinφ = Math.sin(φ);
-  const cosΔλ = Math.cos(λ - λ0);
-  // visibility for orthographic with center lat = 0
-  if (cosφ * cosΔλ <= 0) return null;
-  const x = R * (cosφ * Math.sin(λ - λ0));
-  const y = R * (sinφ);
-  return { x, y };
-}
+function mapMarkers(user: Region | null, regions: RegionLatency[]): Marker[] {
+  const markers = regions.map(({ region, latency }) => {
+    const normalized = latency ? Math.min(latency, 180) / 180 : 0.4;
+    const size = latency ? Math.max(0.03, 0.12 - normalized * 0.06) : 0.04;
+    const color: [number, number, number] = [
+      0.2 + (1 - normalized) * 0.3,
+      0.7 - normalized * 0.4,
+      1 - normalized * 0.3,
+    ];
+    return {
+      location: [region.lat, region.lon] as [number, number],
+      size,
+      color,
+    };
+  });
 
-// Map view removed per request; globe only
+  if (user) {
+    markers.unshift({
+      location: [user.lat, user.lon],
+      size: 0.16,
+      color: [0.75, 0.4, 1],
+    });
+  }
+
+  return markers;
+}
