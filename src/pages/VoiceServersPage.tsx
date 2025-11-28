@@ -6,6 +6,7 @@ import { Slider } from "@/components/ui/slider";
 import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
 import { Badge } from "@/components/ui/badge";
+import { catalogPricing, CONTROL_PANELS } from "@/data/pricing";
 
 interface VoiceConfig {
   slots: number[];
@@ -61,13 +62,10 @@ const VoiceServersPage = () => {
         "Bandwidth control",
         "Custom server icons"
       ],
-      pricing: {
-        base: 3.99,
-        perSlot: 0.08
-      }
+      pricing: catalogPricing.voice.teamspeak
     },
     {
-      name: "Mumble", 
+      name: "Mumble",
       icon: Mic,
       color: "secondary",
       description: "Low-latency, high-quality voice chat with Opus codec",
@@ -79,10 +77,7 @@ const VoiceServersPage = () => {
         "Overlay support",
         "Custom domain support"
       ],
-      pricing: {
-        base: 2.99,
-        perSlot: 0.05
-      }
+      pricing: catalogPricing.voice.mumble
     },
     {
       name: "Discord Bot",
@@ -97,10 +92,7 @@ const VoiceServersPage = () => {
         "Database support",
         "Webhook support"
       ],
-      pricing: {
-        base: 4.99,
-        perSlot: 0
-      }
+      pricing: catalogPricing.voice.discord
     }
   ];
 
@@ -126,7 +118,7 @@ const VoiceServersPage = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <SEO
-        title="Voice Server Hosting – TeamSpeak, Mumble & Discord | CoreNode"
+        title="Voice Server Hosting – TeamSpeak, Mumble & Discord | CodeNodeX"
         description="Professional voice hosting with low-latency audio, advanced permissions, and 24/7 reliability. TeamSpeak, Mumble, and Discord bot hosting."
         keywords="teamspeak hosting, mumble hosting, discord bot hosting, voice servers"
       />

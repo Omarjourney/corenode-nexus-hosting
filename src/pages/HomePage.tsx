@@ -129,7 +129,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <SEO
-        title="CoreNodeX – CNX CommandCenter™ & CorePanel Lite™ Hosting"
+        title="CodeNodeX – CNX CommandCenter™ & CorePanel Lite™ Hosting"
         description="Start a server in 10 seconds with CorePanel Lite™ or CNX CommandCenter™. Premium automation, AI recovery, multi-game profiles, and creator-grade hardware."
         keywords="game server hosting, cnx commandcenter, corenodex, multi-game profiles"
       />
@@ -150,7 +150,7 @@ const HomePage = () => {
               <span className="block text-foreground">Fast, Smart & Fully Automated Hosting.</span>
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground font-inter max-w-2xl mx-auto lg:mx-0">
-              CoreNodeX pairs CorePanel Lite™ for budget builds with CNX CommandCenter™ for AI-driven automation.
+              CodeNodeX pairs CorePanel Lite™ for budget builds with CNX CommandCenter™ for AI-driven automation.
               Launch Minecraft, Rust, ARK, Valheim and more with instant mod installers and multi-game profiles.
             </p>
             <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -209,7 +209,7 @@ const HomePage = () => {
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4" />Auto-Mod Installer</li>
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4" />Blueprints & Live Map</li>
                 </ul>
-                <p className="text-xs mt-2 opacity-80">CoreNodeX exclusive tech.</p>
+                <p className="text-xs mt-2 opacity-80">CodeNodeX exclusive tech.</p>
               </div>
             </div>
           </Card>
@@ -299,7 +299,7 @@ const HomePage = () => {
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-secondary font-orbitron">CommandCenter™ is exclusive to CoreNodeX.</p>
+              <p className="text-xs text-secondary font-orbitron">CommandCenter™ is exclusive to CodeNodeX.</p>
             </Card>
           </div>
         </div>
@@ -308,7 +308,7 @@ const HomePage = () => {
       {/* Comparison Table */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto space-y-6">
-          <h3 className="text-3xl font-orbitron font-bold text-gradient-secondary text-center">Why CoreNodeX Wins</h3>
+          <h3 className="text-3xl font-orbitron font-bold text-gradient-secondary text-center">Why CodeNodeX Wins</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm font-inter min-w-[640px]">
               <thead>
@@ -317,7 +317,7 @@ const HomePage = () => {
                   <th className="p-3">Shockbyte</th>
                   <th className="p-3">Apex</th>
                   <th className="p-3">Bisect</th>
-                  <th className="p-3">CoreNodeX</th>
+                  <th className="p-3">CodeNodeX</th>
                 </tr>
               </thead>
               <tbody className="bg-glass-surface/40">
@@ -422,10 +422,10 @@ const HomePage = () => {
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center glow-primary">
                 <span className="text-background font-bold text-lg">C</span>
               </div>
-              <span className="text-xl font-orbitron font-bold text-gradient-primary">CoreNodeX</span>
+              <span className="text-xl font-orbitron font-bold text-gradient-primary">CodeNodeX</span>
             </div>
             <p className="text-sm text-muted-foreground font-inter">
-              CoreNodeX: Neon-fast infrastructure with CNX CommandCenter™ and CorePanel Lite™ powering every deployment.
+              CodeNodeX: Neon-fast infrastructure with CNX CommandCenter™ and CorePanel Lite™ powering every deployment.
             </p>
           </div>
           <div className="space-y-2 font-inter text-sm">

@@ -1,4 +1,13 @@
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
+import Navigation from "@/components/Navigation";
+import SEO from "@/components/SEO";
+import { Badge } from "@/components/ui/badge";
+import { Server, Users, HardDrive, Cpu, CheckCircle } from "lucide-react";
+import { BRAND_NAME, CONTROL_PANELS, getTierPrice, minecraftPricing, PricingTierKey } from "@/data/pricing";
 
 type BillingCycle = "monthly" | "quarterly" | "annual";
 
@@ -6,33 +15,6 @@ type DisplayPrice = {
   priceLine: string;
   savings: string | null;
 };
-
-interface SliderServerConfig {
-  ram: number[];
-  cpu: number[];
-  storage: number[];
-  slots: number[];
-}
-
-const basePrice = {
-  java: { basic: 9, premium: 17 },
-  bedrock: { basic: 7, premium: 14 }
-};
-
-const increments = {
-  java: {
-    ram: [3, 4],
-    cpu: [2, 3],
-    storage: [0.75, 1],
-    slots: [1, 1.5]
-  },
-  bedrock: {
-    ram: [2, 3],
-    cpu: [1.5, 2],
-    storage: [0.5, 0.75],
-    slots: [0.75, 1]
-  }
-} as const;
 
 const billingCycleLabels: Record<BillingCycle, string> = {
   monthly: "Monthly",
@@ -44,29 +26,6 @@ const billingCycleSuffix: Record<BillingCycle, string> = {
   monthly: "mo",
   quarterly: "quarter",
   annual: "year"
-};
-
-const calcMonthlyPrice = (
-  edition: keyof typeof basePrice,
-  tier: "basic" | "premium",
-  ramGB: number,
-  cpuCores: number,
-  storageGB: number,
-  playerSlots: number
-) => {
-  const tIndex = tier === "basic" ? 0 : 1;
-  const base = basePrice[edition][tier];
-  const inc = increments[edition];
-
-  const ramAdd = Math.max(0, ramGB - 1) * inc.ram[tIndex];
-  const cpuAdd = Math.max(0, cpuCores - 2) * inc.cpu[tIndex];
-  const storageAdd = Math.max(0, (storageGB - 10) / 10) * inc.storage[tIndex];
-  const slotAdd = Math.max(0, (playerSlots - 20) / 10) * inc.slots[tIndex];
-
-  const additions = parseFloat((ramAdd + cpuAdd + storageAdd + slotAdd).toFixed(2));
-  const total = parseFloat((base + additions).toFixed(2));
-
-  return { base, additions, total };
 };
 
 const applyBillingDiscount = (monthlyTotal: number, billingCycle: BillingCycle = "monthly") => {
@@ -82,8 +41,8 @@ const applyBillingDiscount = (monthlyTotal: number, billingCycle: BillingCycle =
   return { monthlyTotal, discountedTotal, monthsBilled: months };
 };
 
-const formatPriceDisplay = (pricing: { total: number }, cycle: BillingCycle): DisplayPrice => {
-  const { discountedTotal, monthsBilled, monthlyTotal } = applyBillingDiscount(pricing.total, cycle);
+const formatPriceDisplay = (base: number, cycle: BillingCycle): DisplayPrice => {
+  const { discountedTotal, monthsBilled, monthlyTotal } = applyBillingDiscount(base, cycle);
   if (cycle === "monthly") {
     return { priceLine: `$${monthlyTotal.toFixed(2)}/mo`, savings: null };
   }
@@ -95,152 +54,144 @@ const formatPriceDisplay = (pricing: { total: number }, cycle: BillingCycle): Di
     savings: savings > 0 ? `Save $${savings.toFixed(2)} with ${billingCycleLabels[cycle].toLowerCase()} billing` : null
   };
 };
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Slider } from "@/components/ui/slider";
-import Navigation from "@/components/Navigation";
-import SEO from "@/components/SEO";
-import { Badge } from "@/components/ui/badge";
-import { Server, Users, HardDrive, Cpu, CheckCircle } from "lucide-react";
+
+const tierFeatures: Record<PricingTierKey, string[]> = {
+  core: [
+    "CorePanel Lite™ control panel",
+    "NVMe storage & DDoS shield",
+    "Daily backups",
+    "Multi-game profiles"
+  ],
+  elite: [
+    "CNX CommandCenter™ automation",
+    "Priority support SLA",
+    "Hourly backups",
+    "Performance auto-tuning"
+  ],
+  creator: [
+    "Dedicated vCPU isolation",
+    "CommandCenter™ + creator perks",
+    "White-label staging slot",
+    "Advanced observability"
+  ]
+};
+
+const javaVersions = [
+  { name: "Paper / Spigot", description: "Optimized for low-latency survival & SMP" },
+  { name: "Forge / Fabric", description: "Full modding support with instant swaps" },
+  { name: "Purpur", description: "Performance tuned for high TPS" },
+  { name: "Vanilla", description: "Pristine Mojang experience" },
+  { name: "Modpacks", description: "FTB, SkyFactory, RLCraft & more" },
+  { name: "Snapshots", description: "Test the latest builds safely" }
+];
+
+const bedrockVersions = [
+  { name: "Pocket Edition", description: "Mobile-first optimization with RTX-ready nodes" },
+  { name: "Console Crossplay", description: "Seamless Xbox, PlayStation, Switch support" },
+  { name: "GeyserMC", description: "Java <-> Bedrock cross-play bridge" },
+  { name: "Vanilla", description: "Lag-free survival worlds" },
+  { name: "Modded Bedrock", description: "Behavior packs & realms migrations" },
+  { name: "Education", description: "Safe classrooms with audit logs" }
+];
+
+const addOns = [
+  { name: "Dedicated IP", price: 3, description: "Your own dedicated IP address" },
+  { name: "DDoS Protection+", price: 5, description: "Enhanced DDoS protection" },
+  { name: "Extra Backups", price: 2, description: "Daily automated backups" },
+  { name: "Plugin Management", price: 4, description: "Professional plugin installation" },
+  { name: "Migration Service", price: 10, description: "Free server migration" }
+];
+
+const tierOrder: PricingTierKey[] = ["core", "elite", "creator"];
 
 const MinecraftPage = () => {
-  const [javaConfig, setJavaConfig] = useState<SliderServerConfig>({
-    ram: [4],
-    cpu: [2],
-    storage: [25],
-    slots: [20]
-  });
+  const [javaStep, setJavaStep] = useState(1);
+  const [bedrockStep, setBedrockStep] = useState(0);
   const [javaBillingCycle, setJavaBillingCycle] = useState<BillingCycle>("monthly");
-  const [selectedJavaVersion, setSelectedJavaVersion] = useState<string | null>(null);
-
-  // Bedrock configuration values for backend submission
-  const [ramValue, setRamValue] = useState([2]);
-  const [cpuCores, setCpuCores] = useState([1]);
-  const [storageSize, setStorageSize] = useState([25]);
-  const [playerSlots, setPlayerSlots] = useState([10]);
   const [bedrockBillingCycle, setBedrockBillingCycle] = useState<BillingCycle>("monthly");
+  const [selectedJavaVersion, setSelectedJavaVersion] = useState<string | null>(null);
   const [selectedBedrockVersion, setSelectedBedrockVersion] = useState<string | null>(null);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
 
-  const javaVersions = [
-    { name: "Vanilla", description: "Official Minecraft server" },
-    { name: "Spigot", description: "Plugin support with optimizations" },
-    { name: "Paper", description: "High performance fork of Spigot" },
-    { name: "Forge", description: "Mod support with Forge modloader" },
-    { name: "Fabric", description: "Lightweight modern mod support" }
-  ];
+  const currentJavaStep = minecraftPricing.sliderSteps[javaStep];
+  const currentBedrockStep = minecraftPricing.sliderSteps[bedrockStep];
 
-  const bedrockVersions = [
-    { name: "Vanilla", description: "Official Bedrock server" },
-    { name: "Nukkit", description: "Bedrock server with plugin support" },
-    { name: "PocketMine", description: "Cross-platform Bedrock server" }
-  ];
-
-  const addOns = [
-    { name: "Dedicated IP", price: 3, description: "Your own dedicated IP address" },
-    { name: "DDoS Protection+", price: 5, description: "Enhanced DDoS protection" },
-    { name: "Extra Backups", price: 2, description: "Daily automated backups" },
-    { name: "Plugin Management", price: 4, description: "Professional plugin installation" },
-    { name: "Migration Service", price: 10, description: "Free server migration" }
-  ];
-
-  const javaPlans = {
-    basic: {
-      name: "Basic",
-      features: ["Standard Support", "Daily Backups", "Basic DDoS Protection"]
-    },
-    premium: {
-      name: "Premium",
-      features: ["Priority Support", "Hourly Backups", "Enhanced DDoS", "Free Migration"]
-    }
-  };
-
-  const bedrockPlans = {
-    basic: {
-      name: "Basic",
-      features: ["Cross-platform support", "Mobile optimizations", "24/7 support"]
-    },
-    premium: {
-      name: "Premium",
-      features: ["Cross-platform support", "Priority support", "Enhanced backups", "DDoS Protection+"]
-    }
-  };
-
-  const javaBasicPricing = useMemo(
+  const javaPricing = useMemo(
     () =>
-      calcMonthlyPrice(
-        "java",
-        "basic",
-        javaConfig.ram[0],
-        javaConfig.cpu[0],
-        javaConfig.storage[0],
-        javaConfig.slots[0]
-      ),
-    [javaConfig]
+      tierOrder.map((tier) => ({
+        tier,
+        display: formatPriceDisplay(getTierPrice(currentJavaStep.price, tier), javaBillingCycle)
+      })),
+    [javaBillingCycle, currentJavaStep.price]
   );
 
-  const javaPremiumPricing = useMemo(
+  const bedrockPricing = useMemo(
     () =>
-      calcMonthlyPrice(
-        "java",
-        "premium",
-        javaConfig.ram[0],
-        javaConfig.cpu[0],
-        javaConfig.storage[0],
-        javaConfig.slots[0]
-      ),
-    [javaConfig]
+      tierOrder.map((tier) => ({
+        tier,
+        display: formatPriceDisplay(getTierPrice(currentBedrockStep.price, tier), bedrockBillingCycle)
+      })),
+    [bedrockBillingCycle, currentBedrockStep.price]
   );
 
-  const bedrockBasicPricing = useMemo(
-    () =>
-      calcMonthlyPrice(
-        "bedrock",
-        "basic",
-        ramValue[0],
-        cpuCores[0],
-        storageSize[0],
-        playerSlots[0]
-      ),
-    [cpuCores, playerSlots, ramValue, storageSize]
-  );
-
-  const bedrockPremiumPricing = useMemo(
-    () =>
-      calcMonthlyPrice(
-        "bedrock",
-        "premium",
-        ramValue[0],
-        cpuCores[0],
-        storageSize[0],
-        playerSlots[0]
-      ),
-    [cpuCores, playerSlots, ramValue, storageSize]
-  );
-
-  const javaBasicDisplay = useMemo(
-    () => formatPriceDisplay(javaBasicPricing, javaBillingCycle),
-    [javaBasicPricing.total, javaBillingCycle]
-  );
-  const javaPremiumDisplay = useMemo(
-    () => formatPriceDisplay(javaPremiumPricing, javaBillingCycle),
-    [javaPremiumPricing.total, javaBillingCycle]
-  );
-  const bedrockBasicDisplay = useMemo(
-    () => formatPriceDisplay(bedrockBasicPricing, bedrockBillingCycle),
-    [bedrockBasicPricing.total, bedrockBillingCycle]
-  );
-  const bedrockPremiumDisplay = useMemo(
-    () => formatPriceDisplay(bedrockPremiumPricing, bedrockBillingCycle),
-    [bedrockPremiumPricing.total, bedrockBillingCycle]
+  const renderTierCard = (
+    tier: PricingTierKey,
+    display: DisplayPrice,
+    edition: "java" | "bedrock"
+  ) => (
+    <Card
+      key={tier}
+      className={`glass-card p-6 ${
+        tier === "elite" ? "glow-secondary border-secondary/40" : tier === "creator" ? "glow-primary border-primary/40" : ""
+      }`}
+    >
+      <div className="text-center mb-6">
+        {tier !== "core" && (
+          <Badge className="mb-2" variant="secondary">
+            {tier === "elite" ? "Most Popular" : "Creator Ready"}
+          </Badge>
+        )}
+        <h4 className="text-xl font-orbitron font-semibold text-foreground">{minecraftPricing.tiers[tier].name}</h4>
+        <p className="text-sm text-muted-foreground font-inter mb-2">{minecraftPricing.tiers[tier].description}</p>
+        <div className="text-2xl sm:text-3xl font-orbitron font-bold text-gradient-primary mt-2">
+          {display.priceLine}
+        </div>
+        {display.savings && (
+          <p className="text-sm text-muted-foreground font-inter mt-2">{display.savings}</p>
+        )}
+        <p className="text-xs text-muted-foreground mt-2">
+          Panel: {minecraftPricing.tiers[tier].panel}
+        </p>
+      </div>
+      <ul className="space-y-2 mb-6">
+        {tierFeatures[tier].map((feature, index) => (
+          <li key={index} className="flex items-center text-sm font-inter">
+            <CheckCircle className="w-4 h-4 mr-2 text-primary" />
+            {feature}
+          </li>
+        ))}
+      </ul>
+      <Button asChild className="w-full bg-gradient-primary glow-primary font-orbitron">
+        <a
+          href={`/order?category=minecraft&edition=${edition}&plan=${tier}&billing=${
+            edition === "java" ? javaBillingCycle : bedrockBillingCycle
+          }&ram=${edition === "java" ? currentJavaStep.ram : currentBedrockStep.ram}&cpu=${
+            edition === "java" ? currentJavaStep.cpu : currentBedrockStep.cpu
+          }&storage=${edition === "java" ? currentJavaStep.storage : currentBedrockStep.storage}&slots=${
+            edition === "java" ? currentJavaStep.slots : currentBedrockStep.slots
+          }`}
+        >
+          Launch {minecraftPricing.tiers[tier].name} Server
+        </a>
+      </Button>
+    </Card>
   );
 
   return (
     <>
       <SEO
-        title="Fast Minecraft Hosting – $4.49/mo Miami Servers"
-        description="Get low-lag Minecraft servers with CNX CommandCenter™ and CorePanel Lite™. Host in Miami for LATAM speed – starting at $4.49/month."
+        title={`Fast Minecraft Hosting – ${BRAND_NAME} CORE, ELITE & CREATOR pricing`}
+        description={`CodeNodeX Minecraft hosting with ${CONTROL_PANELS.pterodactyl} and ${CONTROL_PANELS.amp}. Miami, Dallas, and Frankfurt fleets starting at $4.49/mo.`}
         keywords="minecraft server hosting, fast minecraft hosting, miami servers"
         canonical="https://example.com/minecraft"
         jsonLd={{
@@ -248,7 +199,7 @@ const MinecraftPage = () => {
           '@type': 'Product',
           name: 'Minecraft Server Hosting',
           description:
-            'Fast Minecraft hosting with Miami servers for LATAM players starting at $4.49/mo.',
+            'Fast Minecraft hosting with global regions and CommandCenter™ automation starting at $4.49/mo.',
           offers: {
             '@type': 'Offer',
             price: '4.49',
@@ -259,7 +210,7 @@ const MinecraftPage = () => {
       />
       <div className="min-h-screen bg-gradient-hero">
         <Navigation />
-      
+
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -268,8 +219,8 @@ const MinecraftPage = () => {
               Minecraft Hosting
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-inter">
-              Premium Minecraft hosting for Java & Bedrock with full modpack support, 
-              instant setup, and professional management tools.
+              CORE, ELITE, and CREATOR plans powered by {CONTROL_PANELS.amp} and {CONTROL_PANELS.pterodactyl}.
+              LATAM-tuned Miami POP, modpack swaps, and multi-game profiles.
             </p>
           </div>
 
@@ -291,7 +242,7 @@ const MinecraftPage = () => {
                     <h3 className="text-2xl font-orbitron font-semibold text-foreground mb-6">
                       Configure Your Java Server
                     </h3>
-                    
+
                     {/* Server Versions */}
                     <div className="mb-8">
                       <h4 className="font-orbitron font-medium text-foreground mb-4">Server Type</h4>
@@ -321,15 +272,15 @@ const MinecraftPage = () => {
                         <div className="flex items-center justify-between mb-3">
                           <label className="font-orbitron font-medium text-foreground flex items-center">
                             <HardDrive className="w-4 h-4 mr-2 text-primary" />
-                            RAM: {javaConfig.ram[0]}GB
+                            RAM: {currentJavaStep.ram}GB
                           </label>
-                          <Badge variant="secondary">Recommended: 4GB</Badge>
+                          <Badge variant="secondary">Recommended: {minecraftPricing.editions.java.recommended}GB</Badge>
                         </div>
                         <Slider
-                          value={javaConfig.ram}
-                          onValueChange={(value) => setJavaConfig({...javaConfig, ram: value})}
-                          max={32}
-                          min={1}
+                          value={[javaStep]}
+                          onValueChange={(value) => setJavaStep(value[0])}
+                          max={minecraftPricing.sliderSteps.length - 1}
+                          min={0}
                           step={1}
                           className="mb-6"
                         />
@@ -339,14 +290,14 @@ const MinecraftPage = () => {
                         <div className="flex items-center justify-between mb-3">
                           <label className="font-orbitron font-medium text-foreground flex items-center">
                             <Cpu className="w-4 h-4 mr-2 text-primary" />
-                            CPU Cores: {javaConfig.cpu[0]}
+                            CPU Cores: {currentJavaStep.cpu}
                           </label>
                         </div>
                         <Slider
-                          value={javaConfig.cpu}
-                          onValueChange={(value) => setJavaConfig({...javaConfig, cpu: value})}
-                          max={8}
-                          min={1}
+                          value={[javaStep]}
+                          onValueChange={(value) => setJavaStep(value[0])}
+                          max={minecraftPricing.sliderSteps.length - 1}
+                          min={0}
                           step={1}
                           className="mb-6"
                         />
@@ -356,15 +307,15 @@ const MinecraftPage = () => {
                         <div className="flex items-center justify-between mb-3">
                           <label className="font-orbitron font-medium text-foreground flex items-center">
                             <Server className="w-4 h-4 mr-2 text-primary" />
-                            Storage: {javaConfig.storage[0]}GB
+                            Storage: {currentJavaStep.storage}GB NVMe
                           </label>
                         </div>
                         <Slider
-                          value={javaConfig.storage}
-                          onValueChange={(value) => setJavaConfig({...javaConfig, storage: value})}
-                          max={200}
-                          min={10}
-                          step={5}
+                          value={[javaStep]}
+                          onValueChange={(value) => setJavaStep(value[0])}
+                          max={minecraftPricing.sliderSteps.length - 1}
+                          min={0}
+                          step={1}
                           className="mb-6"
                         />
                       </div>
@@ -373,16 +324,16 @@ const MinecraftPage = () => {
                         <div className="flex items-center justify-between mb-3">
                           <label className="font-orbitron font-medium text-foreground flex items-center">
                             <Users className="w-4 h-4 mr-2 text-primary" />
-                            Player Slots: {javaConfig.slots[0]}
+                            Player Slots: {currentJavaStep.slots}
                           </label>
-                          <Badge variant="secondary">Recommended: 20</Badge>
+                          <Badge variant="secondary">Multi-game profiles</Badge>
                         </div>
                         <Slider
-                          value={javaConfig.slots}
-                          onValueChange={(value) => setJavaConfig({...javaConfig, slots: value})}
-                          max={100}
-                          min={5}
-                          step={5}
+                          value={[javaStep]}
+                          onValueChange={(value) => setJavaStep(value[0])}
+                          max={minecraftPricing.sliderSteps.length - 1}
+                          min={0}
+                          step={1}
                           className="mb-6"
                         />
                       </div>
@@ -390,7 +341,7 @@ const MinecraftPage = () => {
                   </Card>
                 </div>
 
-                {/* Pricing Panel */}
+                {/* Java Pricing Panel */}
                 <div className="space-y-6">
                   <div className="flex justify-center gap-2">
                     {(Object.keys(billingCycleLabels) as BillingCycle[]).map((cycle) => (
@@ -408,66 +359,7 @@ const MinecraftPage = () => {
                       </Button>
                     ))}
                   </div>
-                  {/* Basic Plan */}
-                  <Card className="glass-card p-6">
-                    <div className="text-center mb-6">
-                      <h4 className="text-xl font-orbitron font-semibold text-foreground">{javaPlans.basic.name}</h4>
-                      <div className="text-2xl sm:text-3xl font-orbitron font-bold text-gradient-primary mt-2">
-                        {javaBasicDisplay.priceLine}
-                      </div>
-                      {javaBasicDisplay.savings && (
-                        <p className="text-sm text-muted-foreground font-inter mt-2">
-                          {javaBasicDisplay.savings}
-                        </p>
-                      )}
-                    </div>
-                    <ul className="space-y-2 mb-6">
-                      {javaPlans.basic.features.map((feature, index) => (
-                        <li key={index} className="flex items-center text-sm font-inter">
-                          <CheckCircle className="w-4 h-4 mr-2 text-primary" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button asChild className="w-full bg-gradient-primary glow-primary font-orbitron">
-                      <a
-                        href={`/order?category=minecraft&edition=java&plan=basic&billing=${javaBillingCycle}&ram=${javaConfig.ram[0]}&cpu=${javaConfig.cpu[0]}&storage=${javaConfig.storage[0]}&slots=${javaConfig.slots[0]}`}
-                      >
-                        Start Basic Server
-                      </a>
-                    </Button>
-                  </Card>
-
-                  {/* Premium Plan */}
-                  <Card className="glass-card p-6 glow-secondary border-secondary/50">
-                    <div className="text-center mb-6">
-                      <Badge className="mb-2 bg-gradient-secondary">Most Popular</Badge>
-                      <h4 className="text-xl font-orbitron font-semibold text-foreground">{javaPlans.premium.name}</h4>
-                      <div className="text-2xl sm:text-3xl font-orbitron font-bold text-gradient-secondary mt-2">
-                        {javaPremiumDisplay.priceLine}
-                      </div>
-                      {javaPremiumDisplay.savings && (
-                        <p className="text-sm text-muted-foreground font-inter mt-2">
-                          {javaPremiumDisplay.savings}
-                        </p>
-                      )}
-                    </div>
-                    <ul className="space-y-2 mb-6">
-                      {javaPlans.premium.features.map((feature, index) => (
-                        <li key={index} className="flex items-center text-sm font-inter">
-                          <CheckCircle className="w-4 h-4 mr-2 text-secondary" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button asChild className="w-full bg-gradient-secondary glow-secondary font-orbitron">
-                      <a
-                        href={`/order?category=minecraft&edition=java&plan=premium&billing=${javaBillingCycle}&ram=${javaConfig.ram[0]}&cpu=${javaConfig.cpu[0]}&storage=${javaConfig.storage[0]}&slots=${javaConfig.slots[0]}`}
-                      >
-                        Start Premium Server
-                      </a>
-                    </Button>
-                  </Card>
+                  {javaPricing.map(({ tier, display }) => renderTierCard(tier, display, "java"))}
                 </div>
               </div>
             </TabsContent>
@@ -481,7 +373,7 @@ const MinecraftPage = () => {
                     <h3 className="text-2xl font-orbitron font-semibold text-foreground mb-6">
                       Configure Your Bedrock Server
                     </h3>
-                    
+
                     {/* Bedrock Server Versions */}
                     <div className="mb-8">
                       <h4 className="font-orbitron font-medium text-foreground mb-4">Server Type</h4>
@@ -511,15 +403,15 @@ const MinecraftPage = () => {
                         <div className="flex items-center justify-between mb-3">
                           <label className="font-orbitron font-medium text-foreground flex items-center">
                             <HardDrive className="w-4 h-4 mr-2 text-tertiary" />
-                            RAM: {ramValue[0]}GB
+                            RAM: {currentBedrockStep.ram}GB
                           </label>
-                          <Badge variant="secondary">Recommended: 2GB</Badge>
+                          <Badge variant="secondary">Recommended: {minecraftPricing.editions.bedrock.recommended}GB</Badge>
                         </div>
                         <Slider
-                          value={ramValue}
-                          onValueChange={setRamValue}
-                          max={64}
-                          min={1}
+                          value={[bedrockStep]}
+                          onValueChange={(value) => setBedrockStep(value[0])}
+                          max={minecraftPricing.sliderSteps.length - 1}
+                          min={0}
                           step={1}
                           color="tertiary"
                           className="mb-6"
@@ -530,14 +422,14 @@ const MinecraftPage = () => {
                         <div className="flex items-center justify-between mb-3">
                           <label className="font-orbitron font-medium text-foreground flex items-center">
                             <Cpu className="w-4 h-4 mr-2 text-tertiary" />
-                            CPU Cores: {cpuCores[0]}
+                            CPU Cores: {currentBedrockStep.cpu}
                           </label>
                         </div>
                         <Slider
-                          value={cpuCores}
-                          onValueChange={setCpuCores}
-                          max={8}
-                          min={1}
+                          value={[bedrockStep]}
+                          onValueChange={(value) => setBedrockStep(value[0])}
+                          max={minecraftPricing.sliderSteps.length - 1}
+                          min={0}
                           step={1}
                           color="tertiary"
                           className="mb-6"
@@ -548,15 +440,15 @@ const MinecraftPage = () => {
                         <div className="flex items-center justify-between mb-3">
                           <label className="font-orbitron font-medium text-foreground flex items-center">
                             <Server className="w-4 h-4 mr-2 text-tertiary" />
-                            Storage: {storageSize[0]}GB
+                            Storage: {currentBedrockStep.storage}GB NVMe
                           </label>
                         </div>
                         <Slider
-                          value={storageSize}
-                          onValueChange={setStorageSize}
-                          max={100}
-                          min={10}
-                          step={5}
+                          value={[bedrockStep]}
+                          onValueChange={(value) => setBedrockStep(value[0])}
+                          max={minecraftPricing.sliderSteps.length - 1}
+                          min={0}
+                          step={1}
                           color="tertiary"
                           className="mb-6"
                         />
@@ -566,32 +458,20 @@ const MinecraftPage = () => {
                         <div className="flex items-center justify-between mb-3">
                           <label className="font-orbitron font-medium text-foreground flex items-center">
                             <Users className="w-4 h-4 mr-2 text-tertiary" />
-                            Player Slots: {playerSlots[0]}
+                            Player Slots: {currentBedrockStep.slots}
                           </label>
-                          <Badge variant="secondary">Recommended: 10</Badge>
+                          <Badge variant="secondary">Multi-game profiles</Badge>
                         </div>
                         <Slider
-                          value={playerSlots}
-                          onValueChange={setPlayerSlots}
-                          max={100}
-                          min={1}
+                          value={[bedrockStep]}
+                          onValueChange={(value) => setBedrockStep(value[0])}
+                          max={minecraftPricing.sliderSteps.length - 1}
+                          min={0}
                           step={1}
                           color="tertiary"
                           className="mb-6"
                         />
                       </div>
-                    </div>
-
-                    {/* Bedrock Features */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                      <Card className="glass-card p-4">
-                        <h5 className="font-orbitron font-medium text-tertiary mb-2">Cross-Play Support</h5>
-                        <p className="text-sm text-muted-foreground font-inter">PC, Mobile, Console compatibility</p>
-                      </Card>
-                      <Card className="glass-card p-4">
-                        <h5 className="font-orbitron font-medium text-tertiary mb-2">Mobile Optimized</h5>
-                        <p className="text-sm text-muted-foreground font-inter">Perfect performance on mobile devices</p>
-                      </Card>
                     </div>
                   </Card>
                 </div>
@@ -614,63 +494,7 @@ const MinecraftPage = () => {
                       </Button>
                     ))}
                   </div>
-                  <Card className="glass-card p-6">
-                    <div className="text-center mb-6">
-                      <h4 className="text-xl font-orbitron font-semibold text-foreground">{bedrockPlans.basic.name}</h4>
-                      <div className="text-2xl sm:text-3xl font-orbitron font-bold text-gradient-tertiary mt-2">
-                        {bedrockBasicDisplay.priceLine}
-                      </div>
-                      {bedrockBasicDisplay.savings && (
-                        <p className="text-sm text-muted-foreground font-inter mt-2">
-                          {bedrockBasicDisplay.savings}
-                        </p>
-                      )}
-                    </div>
-                    <ul className="space-y-2 mb-6">
-                      {bedrockPlans.basic.features.map((feature, index) => (
-                        <li key={index} className="flex items-center text-sm font-inter">
-                          <CheckCircle className="w-4 h-4 mr-2 text-tertiary" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button asChild className="w-full bg-gradient-tertiary glow-tertiary font-orbitron">
-                      <a
-                        href={`/order?category=minecraft&edition=bedrock&plan=basic&billing=${bedrockBillingCycle}&ram=${ramValue[0]}&cpu=${cpuCores[0]}&storage=${storageSize[0]}&slots=${playerSlots[0]}`}
-                      >
-                        Start Bedrock Basic Server
-                      </a>
-                    </Button>
-                  </Card>
-                  <Card className="glass-card p-6 border-tertiary/50">
-                    <div className="text-center mb-6">
-                      <Badge className="mb-2 bg-tertiary/20 text-tertiary">Upgrade</Badge>
-                      <h4 className="text-xl font-orbitron font-semibold text-foreground">{bedrockPlans.premium.name}</h4>
-                      <div className="text-2xl sm:text-3xl font-orbitron font-bold text-gradient-tertiary mt-2">
-                        {bedrockPremiumDisplay.priceLine}
-                      </div>
-                      {bedrockPremiumDisplay.savings && (
-                        <p className="text-sm text-muted-foreground font-inter mt-2">
-                          {bedrockPremiumDisplay.savings}
-                        </p>
-                      )}
-                    </div>
-                    <ul className="space-y-2 mb-6">
-                      {bedrockPlans.premium.features.map((feature, index) => (
-                        <li key={index} className="flex items-center text-sm font-inter">
-                          <CheckCircle className="w-4 h-4 mr-2 text-tertiary" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button asChild className="w-full bg-tertiary/10 border border-tertiary/40 text-tertiary font-orbitron hover:bg-tertiary/20">
-                      <a
-                        href={`/order?category=minecraft&edition=bedrock&plan=premium&billing=${bedrockBillingCycle}&ram=${ramValue[0]}&cpu=${cpuCores[0]}&storage=${storageSize[0]}&slots=${playerSlots[0]}`}
-                      >
-                        Start Bedrock Premium Server
-                      </a>
-                    </Button>
-                  </Card>
+                  {bedrockPricing.map(({ tier, display }) => renderTierCard(tier, display, "bedrock"))}
                 </div>
               </div>
             </TabsContent>

@@ -23,7 +23,7 @@ router.get('/api/game-modules', async (_req, res) => {
 
     res.json(normalized);
   } catch (error) {
-    console.error('Failed to fetch game modules from AMP:', error.message || error);
+    console.error('Failed to fetch game modules from CNX CommandCenter™:', error.message || error);
     res.json(normalizedFallback);
   }
 });

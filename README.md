@@ -1,6 +1,6 @@
-# CoreNode Hosting  
+# CodeNodeX Hosting
 ## Overview  
-CoreNode Hosting is a modern, responsive web application for a game and voice server hosting company. Built with Vite, React, TypeScript, Tailwind CSS and shadcn/ui components, this project provides a polished foundation for marketing and selling hosting services for Minecraft, game servers, voice servers, web hosting and VPS & dedicated servers.  
+CodeNodeX Hosting is a modern, responsive web application for a game and voice server hosting company. Built with Vite, React, TypeScript, Tailwind CSS and shadcn/ui components, this project provides a polished foundation for marketing and selling hosting services for Minecraft, game servers, voice servers, web hosting and VPS & dedicated servers.
 ## Features  
 - **Modern landing page:** Clean hero section with call‑to‑action for easy ordering.  
 - **Service pages:** Individual pages for Minecraft, Game Servers, Voice Servers, Web Hosting, and VPS & Dedicated with configurable pricing tiers.  

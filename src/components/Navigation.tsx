@@ -75,7 +75,7 @@ const Navigation = () => {
                 <span className="text-background font-bold text-lg">C</span>
               </div>
               <span className="text-xl font-orbitron font-bold text-gradient-primary">
-                CoreNode
+                CodeNodeX
               </span>
             </Link>
           </div>

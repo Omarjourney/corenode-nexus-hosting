@@ -4,21 +4,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AddOns from "@/components/AddOns";
 import { CheckCircle } from "lucide-react";
+import { catalogPricing } from "@/data/pricing";
 
-const metalPlans = [
-  { cpu: "Ryzen 5600X", price: "$109" },
-  { cpu: "Ryzen 7600", price: "$149" },
-  { cpu: "Ryzen 5800X", price: "$129" },
-  { cpu: "Ryzen 5950X", price: "$179" },
-  { cpu: "Ryzen 7950X", price: "$199" },
-  { cpu: "Threadripper 3990X", price: "$399" },
-  { cpu: "Dual EPYC", price: "$199–$399" },
-];
+const metalPlans = catalogPricing.dedicated.plans;
 
 const DedicatedPage = () => (
   <div className="min-h-screen bg-gradient-hero">
     <SEO
-      title="NodeX Metal™ Dedicated Servers | CoreNodeX"
+      title="NodeX Metal™ Dedicated Servers | CodeNodeX"
       description="Ryzen and Threadripper NodeX Metal™ servers with CNX CommandCenter™, 10Gbps uplinks, root access, and free migrations."
       keywords="dedicated servers, nodex metal, ryzen 7950x server, threadripper hosting"
     />
@@ -37,12 +30,12 @@ const DedicatedPage = () => (
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {metalPlans.map((plan) => (
-            <Card key={plan.cpu} className="glass-card p-6 space-y-3 hover-scale hover-glow-secondary">
+            <Card key={plan.name} className="glass-card p-6 space-y-3 hover-scale hover-glow-secondary">
               <div className="flex items-center justify-between">
-                <h3 className="font-orbitron font-semibold text-foreground text-lg">{plan.cpu}</h3>
+                <h3 className="font-orbitron font-semibold text-foreground text-lg">{plan.name}</h3>
                 <span className="text-xs font-orbitron bg-gradient-secondary text-background px-2 py-1 rounded">NodeX Metal™</span>
               </div>
-              <div className="text-3xl font-orbitron font-bold text-gradient-secondary">{plan.price}/mo</div>
+              <div className="text-3xl font-orbitron font-bold text-gradient-secondary">${plan.price}/mo</div>
               <ul className="text-sm text-muted-foreground font-inter space-y-1">
                 <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" />CNX CommandCenter™ included</li>
                 <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" />10Gbps uplink</li>

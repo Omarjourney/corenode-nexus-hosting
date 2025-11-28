@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CoreNode Hosting - Premium Futuristic Design System
+/* CodeNodeX Hosting - Premium Futuristic Design System
    Glassmorphism with neon blue/purple/teal accents
    All colors MUST be HSL.
 */
@@ -82,7 +82,7 @@
 
 }
 
-/* Custom utility classes for CoreNode Hosting */
+/* Custom utility classes for CodeNodeX Hosting */
 @layer components {
   /* Glassmorphism effects */
   .glass-card {

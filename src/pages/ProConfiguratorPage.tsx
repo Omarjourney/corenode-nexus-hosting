@@ -26,7 +26,7 @@ export default function ProConfiguratorPage() {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <SEO
-        title="Pro Configurator – Guided Server Setup | CoreNode"
+        title="Pro Configurator – Guided Server Setup | CodeNodeX"
         description="3-step guided configurator to pick game, players, mods, region and resources with real-time pricing."
       />
       <Navigation />

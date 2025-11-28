@@ -3,21 +3,15 @@ import SEO from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AddOns from "@/components/AddOns";
+import { BRAND_NAME, catalogPricing } from "@/data/pricing";
 
-const plans = [
-  { name: "VPS Lite", ram: "2 GB", vcpu: 1, ssd: "25GB", bandwidth: "2 TB", price: 6.99 },
-  { name: "VPS Basic", ram: "4 GB", vcpu: 2, ssd: "50GB", bandwidth: "3 TB", price: 11.99 },
-  { name: "VPS Std", ram: "8 GB", vcpu: 2, ssd: "80GB", bandwidth: "4 TB", price: 17.99 },
-  { name: "VPS Pro", ram: "16 GB", vcpu: 4, ssd: "160GB", bandwidth: "5 TB", price: 29.99 },
-  { name: "VPS Max", ram: "32 GB", vcpu: 6, ssd: "320GB", bandwidth: "6 TB", price: 54.99 },
-  { name: "VPS Extreme", ram: "64 GB", vcpu: 8, ssd: "500GB", bandwidth: "10 TB", price: 89.99 },
-];
+const plans = catalogPricing.vps.plans;
 
 const VpsPage = () => (
   <div className="min-h-screen bg-gradient-hero">
     <SEO
-      title="VPS Hosting – Scalable SSD VPS with Root Access | CoreNode"
-      description="Scalable VPS with SSD storage, full root access, and instant setup. Choose from Lite to Extreme plans."
+      title={`VPS Hosting – ${catalogPricing.vps.label} | ${BRAND_NAME}`}
+      description="NodeX Metal™ VPS with NVMe storage, root access, and CommandCenter™ automation."
       keywords="vps hosting, ssd vps, root access, scalable servers"
     />
     <Navigation />
@@ -25,10 +19,10 @@ const VpsPage = () => (
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-orbitron font-bold text-gradient-secondary mb-4">
-            VPS Hosting
+            {catalogPricing.vps.label} VPS Hosting
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-inter">
-            Scalable virtual private servers with full root access and SSD storage.
+            Scalable virtual private servers with full root access and NVMe storage.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
