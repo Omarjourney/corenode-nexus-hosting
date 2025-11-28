@@ -16,20 +16,18 @@ import {
   Users,
 } from "lucide-react";
 
-type GameTemplate = {
+type GameModule = {
+  id: string;
   name: string;
-  moduleId: string;
   description: string;
-  category: string;
-  defaultPorts: number[];
-  minRamMb: number | null;
-  maxRamMb: number | null;
-  recommendedSlots: number | null;
-  icon: string;
+  icon: string | null;
+  category: string | null;
+  minRam: number | null;
+  players: number | null;
 };
 
 const GameServersPage = () => {
-  const [games, setGames] = useState<GameTemplate[]>([]);
+  const [modules, setModules] = useState<GameModule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,29 +36,23 @@ const GameServersPage = () => {
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
-    fetch("/api/games")
+    fetch("/api/game-modules")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch game modules");
         }
         return response.json();
       })
-      .then((data: { success?: boolean; games?: GameTemplate[]; error?: string }) => {
+      .then((data: GameModule[]) => {
         if (!isMounted) return;
-        if (data?.success) {
-          const fetchedGames = data.games || [];
-          setGames(Array.isArray(fetchedGames) ? fetchedGames : []);
-          setError(null);
-        } else {
-          setError(data?.error || "Unable to load game modules. Please try again later.");
-          setGames([]);
-        }
+        setModules(Array.isArray(data) ? data : []);
+        setError(null);
       })
       .catch((fetchError) => {
         if (!isMounted) return;
         console.error("Error fetching game modules", fetchError);
         setError("Unable to load game modules. Please try again later.");
-        setGames([]);
+        setModules([]);
       })
       .finally(() => {
         if (isMounted) {
@@ -75,15 +67,17 @@ const GameServersPage = () => {
 
   const availableGenres = useMemo(() => {
     const categories = new Set<string>();
-    games.forEach((game) => {
-      categories.add(game.category || "Other");
+    modules.forEach((module) => {
+      if (module.category) {
+        categories.add(module.category);
+      }
     });
     return ["all", ...Array.from(categories).sort((a, b) => a.localeCompare(b))];
-  }, [games]);
+  }, [modules]);
 
   const filteredGames = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
-    return games.filter((game) => {
+    return modules.filter((game) => {
       const haystack = `${game.name} ${game.description || ""} ${game.category || ""}`
         .toLowerCase()
         .replace(/\s+/g, " ");
@@ -95,20 +89,20 @@ const GameServersPage = () => {
 
       return matchesSearch && matchesGenre;
     });
-  }, [games, searchTerm, selectedGenre]);
+  }, [modules, searchTerm, selectedGenre]);
 
-  const popularGames = useMemo(() => games.slice(0, 4), [games]);
+  const popularGames = useMemo(() => modules.slice(0, 4), [modules]);
 
   const resultSummary = useMemo(() => {
     if (loading) return "Loading game modules...";
     if (error) return "Unable to load game modules right now.";
-    if (!games.length) return "No game modules available yet.";
+    if (!modules.length) return "No game modules available yet.";
     if (
-      filteredGames.length === games.length &&
+      filteredGames.length === modules.length &&
       !searchTerm &&
       selectedGenre === "all"
     ) {
-      return `Showing ${games.length} supported games`;
+      return `Showing ${modules.length} supported games`;
     }
 
     return filteredGames.length > 0
@@ -116,38 +110,20 @@ const GameServersPage = () => {
           filteredGames.length === 1 ? "" : "s"
         }`
       : "No games match your filters yet";
-  }, [loading, error, games.length, filteredGames.length, searchTerm, selectedGenre]);
+  }, [loading, error, modules.length, filteredGames.length, searchTerm, selectedGenre]);
 
   const formatPlayers = (players: number | null) => {
     if (players === null || players === undefined) return "N/A";
     return players.toString();
   };
 
-  const formatRamRange = (minRam: number | null, maxRam: number | null) => {
-    if (minRam === null && maxRam === null) return "N/A";
-
-    const toGb = (value: number) => {
-      const converted = value > 64 ? value / 1024 : value;
-      return Number.isInteger(converted) ? converted.toString() : converted.toFixed(1);
-    };
-
-    if (minRam !== null && maxRam !== null) {
-      const minGb = toGb(minRam);
-      const maxGb = toGb(maxRam);
-      if (minGb === maxGb) return `${minGb} GB`;
-      return `${minGb}–${maxGb} GB`;
-    }
-
-    if (minRam !== null) {
-      return `From ${toGb(minRam)} GB`;
-    }
-
-    return `Up to ${toGb(maxRam!)} GB`;
-  };
-
-  const formatPorts = (ports: number[]) => {
-    if (!ports || ports.length === 0) return "N/A";
-    return ports.join(", ");
+  const formatRam = (minRam: number | null) => {
+    if (minRam === null || minRam === undefined) return "N/A";
+    const normalized = minRam > 64 ? minRam / 1024 : minRam;
+    const display = Number.isInteger(normalized)
+      ? normalized.toString()
+      : normalized.toFixed(1);
+    return `${display}GB`;
   };
 
   const renderPlaceholderCards = (count: number) => (
@@ -205,7 +181,7 @@ const GameServersPage = () => {
               {!loading &&
                 popularGames.map((game) => (
                   <Card
-                    key={game.moduleId || game.name}
+                    key={game.id || game.name}
                     className="glass-card p-6 hover-scale hover-glow-secondary cursor-pointer"
                   >
                     <div className="text-center space-y-3">
@@ -221,7 +197,7 @@ const GameServersPage = () => {
                       )}
                       <h3 className="text-xl font-orbitron text-foreground mb-1">{game.name}</h3>
                       <p className="text-sm text-muted-foreground font-inter line-clamp-3">
-                        {game.description || "No description available."}
+                        {game.description || "Instantly deploy this game with CoreNode."}
                       </p>
                     </div>
                   </Card>
@@ -270,7 +246,7 @@ const GameServersPage = () => {
             {!loading &&
               filteredGames.map((game) => (
                 <Card
-                  key={game.moduleId || game.name}
+                  key={game.id || game.name}
                   className="glass-card p-6 hover-scale hover-glow-primary cursor-pointer"
                 >
                   <div className="space-y-4">
@@ -291,33 +267,29 @@ const GameServersPage = () => {
                       </div>
                       {game.category && (
                         <Badge variant="secondary" className="text-xs">
-                          {game.category || "Other"}
+                          {game.category}
                         </Badge>
                       )}
                     </div>
 
                     <Badge variant="outline" className="text-xs">
-                      {game.category || "Other"}
+                      {game.category || "Uncategorized"}
                     </Badge>
 
                     <p className="text-xs text-muted-foreground font-inter line-clamp-3">
-                      {game.description || "No description available."}
+                      {game.description || "Instantly deploy this game with CoreNode."}
                     </p>
 
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-xs">
                         <span className="flex items-center text-muted-foreground">
                           <HardDrive className="w-3 h-3 mr-1" />
-                          RAM: {formatRamRange(game.minRamMb, game.maxRamMb)}
+                          Min RAM: {formatRam(game.minRam)}
                         </span>
                         <span className="flex items-center text-muted-foreground">
                           <Users className="w-3 h-3 mr-1" />
-                          {formatPlayers(game.recommendedSlots)} slots
+                          {formatPlayers(game.players)} players
                         </span>
-                      </div>
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <Server className="w-3 h-3 mr-1" />
-                        Default Ports: {formatPorts(game.defaultPorts)}
                       </div>
                     </div>
 

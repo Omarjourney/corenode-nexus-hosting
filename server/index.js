@@ -4,14 +4,14 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const ampModulesRouter = require('./routes/amp-modules');
+const gameModulesRouter = require('./routes/game-modules');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/api', ampModulesRouter);
+app.use('/', gameModulesRouter);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
