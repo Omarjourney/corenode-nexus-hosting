@@ -46,7 +46,7 @@ export default function CommandPalette() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="p-0 overflow-hidden">
-        <Command label="CoreNode Command Palette">
+        <Command label="CodeNodeX Command Palette">
           <div className="p-3 border-b border-glass-border">
             <Input
               autoFocus

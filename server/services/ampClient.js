@@ -35,7 +35,7 @@ function normalizeModule(module = {}) {
 
 async function listModules() {
   if (!AMP_URL) {
-    throw new Error('AMP_URL is not configured');
+    throw new Error('CNX CommandCenter™ endpoint (AMP_URL) is not configured');
   }
 
   const response = await axios.post(

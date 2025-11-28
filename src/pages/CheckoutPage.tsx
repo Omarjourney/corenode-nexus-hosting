@@ -106,7 +106,7 @@ const CheckoutPage = ({ title }: Props) => {
             <p className="text-xs font-orbitron tracking-[0.2em] text-primary">Checkout</p>
             <h1 className="text-4xl font-orbitron font-bold text-gradient-primary">{title} Checkout</h1>
             <p className="text-muted-foreground font-inter">
-              Select your tier, multi-game profiles, and CoreNodeX add-ons.
+              Select your tier, multi-game profiles, and CodeNodeX add-ons.
             </p>
           </div>
 

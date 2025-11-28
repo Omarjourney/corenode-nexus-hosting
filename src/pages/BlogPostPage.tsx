@@ -31,7 +31,7 @@ const BlogPostPage = () => {
   return (
     <>
       <SEO
-        title={`${meta.title} – CoreNode Hosting`}
+        title={`${meta.title} – CodeNodeX Hosting`}
         description={meta.description}
         keywords={meta.keywords}
         canonical={`https://example.com/blog/${slug}`}

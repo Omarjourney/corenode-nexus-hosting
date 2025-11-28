@@ -27,7 +27,7 @@ const posts: BlogPost[] = Object.entries(
 const BlogIndex = () => (
   <>
     <SEO
-      title="Blog – CoreNode Hosting"
+      title="Blog – CodeNodeX Hosting"
       description="Tips on running game servers and hosting with CNX CommandCenter™ and CorePanel Lite™."
       keywords="game server blog"
       canonical="https://example.com/blog"

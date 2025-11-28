@@ -147,8 +147,8 @@ const GameServersPage = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <SEO
-        title="Game Server Hosting – 80+ Games | CoreNode"
-        description="Instant deployment for 80+ games including Rust, ARK, Valheim and more. Custom resources, mod support, and expert 24/7 support."
+        title="Game Server Hosting – 80+ Games | CodeNodeX"
+        description="Instant deployment for 80+ games including Rust, ARK, Valheim and more. Custom resources, mod support, and expert 24/7 support from CodeNodeX."
         keywords="game server hosting, rust server, valheim server, ark server, instant deploy"
       />
       <Navigation />
@@ -197,7 +197,7 @@ const GameServersPage = () => {
                       )}
                       <h3 className="text-xl font-orbitron text-foreground mb-1">{game.name}</h3>
                       <p className="text-sm text-muted-foreground font-inter line-clamp-3">
-                        {game.description || "Instantly deploy this game with CoreNode."}
+                        {game.description || "Instantly deploy this game with CodeNodeX."}
                       </p>
                     </div>
                   </Card>
@@ -277,7 +277,7 @@ const GameServersPage = () => {
                     </Badge>
 
                     <p className="text-xs text-muted-foreground font-inter line-clamp-3">
-                      {game.description || "Instantly deploy this game with CoreNode."}
+                      {game.description || "Instantly deploy this game with CodeNodeX."}
                     </p>
 
                     <div className="space-y-2">

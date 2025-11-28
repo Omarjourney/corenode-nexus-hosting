@@ -32,10 +32,10 @@ router.get('/games', async (_req, res) => {
       grouped,
     });
   } catch (error) {
-    console.error('Failed to fetch game templates from AMP:', error);
+    console.error('Failed to fetch game templates from CNX CommandCenter™:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch game templates from AMP',
+      error: 'Failed to fetch game templates from CNX CommandCenter™',
       details: error?.message || 'Unknown error',
     });
   }

@@ -4,15 +4,16 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import SEO from "@/components/SEO";
+import { catalogPricing } from "@/data/pricing";
 
 const plans = [
   {
     id: "basic",
     name: "Basic",
-    price: 2.99,
+    price: catalogPricing.web.core.price,
     features: [
       "1 Website",
-      "10GB SSD",
+      `${catalogPricing.web.core.storage}`,
       "1 Email",
       "Free SSL",
       "Weekly Backups",
@@ -21,10 +22,10 @@ const plans = [
   {
     id: "standard",
     name: "Standard",
-    price: 4.99,
+    price: catalogPricing.web.elite.price,
     features: [
       "5 Websites",
-      "25GB SSD",
+      `${catalogPricing.web.elite.storage}`,
       "5 Emails",
       "Free SSL + CDN",
       "Daily Backups",
@@ -34,10 +35,10 @@ const plans = [
   {
     id: "premium",
     name: "Premium",
-    price: 8.99,
+    price: catalogPricing.web.creator.price,
     features: [
       "Unlimited Websites",
-      "100GB SSD",
+      `${catalogPricing.web.creator.storage}`,
       "Unlimited Emails",
       "Free SSL + CDN",
       "Real-Time Backups",
@@ -56,7 +57,7 @@ const WebHostingPage = () => {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <SEO
-        title="Web Hosting – Fast & Reliable cPanel | CoreNode"
+        title="Web Hosting – Fast & Reliable cPanel | CodeNodeX"
         description="Affordable web hosting with free SSL, backups, and CDN. Choose Basic, Standard, or Premium plans with instant activation."
         keywords="web hosting, cpanel hosting, ssl, backups, cdn"
       />

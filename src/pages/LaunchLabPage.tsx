@@ -22,7 +22,7 @@ export default function LaunchLabPage() {
   return (
     <div className="min-h-screen bg-gradient-hero">
       <SEO
-        title="Launch Lab – Visual Server Builder | CoreNode"
+        title="Launch Lab – Visual Server Builder | CodeNodeX"
         description="Build your server visually with live pricing for CPU, RAM, and storage. Share your configuration and deploy in seconds."
       />
       <Navigation />
