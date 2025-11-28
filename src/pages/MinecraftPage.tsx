@@ -239,8 +239,8 @@ const MinecraftPage = () => {
   return (
     <>
       <SEO
-        title="Fast Minecraft Hosting – $3.49/mo Miami Servers"
-        description="Get low-lag Minecraft servers with AMP Panel. Host in Miami for LATAM speed – starting at $3.49/month."
+        title="Fast Minecraft Hosting – $4.49/mo Miami Servers"
+        description="Get low-lag Minecraft servers with CNX CommandCenter™ and CorePanel Lite™. Host in Miami for LATAM speed – starting at $4.49/month."
         keywords="minecraft server hosting, fast minecraft hosting, miami servers"
         canonical="https://example.com/minecraft"
         jsonLd={{
@@ -248,10 +248,10 @@ const MinecraftPage = () => {
           '@type': 'Product',
           name: 'Minecraft Server Hosting',
           description:
-            'Fast Minecraft hosting with Miami servers for LATAM players starting at $3.49/mo.',
+            'Fast Minecraft hosting with Miami servers for LATAM players starting at $4.49/mo.',
           offers: {
             '@type': 'Offer',
-            price: '3.49',
+            price: '4.49',
             priceCurrency: 'USD',
             availability: 'https://schema.org/InStock'
           }

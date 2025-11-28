@@ -16,7 +16,7 @@ export default function ProConfiguratorPage() {
   const [region, setRegion] = useState('Miami');
 
   const estimate = useMemo(() => {
-    const base = game === 'Minecraft' ? 3.49 : 4.99;
+    const base = game === 'Minecraft' ? 4.49 : 6.49;
     const modsCost = mods ? 2.5 : 0;
     const playerCost = Math.max(0, (players[0] - 10) * 0.1);
     const ramCost = ram[0] * 0.7;

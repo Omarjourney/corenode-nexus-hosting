@@ -15,8 +15,8 @@ Miami offers fantastic latency for LATAM players. [Minecraft.net](https://www.mi
 ## FAQ
 
 ### How do I launch quickly?
-Use an AMP panel for instant setup. See [AMP docs](https://cubecoders.com/AMP) for more details.
+Use **CNX CommandCenter™** or **CorePanel Lite™** for instant setup. Blueprints and auto-mod installers ship with CommandCenter™ to pre-load packs in seconds.
 
 ## Conclusion
 
-Ready to play? [Launch your server for $3.49/mo →](/minecraft)
+Ready to play? [Launch your server for $4.49/mo →](/minecraft)

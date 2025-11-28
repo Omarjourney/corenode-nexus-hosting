@@ -28,7 +28,7 @@ const BlogIndex = () => (
   <>
     <SEO
       title="Blog – CoreNode Hosting"
-      description="Tips on running game servers and hosting with AMP."
+      description="Tips on running game servers and hosting with CNX CommandCenter™ and CorePanel Lite™."
       keywords="game server blog"
       canonical="https://example.com/blog"
       jsonLd={{ '@context': 'https://schema.org', '@type': 'Blog' }}
