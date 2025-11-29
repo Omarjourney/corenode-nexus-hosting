@@ -40,6 +40,7 @@ const App = () => (
             <Route path="/web-hosting" element={<WebHostingPage />} />
             <Route path="/web-hosting/checkout" element={<CheckoutPage title="Web Hosting" />} />
             <Route path="/vps" element={<VpsPage />} />
+            <Route path="/vps/:tier" element={<VpsPage />} />
             <Route path="/vps/checkout" element={<CheckoutPage title="VPS" />} />
             <Route path="/dedicated" element={<DedicatedPage />} />
             <Route path="/dedicated/checkout" element={<CheckoutPage title="Dedicated" />} />
