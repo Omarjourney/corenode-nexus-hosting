@@ -8,7 +8,10 @@ import type { TierId } from "@/types/hosting";
 const editionKeys = Object.keys(config.editions) as (keyof typeof config.editions)[];
 const tierKeys = Object.keys(config.tiers) as TierId[];
 
-function calculateTierPrice(base: number, tier: TierId) {
+function calculateTierPrice(base: number, tier: TierId, editionKey: keyof typeof config.editions, ram: number) {
+  const officialPrice = config.editions[editionKey]?.officialPrices?.[tier]?.[String(ram)];
+  if (typeof officialPrice === "number") return officialPrice;
+
   const multiplier = config.tiers[tier].multiplier;
   return parseFloat((base * multiplier).toFixed(2));
 }
@@ -74,7 +77,7 @@ export function MinecraftConfigurator() {
     return packs * config.billing.slotPackPrice;
   }, [slots, step]);
 
-  const tierBasePrice = calculateTierPrice(step.price, tier);
+  const tierBasePrice = calculateTierPrice(step.price, tier, edition, step.ram);
   const totalPrice = useMemo(() => {
     if (!Number.isFinite(tierBasePrice)) return null;
     const sum = tierBasePrice + cpuUpgradeCost + storageUpgradeCost + slotUpgradeCost;
@@ -157,9 +160,8 @@ export function MinecraftConfigurator() {
               className="w-full"
             />
             <p className="text-xs text-slate-500">
-              Storage upgrades bill in {config.billing.storageUpgradePacks[0].size}GB and
-              {" "}
-              {config.billing.storageUpgradePacks[1].size}GB packs above included {step.storage}GB.
+              Storage upgrades bill in {config.billing.storageUpgradePacks.map((pack) => `${pack.size}GB`).join(", ")} packs
+              above included {step.storage}GB.
             </p>
           </div>
         </div>

@@ -25,14 +25,14 @@ interface Plan {
 const plans: Plan[] = [
   {
     name: "CORE",
-    priceLabel: "$4.49/mo",
+    priceLabel: "$5.49/mo",
     controlPanel: "CorePanel Lite™",
     description: "Budget-friendly power with CorePanel Lite™ for quick starts.",
     packages: [
-      { ram: "2GB", price: "$4.49" },
-      { ram: "4GB", price: "$7.49" },
-      { ram: "8GB", price: "$13.49" },
-      { ram: "24GB", price: "$39.49" },
+      { ram: "2GB", price: "$5.49" },
+      { ram: "4GB", price: "$7.99" },
+      { ram: "6GB", price: "$11.49" },
+      { ram: "8GB", price: "$14.99" },
     ],
     features: [
       "DDoS shielded network",
@@ -50,9 +50,9 @@ const plans: Plan[] = [
     description: "Premium automation with CNX CommandCenter™ and AI safeguards.",
     packages: [
       { ram: "4GB", price: "$11.49" },
-      { ram: "10GB", price: "$21.49" },
-      { ram: "16GB", price: "$36.49" },
-      { ram: "32GB", price: "$67.49" },
+      { ram: "6GB", price: "$16.49" },
+      { ram: "8GB", price: "$21.49" },
+      { ram: "12GB", price: "$31.49" },
     ],
     features: [
       "AI HealthGuard + CrashGuard Auto-Recovery",
@@ -64,15 +64,14 @@ const plans: Plan[] = [
   },
   {
     name: "CREATOR",
-    priceLabel: "$49.99/mo",
+    priceLabel: "$59.99/mo",
     tag: "Pro Grade",
     controlPanel: "CNX CommandCenter™ + Dedicated CPU",
     description: "Streamer-grade isolation with dedicated CPU and automation.",
     packages: [
-      { ram: "16GB", price: "$49.99" },
-      { ram: "24GB", price: "$69.99" },
-      { ram: "32GB", price: "$89.99" },
-      { ram: "48GB", price: "$129.99" },
+      { ram: "16GB", price: "$59.99" },
+      { ram: "24GB", price: "$87.99" },
+      { ram: "32GB", price: "$114.99" },
     ],
     features: [
       "Dedicated Ryzen vCores",

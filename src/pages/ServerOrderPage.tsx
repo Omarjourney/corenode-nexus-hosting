@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -11,9 +11,9 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const pricing: Record<string, Record<number, number>> = {
-  CORE: {2:4.49,4:7.49,6:10.49,8:13.49,10:16.49,12:20.49,16:26.49,24:39.49},
-  ELITE: {4:11.49,6:14.49,8:17.49,10:21.49,12:27.49,16:36.49,24:51.49,32:67.49},
-  CREATOR: {16:49.99,24:69.99,32:89.99,48:129.99}
+  CORE: {2: 5.49, 4: 7.99, 6: 11.49, 8: 14.99},
+  ELITE: {4: 11.49, 6: 16.49, 8: 21.49, 12: 31.49},
+  CREATOR: {16: 59.99, 24: 87.99, 32: 114.99}
 };
 
 const multiProfiles = [
@@ -24,12 +24,20 @@ const multiProfiles = [
 ];
 
 const addons = [
-  { name: "Dedicated IP", price: 2.99, type: "monthly" },
-  { name: "Extra 50GB NVMe", price: 2.99, type: "monthly" },
-  { name: "Automatic Backups", price: 3.99, type: "monthly" },
-  { name: "Modpack Auto-Install", price: 1.99, type: "one-time" },
-  { name: "CrashGuard AI", price: 3.49, type: "monthly" },
-  { name: "Priority Support", price: 4.99, type: "monthly" }
+  { name: "+1GB RAM", price: 2.49, type: "monthly" },
+  { name: "+2GB RAM", price: 4.99, type: "monthly" },
+  { name: "+4GB RAM", price: 9.99, type: "monthly" },
+  { name: "+8GB RAM", price: 19.99, type: "monthly" },
+  { name: "CPU Boost (Core → Elite)", price: 5, type: "monthly" },
+  { name: "CPU Boost (Elite → Creator)", price: 10, type: "monthly" },
+  { name: "+10GB Premium SSD", price: 2.99, type: "monthly" },
+  { name: "+25GB Premium SSD", price: 6.99, type: "monthly" },
+  { name: "+50GB Premium SSD", price: 12.99, type: "monthly" },
+  { name: "+100GB Premium SSD", price: 24.99, type: "monthly" },
+  { name: "Basic Backup (50GB)", price: 6.99, type: "monthly" },
+  { name: "Pro Backup (100GB)", price: 9.99, type: "monthly" },
+  { name: "Enterprise Backup (250GB)", price: 19.99, type: "monthly" },
+  { name: "Ultimate Backup (500GB)", price: 34.99, type: "monthly" }
 ];
 
 const games = [
@@ -63,6 +71,13 @@ const ServerOrderPage = () => {
     () => Object.keys(pricing[tier] || {}).map((r) => Number(r)).sort((a, b) => a - b),
     [tier]
   );
+
+  useEffect(() => {
+    const firstOption = availableRam[0];
+    if (firstOption && pricing[tier][Number(ram)] === undefined) {
+      setRam(firstOption.toString());
+    }
+  }, [availableRam, ram, tier]);
 
   const basePrice = useMemo(() => pricing[tier][Number(ram)] ?? 0, [tier, ram]);
 

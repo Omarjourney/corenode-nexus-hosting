@@ -6,7 +6,7 @@ keywords: "fast minecraft hosting, miami servers"
 
 # Fast Minecraft Hosting 2025
 
-Running a **Minecraft** server shouldn't break the bank. This guide explores the best ways to get blazing fast servers in Miami while keeping costs under $5 per month.
+Running a **Minecraft** server shouldn't break the bank. This guide explores the best ways to get blazing fast servers in Miami while keeping costs under $6 per month (and under $5 for Bedrock).
 
 ## Why Miami?
 
@@ -19,4 +19,4 @@ Use **CNX CommandCenter™** or **CorePanel Lite™** for instant setup. Bluepri
 
 ## Conclusion
 
-Ready to play? [Launch your server for $4.49/mo →](/minecraft)
+Ready to play? [Launch Bedrock from $4.49/mo or Java from $5.49/mo →](/minecraft)

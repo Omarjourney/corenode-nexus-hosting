@@ -12,7 +12,7 @@ export default function LaunchLabPage() {
   const [storage, setStorage] = useState([40]);
 
   const price = useMemo(() => {
-    const base = 4.49;
+    const base = 5.49;
     const cpuCost = (cpu[0] - 1) * 2.0;
     const ramCost = ram[0] * 0.8;
     const stoCost = Math.max(0, (storage[0] - 25) * 0.05);
