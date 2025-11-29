@@ -6,7 +6,7 @@ const GameServersPage = () => (
   <div className="min-h-screen bg-gradient-hero">
     <SEO
       title="Game Server Hosting – CodeNodeX"
-      description="Deploy Rust, ARK, Valheim, Minecraft, and more with CommandCenter™ automation and CorePanel Lite™."
+      description="Deploy Rust, ARK, Valheim, and more with CommandCenter™ automation and CorePanel Lite™."
       keywords="game server hosting, rust server, valheim server, ark server, instant deploy"
     />
     <Navigation />

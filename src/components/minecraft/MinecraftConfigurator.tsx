@@ -44,10 +44,29 @@ export function MinecraftConfigurator() {
     [cpu, step]
   );
 
-  const storageUpgradeCost = useMemo(
-    () => Math.max(0, storage - step.storage) * config.billing.storagePerGb,
-    [storage, step]
-  );
+  const storageUpgradeCost = useMemo(() => {
+    const extra = Math.max(0, storage - step.storage);
+    if (extra === 0) return 0;
+
+    const packs = [...config.billing.storageUpgradePacks].sort((a, b) => b.size - a.size);
+    let remaining = extra;
+    let cost = 0;
+
+    for (const pack of packs) {
+      if (remaining >= pack.size) {
+        const count = Math.floor(remaining / pack.size);
+        cost += count * pack.price;
+        remaining -= count * pack.size;
+      }
+    }
+
+    if (remaining > 0) {
+      const smallest = packs[packs.length - 1];
+      cost += smallest.price;
+    }
+
+    return parseFloat(cost.toFixed(2));
+  }, [storage, step]);
 
   const slotUpgradeCost = useMemo(() => {
     if (slots <= step.slots) return 0;
@@ -58,7 +77,9 @@ export function MinecraftConfigurator() {
   const tierBasePrice = calculateTierPrice(step.price, tier);
   const totalPrice = useMemo(() => {
     if (!Number.isFinite(tierBasePrice)) return null;
-    return parseFloat((tierBasePrice + cpuUpgradeCost + storageUpgradeCost + slotUpgradeCost).toFixed(2));
+    const sum = tierBasePrice + cpuUpgradeCost + storageUpgradeCost + slotUpgradeCost;
+    if (sum <= 0) return null;
+    return parseFloat(sum.toFixed(2));
   }, [tierBasePrice, cpuUpgradeCost, storageUpgradeCost, slotUpgradeCost]);
 
   const ramMarkers = steps.map((s) => `${s.ram}GB`);
@@ -130,12 +151,16 @@ export function MinecraftConfigurator() {
               type="range"
               min={step.storage}
               max={step.storage + 300}
-              step={10}
+              step={50}
               value={storage}
-              onChange={(e) => setStorage(Number(e.target.value))}
+              onChange={(e) => setStorage(Number(e.target.value) || step.storage)}
               className="w-full"
             />
-            <p className="text-xs text-slate-500">${config.billing.storagePerGb.toFixed(3)}/GB beyond included {step.storage}GB.</p>
+            <p className="text-xs text-slate-500">
+              Storage upgrades bill in {config.billing.storageUpgradePacks[0].size}GB and
+              {" "}
+              {config.billing.storageUpgradePacks[1].size}GB packs above included {step.storage}GB.
+            </p>
           </div>
         </div>
 
@@ -206,7 +231,7 @@ export function MinecraftConfigurator() {
           <ul className="list-disc list-inside space-y-1">
             <li>RAM slider drives base pricing by tier</li>
             <li>CPU upgrades only bill above the included cores</li>
-            <li>Storage billed at ${config.billing.storagePerGb.toFixed(3)}/GB beyond included NVMe</li>
+            <li>Storage billed in 50GB and 100GB NVMe packs from $2.99/mo</li>
             <li>Slots stay free until premium packs are added</li>
           </ul>
         </div>

@@ -17,7 +17,7 @@ const Navigation = () => {
       name: "Minecraft",
       href: "/minecraft",
       dropdown: true,
-      sections: ["Java Edition", "Bedrock Edition", "Modpack Support"]
+      sections: ["Java Edition", "Modpack Support"]
     },
     {
       name: "Game Servers",

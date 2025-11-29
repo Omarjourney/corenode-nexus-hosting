@@ -12,7 +12,7 @@ type Action = {
 };
 
 const actions: Action[] = [
-  { id: 'minecraft', label: 'Start a Minecraft server', hint: 'Java/Bedrock', to: '/minecraft' },
+  { id: 'minecraft', label: 'Start a Minecraft server', hint: 'Java', to: '/minecraft' },
   { id: 'games', label: 'Explore Game Servers', hint: '80+ supported', to: '/game-servers' },
   { id: 'voice', label: 'Host a Voice Server', hint: 'TeamSpeak, Mumble, Discord', to: '/voice-servers' },
   { id: 'web', label: 'Get Web Hosting', hint: 'cPanel plans', to: '/web-hosting' },
