@@ -247,11 +247,12 @@ const HomePage = () => {
           style={{
             position: 'relative',
             width: '100%',
-            minHeight: '75vh',
+            minHeight: '60vh',
             backgroundImage:
               "url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&auto=format&fm=webp')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
+            paddingBottom: '40px',
           }}
         >
           <div
@@ -265,7 +266,7 @@ const HomePage = () => {
             style={{
               position: 'relative',
               zIndex: 1,
-              padding: '80px 20px',
+              padding: '80px 20px 40px',
               textAlign: 'center',
             }}
           >
@@ -293,20 +294,12 @@ const HomePage = () => {
         <section
           className="features-section"
           style={{
-            padding: '80px 20px',
+            padding: '48px 20px 64px',
             background: 'linear-gradient(180deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.95) 100%)',
+            marginTop: '-32px',
           }}
         >
-          <div
-            className="features-grid"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-              gap: '40px',
-              maxWidth: '1200px',
-              margin: '0 auto',
-            }}
-          >
+          <div className="features-grid">
             {/* Feature 1: NVMe SSD */}
             <div
               className="feature-card"
@@ -763,14 +756,13 @@ const HomePage = () => {
             }}
           >
             <img
-              src="https://illustrations.popsy.co/amber/web-development.svg"
+              src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fm=webp&q=80"
               alt="Web Hosting"
               loading="lazy"
               style={{
                 width: '100%',
                 height: '200px',
-                objectFit: 'contain',
-                padding: '20px',
+                objectFit: 'cover',
               }}
             />
             <div style={{ padding: '16px' }}>
