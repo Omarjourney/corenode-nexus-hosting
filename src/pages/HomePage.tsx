@@ -289,101 +289,383 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* FEATURES GRID */}
+        {/* FEATURE ICONS */}
         <section
+          className="features-section"
           style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '24px',
-            justifyContent: 'center',
-            padding: '40px 20px',
+            padding: '80px 20px',
+            background: 'linear-gradient(180deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.95) 100%)',
           }}
         >
-          {/* NVMe SSD Storage */}
-          <div style={{ width: '120px', textAlign: 'center' }}>
-            <img
-              src="https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&auto=format&fm=webp"
-              alt="NVMe SSD Storage"
-              loading="lazy"
-              width={80}
-              height={80}
-              style={{ borderRadius: '12px', objectFit: 'cover', margin: '0 auto' }}
-            />
-            <p style={{ marginTop: '8px', fontSize: '0.95rem' }}>NVMe SSD Storage</p>
-          </div>
-
-          {/* Global POPs */}
-          <div style={{ width: '120px', textAlign: 'center' }}>
-            <img
-              src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&auto=format&fm=webp"
-              alt="Global Network"
-              loading="lazy"
-              width={120}
-              height={120}
+          <div
+            className="features-grid"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: '40px',
+              maxWidth: '1200px',
+              margin: '0 auto',
+            }}
+          >
+            {/* Feature 1: NVMe SSD */}
+            <div
+              className="feature-card"
               style={{
-                borderRadius: '12px',
-                objectFit: 'cover',
-                opacity: 0.8,
-                margin: '0 auto',
+                textAlign: 'center',
+                padding: '24px',
+                background: 'rgba(30, 41, 59, 0.6)',
+                borderRadius: '16px',
+                border: '1px solid rgba(6, 182, 212, 0.2)',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
               }}
-            />
-            <p style={{ marginTop: '8px', fontSize: '0.95rem' }}>Global POPs</p>
-          </div>
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px)';
+                e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.6)';
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(6, 182, 212, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.2)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <img
+                src="https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&auto=format&fm=webp&q=90"
+                alt="NVMe SSD Storage"
+                loading="lazy"
+                style={{
+                  width: '96px',
+                  height: '96px',
+                  objectFit: 'cover',
+                  borderRadius: '12px',
+                  margin: '0 auto 16px',
+                  display: 'block',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                }}
+              />
+              <h3
+                style={{
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  color: '#06b6d4',
+                  marginBottom: '8px',
+                }}
+              >
+                NVMe Everywhere
+              </h3>
+              <p
+                style={{
+                  fontSize: '0.9rem',
+                  color: 'rgba(255,255,255,0.7)',
+                  lineHeight: '1.5',
+                }}
+              >
+                Full NVMe stack tuned for low latency
+              </p>
+            </div>
 
-          {/* Fast Deployment */}
-          <div style={{ width: '120px', textAlign: 'center' }}>
-            <img
-              src="https://illustrations.popsy.co/amber/rocket-launch.svg"
-              alt="Fast Deployment"
-              loading="lazy"
-              width={64}
-              height={64}
-              style={{ margin: '0 auto' }}
-            />
-            <p style={{ marginTop: '8px', fontSize: '0.95rem' }}>Start in 10s</p>
-          </div>
-
-          {/* AI HealthGuard */}
-          <div style={{ width: '120px', textAlign: 'center' }}>
-            <img
-              src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&auto=format&fm=webp"
-              alt="AI Monitoring"
-              loading="lazy"
-              width={80}
-              height={80}
+            {/* Feature 2: Global POPs */}
+            <div
+              className="feature-card"
               style={{
-                borderRadius: '50%',
-                objectFit: 'cover',
-                margin: '0 auto',
+                textAlign: 'center',
+                padding: '24px',
+                background: 'rgba(30, 41, 59, 0.6)',
+                borderRadius: '16px',
+                border: '1px solid rgba(6, 182, 212, 0.2)',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
               }}
-            />
-            <p style={{ marginTop: '8px', fontSize: '0.95rem' }}>AI HealthGuard</p>
-          </div>
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px)';
+                e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.6)';
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(6, 182, 212, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.2)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <img
+                src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&auto=format&fm=webp&q=90"
+                alt="Global Network"
+                loading="lazy"
+                style={{
+                  width: '96px',
+                  height: '96px',
+                  objectFit: 'cover',
+                  borderRadius: '12px',
+                  margin: '0 auto 16px',
+                  display: 'block',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                }}
+              />
+              <h3
+                style={{
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  color: '#06b6d4',
+                  marginBottom: '8px',
+                }}
+              >
+                Global POPs
+              </h3>
+              <p
+                style={{
+                  fontSize: '0.9rem',
+                  color: 'rgba(255,255,255,0.7)',
+                  lineHeight: '1.5',
+                }}
+              >
+                Route players to the closest edge automatically
+              </p>
+            </div>
 
-          {/* 1-Click Mods */}
-          <div style={{ width: '120px', textAlign: 'center' }}>
-            <img
-              src="https://illustrations.popsy.co/amber/one-click.svg"
-              alt="1-Click Mod Installer"
-              loading="lazy"
-              width={64}
-              height={64}
-              style={{ margin: '0 auto' }}
-            />
-            <p style={{ marginTop: '8px', fontSize: '0.95rem' }}>1-Click Mods</p>
-          </div>
+            {/* Feature 3: Fast Deployment */}
+            <div
+              className="feature-card"
+              style={{
+                textAlign: 'center',
+                padding: '24px',
+                background: 'rgba(30, 41, 59, 0.6)',
+                borderRadius: '16px',
+                border: '1px solid rgba(6, 182, 212, 0.2)',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px)';
+                e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.6)';
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(6, 182, 212, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.2)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <div
+                style={{
+                  width: '96px',
+                  height: '96px',
+                  margin: '0 auto 16px',
+                  background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 12px rgba(6, 182, 212, 0.4)',
+                }}
+              >
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
+                </svg>
+              </div>
+              <h3
+                style={{
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  color: '#06b6d4',
+                  marginBottom: '8px',
+                }}
+              >
+                10s Boot
+              </h3>
+              <p
+                style={{
+                  fontSize: '0.9rem',
+                  color: 'rgba(255,255,255,0.7)',
+                  lineHeight: '1.5',
+                }}
+              >
+                Blueprints pre-stage files so servers light up fast
+              </p>
+            </div>
 
-          {/* Advanced DDoS */}
-          <div style={{ width: '120px', textAlign: 'center' }}>
-            <img
-              src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=400&auto=format&fm=webp"
-              alt="DDoS Protection"
-              loading="lazy"
-              width={64}
-              height={64}
-              style={{ margin: '0 auto' }}
-            />
-            <p style={{ marginTop: '8px', fontSize: '0.95rem' }}>Advanced DDoS</p>
+            {/* Feature 4: AI HealthGuard */}
+            <div
+              className="feature-card"
+              style={{
+                textAlign: 'center',
+                padding: '24px',
+                background: 'rgba(30, 41, 59, 0.6)',
+                borderRadius: '16px',
+                border: '1px solid rgba(168, 85, 247, 0.2)',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px)';
+                e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.6)';
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(168, 85, 247, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.2)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <img
+                src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&auto=format&fm=webp&q=90"
+                alt="AI Monitoring"
+                loading="lazy"
+                style={{
+                  width: '96px',
+                  height: '96px',
+                  objectFit: 'cover',
+                  borderRadius: '50%',
+                  margin: '0 auto 16px',
+                  display: 'block',
+                  boxShadow: '0 4px 12px rgba(168, 85, 247, 0.4)',
+                }}
+              />
+              <h3
+                style={{
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  color: '#a855f7',
+                  marginBottom: '8px',
+                }}
+              >
+                AI HealthGuard
+              </h3>
+              <p
+                style={{
+                  fontSize: '0.9rem',
+                  color: 'rgba(255,255,255,0.7)',
+                  lineHeight: '1.5',
+                }}
+              >
+                Predictive alerts before lag or crashes
+              </p>
+            </div>
+
+            {/* Feature 5: 1-Click Mods */}
+            <div
+              className="feature-card"
+              style={{
+                textAlign: 'center',
+                padding: '24px',
+                background: 'rgba(30, 41, 59, 0.6)',
+                borderRadius: '16px',
+                border: '1px solid rgba(168, 85, 247, 0.2)',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px)';
+                e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.6)';
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(168, 85, 247, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.2)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <div
+                style={{
+                  width: '96px',
+                  height: '96px',
+                  margin: '0 auto 16px',
+                  background: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 12px rgba(168, 85, 247, 0.4)',
+                }}
+              >
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <path d="M9 12h6M12 9v6" />
+                </svg>
+              </div>
+              <h3
+                style={{
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  color: '#a855f7',
+                  marginBottom: '8px',
+                }}
+              >
+                1-Click Mods
+              </h3>
+              <p
+                style={{
+                  fontSize: '0.9rem',
+                  color: 'rgba(255,255,255,0.7)',
+                  lineHeight: '1.5',
+                }}
+              >
+                Install packs and switch profiles instantly
+              </p>
+            </div>
+
+            {/* Feature 6: Advanced DDoS */}
+            <div
+              className="feature-card"
+              style={{
+                textAlign: 'center',
+                padding: '24px',
+                background: 'rgba(30, 41, 59, 0.6)',
+                borderRadius: '16px',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px)';
+                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+                e.currentTarget.style.boxShadow = '0 12px 40px rgba(239, 68, 68, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <div
+                style={{
+                  width: '96px',
+                  height: '96px',
+                  margin: '0 auto 16px',
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)',
+                }}
+              >
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+              </div>
+              <h3
+                style={{
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  color: '#ef4444',
+                  marginBottom: '8px',
+                }}
+              >
+                Advanced DDoS
+              </h3>
+              <p
+                style={{
+                  fontSize: '0.9rem',
+                  color: 'rgba(255,255,255,0.7)',
+                  lineHeight: '1.5',
+                }}
+              >
+                Adaptive L3-7 mitigation with live shield status
+              </p>
+            </div>
           </div>
         </section>
 
