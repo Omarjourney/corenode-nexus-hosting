@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Menu, X } from "lucide-react";
@@ -10,6 +10,11 @@ const Navigation = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    setActiveDropdown(null);
+    setIsOpen(false);
+  }, [location.pathname]);
 
   type Section = string | { label: string; to: string };
   const navItems: { name: string; href: string; dropdown?: boolean; sections?: Section[] }[] = [
@@ -94,10 +99,11 @@ const Navigation = () => {
                     to={item.href}
                     className={cn(
                       "px-3 py-2 text-sm font-medium font-inter transition-all duration-300 flex items-center space-x-1 hover:text-primary",
-                      isActive(item.href) 
-                        ? "text-primary glow-primary" 
+                      isActive(item.href)
+                        ? "text-primary glow-primary"
                         : "text-foreground/80 hover-glow-primary"
                     )}
+                    onClick={() => setActiveDropdown(null)}
                   >
                     <span>{item.name}</span>
                     {item.dropdown && <ChevronDown className="w-4 h-4" />}
@@ -118,6 +124,7 @@ const Navigation = () => {
                             key={index}
                             to={to}
                             className="block px-4 py-2 text-sm text-foreground/80 hover:text-primary hover:bg-glass-surface transition-all duration-200"
+                            onClick={() => setActiveDropdown(null)}
                           >
                             {label}
                           </Link>
