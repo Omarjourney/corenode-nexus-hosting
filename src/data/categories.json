@@ -1,0 +1,26 @@
+{
+  "gameGenres": [
+    "survival",
+    "sandbox",
+    "fps",
+    "zombie",
+    "factory",
+    "strategy",
+    "co-op",
+    "pvp",
+    "horror",
+    "space",
+    "fantasy",
+    "simulation",
+    "hardcore",
+    "modded",
+    "rpg",
+    "adventure"
+  ],
+  "catalogs": {
+    "game": "Game Servers",
+    "minecraft": "Minecraft",
+    "voice": "Voice Servers",
+    "bots": "Bots"
+  }
+}

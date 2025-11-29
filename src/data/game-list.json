@@ -1,0 +1,952 @@
+[
+  {
+    "id": "rust",
+    "name": "Rust",
+    "tags": [
+      "survival",
+      "fps"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "ark",
+    "name": "ARK: Survival Evolved",
+    "tags": [
+      "survival",
+      "dinosaur"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 12,
+    "category": "game"
+  },
+  {
+    "id": "ark-ascended",
+    "name": "ARK: Survival Ascended",
+    "tags": [
+      "survival",
+      "dinosaur"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 16,
+    "category": "game"
+  },
+  {
+    "id": "valheim",
+    "name": "Valheim",
+    "tags": [
+      "survival",
+      "co-op"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "7d2d",
+    "name": "7 Days to Die",
+    "tags": [
+      "zombie",
+      "survival"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "project-zomboid",
+    "name": "Project Zomboid",
+    "tags": [
+      "zombie",
+      "isometric"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "conan-exiles",
+    "name": "Conan Exiles",
+    "tags": [
+      "survival",
+      "fantasy"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 10,
+    "category": "game"
+  },
+  {
+    "id": "dayz",
+    "name": "DayZ Standalone",
+    "tags": [
+      "survival",
+      "fps"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "cs2",
+    "name": "Counter-Strike 2",
+    "tags": [
+      "fps",
+      "competitive"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "tf2",
+    "name": "Team Fortress 2",
+    "tags": [
+      "fps",
+      "arena"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 2,
+    "category": "game"
+  },
+  {
+    "id": "insurgency-sandstorm",
+    "name": "Insurgency: Sandstorm",
+    "tags": [
+      "fps"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 6,
+    "category": "game"
+  },
+  {
+    "id": "unturned",
+    "name": "Unturned",
+    "tags": [
+      "zombie",
+      "sandbox"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "terraria",
+    "name": "Terraria",
+    "tags": [
+      "sandbox"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 2,
+    "category": "game"
+  },
+  {
+    "id": "starbound",
+    "name": "Starbound",
+    "tags": [
+      "sandbox",
+      "space"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 2,
+    "category": "game"
+  },
+  {
+    "id": "satisfactory",
+    "name": "Satisfactory",
+    "tags": [
+      "factory",
+      "co-op"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "factorio",
+    "name": "Factorio",
+    "tags": [
+      "factory",
+      "automation"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 2,
+    "category": "game"
+  },
+  {
+    "id": "eco",
+    "name": "Eco",
+    "tags": [
+      "simulation",
+      "co-op"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 6,
+    "category": "game"
+  },
+  {
+    "id": "space-engineers",
+    "name": "Space Engineers",
+    "tags": [
+      "space",
+      "sandbox"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 10,
+    "category": "game"
+  },
+  {
+    "id": "empyrion",
+    "name": "Empyrion Galactic Survival",
+    "tags": [
+      "space",
+      "survival"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "no-more-room-in-hell",
+    "name": "No More Room in Hell",
+    "tags": [
+      "zombie"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 2,
+    "category": "game"
+  },
+  {
+    "id": "dont-starve-together",
+    "name": "Don't Starve Together",
+    "tags": [
+      "survival",
+      "co-op"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 2,
+    "category": "game"
+  },
+  {
+    "id": "stellaris",
+    "name": "Stellaris (MP host)",
+    "tags": [
+      "strategy",
+      "space"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 2,
+    "category": "game"
+  },
+  {
+    "id": "gmod",
+    "name": "Garry's Mod",
+    "tags": [
+      "sandbox"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "hl2dm",
+    "name": "Half-Life 2: Deathmatch",
+    "tags": [
+      "fps"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 2,
+    "category": "game"
+  },
+  {
+    "id": "palworld",
+    "name": "Palworld",
+    "tags": [
+      "survival",
+      "creatures"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 12,
+    "category": "game"
+  },
+  {
+    "id": "grounded",
+    "name": "Grounded",
+    "tags": [
+      "survival",
+      "co-op"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "the-forest",
+    "name": "The Forest",
+    "tags": [
+      "horror",
+      "survival"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "sons-of-the-forest",
+    "name": "Sons of the Forest",
+    "tags": [
+      "horror",
+      "survival"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "mordhau",
+    "name": "MORDHAU",
+    "tags": [
+      "melee",
+      "pvp"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 6,
+    "category": "game"
+  },
+  {
+    "id": "l4d2",
+    "name": "Left 4 Dead 2",
+    "tags": [
+      "zombie",
+      "co-op"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 2,
+    "category": "game"
+  },
+  {
+    "id": "squad",
+    "name": "Squad",
+    "tags": [
+      "fps",
+      "tactical"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 10,
+    "category": "game"
+  },
+  {
+    "id": "arma3",
+    "name": "Arma 3",
+    "tags": [
+      "military",
+      "fps"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 12,
+    "category": "game"
+  },
+  {
+    "id": "scum",
+    "name": "SCUM",
+    "tags": [
+      "survival",
+      "hardcore"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 10,
+    "category": "game"
+  },
+  {
+    "id": "vrising",
+    "name": "V Rising",
+    "tags": [
+      "vampire",
+      "survival"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "miscreated",
+    "name": "Miscreated",
+    "tags": [
+      "survival"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "blackwake",
+    "name": "Blackwake",
+    "tags": [
+      "naval",
+      "fps"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "hurtworld",
+    "name": "Hurtworld",
+    "tags": [
+      "survival",
+      "pvp"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "atlas",
+    "name": "ATLAS",
+    "tags": [
+      "pirate",
+      "survival"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 12,
+    "category": "game"
+  },
+  {
+    "id": "outlaws",
+    "name": "Outlaws of the Old West",
+    "tags": [
+      "western",
+      "sandbox"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 10,
+    "category": "game"
+  },
+  {
+    "id": "fivem",
+    "name": "FiveM (GTA V)",
+    "tags": [
+      "rp",
+      "sandbox"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 10,
+    "category": "game"
+  },
+  {
+    "id": "redm",
+    "name": "RedM (RDR2)",
+    "tags": [
+      "rp",
+      "western"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 10,
+    "category": "game"
+  },
+  {
+    "id": "dayofinfamy",
+    "name": "Day of Infamy",
+    "tags": [
+      "fps",
+      "ww2"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "holdfast",
+    "name": "Holdfast: Nations At War",
+    "tags": [
+      "pvp",
+      "historic"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "chivalry2",
+    "name": "Chivalry 2",
+    "tags": [
+      "melee",
+      "pvp"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "bannerlord",
+    "name": "Mount & Blade II: Bannerlord",
+    "tags": [
+      "strategy",
+      "sandbox"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "kenshi",
+    "name": "Kenshi (Co-op)",
+    "tags": [
+      "sandbox",
+      "rpg"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "rimworld",
+    "name": "RimWorld Multiplayer",
+    "tags": [
+      "strategy",
+      "simulation"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "stellaris-modded",
+    "name": "Stellaris Modded Clusters",
+    "tags": [
+      "space",
+      "strategy"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 6,
+    "category": "game"
+  },
+  {
+    "id": "hoi4",
+    "name": "Hearts of Iron IV",
+    "tags": [
+      "strategy",
+      "ww2"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "bf4",
+    "name": "Battlefield 4",
+    "tags": [
+      "fps",
+      "modern"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "insurgency",
+    "name": "Insurgency (2014)",
+    "tags": [
+      "fps"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "arma-reforger",
+    "name": "Arma Reforger",
+    "tags": [
+      "military",
+      "fps"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 12,
+    "category": "game"
+  },
+  {
+    "id": "onward",
+    "name": "Onward VR Dedicated",
+    "tags": [
+      "vr",
+      "fps"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "pavlov",
+    "name": "Pavlov VR",
+    "tags": [
+      "vr",
+      "fps"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "vrchat",
+    "name": "VRChat Community",
+    "tags": [
+      "social",
+      "vr"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 6,
+    "category": "game"
+  },
+  {
+    "id": "space-station-14",
+    "name": "Space Station 14",
+    "tags": [
+      "simulation",
+      "roleplay"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "mindustry",
+    "name": "Mindustry",
+    "tags": [
+      "tower",
+      "factory"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 2,
+    "category": "game"
+  },
+  {
+    "id": "staxel",
+    "name": "Staxel",
+    "tags": [
+      "sandbox",
+      "farm"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "vintage-story",
+    "name": "Vintage Story",
+    "tags": [
+      "survival",
+      "sandbox"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "core-keeper",
+    "name": "Core Keeper",
+    "tags": [
+      "survival",
+      "co-op"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "icarus",
+    "name": "ICARUS",
+    "tags": [
+      "survival",
+      "pve"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 10,
+    "category": "game"
+  },
+  {
+    "id": "myth-of-empires",
+    "name": "Myth of Empires",
+    "tags": [
+      "sandbox",
+      "pvp"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 12,
+    "category": "game"
+  },
+  {
+    "id": "path-of-titans",
+    "name": "Path of Titans",
+    "tags": [
+      "dinosaur",
+      "survival"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "the-isle",
+    "name": "The Isle",
+    "tags": [
+      "dinosaur",
+      "survival"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 10,
+    "category": "game"
+  },
+  {
+    "id": "star-citizen-org",
+    "name": "Star Citizen Org Services",
+    "tags": [
+      "space",
+      "org"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "stellaris-roleplay",
+    "name": "Stellaris RP Clusters",
+    "tags": [
+      "space",
+      "strategy"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 6,
+    "category": "game"
+  },
+  {
+    "id": "dnl",
+    "name": "Dark and Light",
+    "tags": [
+      "fantasy",
+      "survival"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 8,
+    "category": "game"
+  },
+  {
+    "id": "conan-testlive",
+    "name": "Conan Exiles TestLive",
+    "tags": [
+      "survival",
+      "fantasy"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 10,
+    "category": "game"
+  },
+  {
+    "id": "rust-modded",
+    "name": "Rust Modded Wipes",
+    "tags": [
+      "survival",
+      "modded"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 12,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-1",
+    "name": "Community Favorite #1",
+    "tags": [
+      "community",
+      "sandbox"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-2",
+    "name": "Community Favorite #2",
+    "tags": [
+      "community",
+      "survival"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-3",
+    "name": "Community Favorite #3",
+    "tags": [
+      "community",
+      "sandbox"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 6,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-4",
+    "name": "Community Favorite #4",
+    "tags": [
+      "community",
+      "survival"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-5",
+    "name": "Community Favorite #5",
+    "tags": [
+      "community",
+      "sandbox"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-6",
+    "name": "Community Favorite #6",
+    "tags": [
+      "community",
+      "survival"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 6,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-7",
+    "name": "Community Favorite #7",
+    "tags": [
+      "community",
+      "sandbox"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-8",
+    "name": "Community Favorite #8",
+    "tags": [
+      "community",
+      "survival"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-9",
+    "name": "Community Favorite #9",
+    "tags": [
+      "community",
+      "sandbox"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 6,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-10",
+    "name": "Community Favorite #10",
+    "tags": [
+      "community",
+      "survival"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-11",
+    "name": "Community Favorite #11",
+    "tags": [
+      "community",
+      "sandbox"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-12",
+    "name": "Community Favorite #12",
+    "tags": [
+      "community",
+      "survival"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 6,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-13",
+    "name": "Community Favorite #13",
+    "tags": [
+      "community",
+      "sandbox"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-14",
+    "name": "Community Favorite #14",
+    "tags": [
+      "community",
+      "survival"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-15",
+    "name": "Community Favorite #15",
+    "tags": [
+      "community",
+      "sandbox"
+    ],
+    "defaultTier": "elite",
+    "recommendedRam": 6,
+    "category": "game"
+  },
+  {
+    "id": "community-pack-16",
+    "name": "Community Favorite #16",
+    "tags": [
+      "community",
+      "survival"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "game"
+  },
+  {
+    "id": "minecraft-java",
+    "name": "Minecraft Java Edition",
+    "tags": [
+      "minecraft",
+      "sandbox"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 4,
+    "category": "minecraft"
+  },
+  {
+    "id": "minecraft-bedrock",
+    "name": "Minecraft Bedrock Edition",
+    "tags": [
+      "minecraft",
+      "crossplay"
+    ],
+    "defaultTier": "core",
+    "recommendedRam": 2,
+    "category": "minecraft"
+  }
+]

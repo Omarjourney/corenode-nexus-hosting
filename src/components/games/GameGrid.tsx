@@ -1,14 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { games } from "@/data/games";
+import { games, gameGenres, usingGameFallback } from "@/data/games";
 import { GameCard } from "./GameCard";
-
-const GENRES = ["all", "survival", "sandbox", "fps", "zombie", "factory", "voice"];
 
 export function GameGrid() {
   const [query, setQuery] = useState("");
   const [genre, setGenre] = useState("all");
+
+  const genreFilters = useMemo(() => ["all", ...gameGenres], []);
 
   const filtered = useMemo(() => {
     return games.filter((g) => {
@@ -35,7 +35,7 @@ export function GameGrid() {
           onChange={(e) => setGenre(e.target.value)}
           className="w-full rounded-xl bg-slate-900/80 px-3 py-2 text-sm text-slate-100 outline-none ring-1 ring-slate-700/70 focus:ring-cyan-400 md:w-40"
         >
-          {GENRES.map((g) => (
+          {genreFilters.map((g) => (
             <option key={g} value={g}>
               {g === "all" ? "All genres" : g[0].toUpperCase() + g.slice(1)}
             </option>
@@ -45,7 +45,9 @@ export function GameGrid() {
 
       {filtered.length === 0 ? (
         <div className="rounded-xl bg-slate-900/80 p-4 text-sm text-slate-300">
-          No games match your search yet. Try a different keyword or genre.
+          {usingGameFallback
+            ? "Catalog is running in safe mode. Try another search term or genre."
+            : "No games match your search yet. Try a different keyword or genre."}
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
