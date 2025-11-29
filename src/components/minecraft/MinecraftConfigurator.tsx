@@ -106,9 +106,9 @@ export function MinecraftConfigurator() {
           ))}
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-semibold">RAM: {step.ram}GB</span>
+        <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-2 configurator-slider">
+          <div className="slider-label-row text-sm">
+            <span className="font-semibold slider-value">RAM: {step.ram}GB</span>
             <span className="text-xs text-slate-400">Base price: {formatPrice(step.price)}</span>
           </div>
           <input
@@ -128,9 +128,9 @@ export function MinecraftConfigurator() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-semibold">CPU Cores: {cpu}</span>
+          <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-2 configurator-slider">
+            <div className="slider-label-row text-sm">
+              <span className="font-semibold slider-value">CPU Cores: {cpu}</span>
               <span className="text-xs text-slate-400">Upgrade: {formatPrice(cpuUpgradeCost)}</span>
             </div>
             <input
@@ -145,9 +145,9 @@ export function MinecraftConfigurator() {
             <p className="text-xs text-slate-500">Base cores included. Costs apply only above {step.cpu} vCPU.</p>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-semibold">Storage: {storage}GB NVMe</span>
+          <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-2 configurator-slider">
+            <div className="slider-label-row text-sm">
+              <span className="font-semibold slider-value">Storage: {storage}GB NVMe</span>
               <span className="text-xs text-slate-400">Upgrade: {formatPrice(storageUpgradeCost)}</span>
             </div>
             <input
@@ -166,9 +166,9 @@ export function MinecraftConfigurator() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-semibold">Player Slots: {slots}</span>
+        <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-2 configurator-slider">
+          <div className="slider-label-row text-sm">
+            <span className="font-semibold slider-value">Player Slots: {slots}</span>
             <span className="text-xs text-slate-400">Premium packs: {formatPrice(slotUpgradeCost)}</span>
           </div>
           <input

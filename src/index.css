@@ -106,12 +106,229 @@
   @media (max-width: 1280px) {
     .features-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
     }
   }
 
   @media (max-width: 768px) {
     .features-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+  }
+
+  .feature-card {
+    min-height: 120px;
+    padding: 20px;
+  }
+
+  .hero-shell {
+    position: relative;
+    width: 100%;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-shell .hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 40px 20px 20px;
+  }
+
+  @media (max-width: 1024px) {
+    .hero-shell {
+      min-height: 35vh;
+      padding: 40px 20px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hero-shell {
+      min-height: 25vh;
+      padding: 30px 16px;
+    }
+  }
+
+  .section-spacing {
+    padding: 80px 40px;
+  }
+
+  @media (max-width: 1024px) {
+    .section-spacing {
+      padding: 60px 32px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .section-spacing {
+      padding: 40px 20px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .section-spacing {
+      padding: 32px 16px;
+    }
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 768px) {
+    .pricing-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+      padding: 0 16px;
+    }
+  }
+
+  .catalog-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: 1024px) {
+    .catalog-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .catalog-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+
+  .catalog-filters {
+    position: sticky;
+    top: 72px;
+    z-index: 10;
+  }
+
+  @media (min-width: 769px) {
+    .catalog-filters {
+      position: static;
+    }
+  }
+
+  .configurator-slider {
+    padding: 20px 0;
+    min-height: 60px;
+  }
+
+  .slider-label-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 640px) {
+    .slider-label-row {
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .slider-value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 44px;
+    background: transparent;
+    width: 100%;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    background: hsl(var(--primary));
+    box-shadow: 0 0 0 6px hsla(var(--primary), 0.15);
+    cursor: pointer;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    background: hsl(var(--primary));
+    box-shadow: 0 0 0 6px hsla(var(--primary), 0.15);
+    border: none;
+    cursor: pointer;
+  }
+
+  .comparison-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .comparison-table {
+    min-width: 600px;
+  }
+
+  .comparison-mobile-cards {
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    .comparison-table-wrapper {
+      display: none;
+    }
+
+    .comparison-mobile-cards {
+      display: grid;
+      gap: 12px;
+    }
+
+    .comparison-card {
+      background: hsla(var(--glass-surface), 0.8);
+      border: 1px solid hsl(var(--glass-border));
+      border-radius: 12px;
+      padding: 16px;
+    }
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 40px;
+  }
+
+  @media (max-width: 1024px) {
+    .footer-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 32px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      text-align: center;
+    }
+
+    .footer-links a {
+      display: block;
+      padding: 12px 0;
+      min-height: 44px;
     }
   }
 

@@ -100,7 +100,7 @@ const MinecraftPage = () => (
               Java and Bedrock cards now share the same layout, pricing color, and CTA.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-9 place-items-center items-stretch">
+          <div className="pricing-grid place-items-center items-stretch">
             {editionCards.map((edition) => (
               <HostingCard
                 key={edition.key}
@@ -119,7 +119,7 @@ const MinecraftPage = () => (
             <h2 className="text-3xl font-orbitron font-bold text-foreground">Minecraft tiers</h2>
             <p className="text-sm text-muted-foreground font-inter mt-2">CORE, ELITE, and CREATOR cards follow one consistent layout.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-9 place-items-center items-stretch">
+          <div className="pricing-grid place-items-center items-stretch">
             {tierCards.map((tier) => {
               const tierData = minecraftPricing.tiers[tier.key];
               const tierPrice = formatPrice(tierStartPrices[tier.key]);
