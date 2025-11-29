@@ -10,8 +10,8 @@
 
 @layer base {
   :root {
-    /* Core theme colors */
-    --background: 223 26% 8%;
+    /* Core theme colors (HSL derived from required hex values) */
+    --background: 220 27% 6.5%; /* #0C0F15 */
     --foreground: 210 40% 96%;
 
     /* Glass morphism surfaces */
@@ -24,18 +24,18 @@
     --popover: 225 20% 12%;
     --popover-foreground: 210 40% 96%;
 
-    /* Neon accent colors */
-    --primary: 188 88% 55%; /* Cyan/teal accent */
+    /* Accent colors mapped to design system roles */
+    --primary: 186 100% 50%; /* Cyan #00E5FF */
     --primary-foreground: 222 47% 11%;
-    --primary-glow: 188 90% 70%;
+    --primary-glow: 186 100% 60%;
 
-    --secondary: 281 70% 63%; /* Purple accent */
+    --secondary: 266 100% 65.1%; /* Purple #9A4DFF */
     --secondary-foreground: 222 47% 11%;
-    --secondary-glow: 281 80% 78%;
+    --secondary-glow: 266 100% 75%;
 
-    --tertiary: 199 70% 58%; /* Soft teal */
+    --tertiary: 171.6 79.3% 50.8%; /* Teal #1EE5C9 */
     --tertiary-foreground: 222 47% 11%;
-    --tertiary-glow: 199 80% 76%;
+    --tertiary-glow: 171.6 79.3% 62%;
 
     /* Tier + category accents */
     --tier-core: 210 90% 65%;
@@ -154,41 +154,41 @@
   .hosting-card {
     width: 100%;
     height: 100%;
-    min-height: 340px;
-    padding: 30px;
-    border-radius: 14px;
-    background: #0d0f14;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: inset 0 0 25px rgba(0, 200, 255, 0.05);
+    min-height: 360px;
+    padding: 32px;
+    border-radius: 16px;
+    background: #0c0f15;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 0 25px rgba(0, 229, 255, 0.08);
     transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
   }
 
   .hosting-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 0 18px rgba(0, 200, 255, 0.5);
+    box-shadow: 0 0 22px rgba(0, 229, 255, 0.35);
     filter: brightness(1.02);
   }
 
   .hosting-card-title {
-    margin-top: 20px;
+    margin-top: 16px;
     margin-bottom: 12px;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: #ffffff;
   }
 
   .hosting-card-price {
-    margin-top: 18px;
+    margin-top: 12px;
     margin-bottom: 16px;
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 800;
     letter-spacing: -0.5px;
-    color: #3bc6ff;
+    color: #00e5ff;
   }
 
   .hosting-card-spec {
-    font-size: 14px;
-    line-height: 1.45;
+    font-size: 0.95rem;
+    line-height: 1.5;
     color: #c5c9d2;
   }
 
@@ -197,23 +197,23 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 48px;
-    border-radius: 10px;
+    height: 52px;
+    border-radius: 12px;
     font-weight: 700;
     font-size: 16px;
-    background: linear-gradient(90deg, #00c8ff 0%, #8a55ff 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, #00e5ff 0%, #9a4dff 100%);
+    color: #0c0f15;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
 
   .hosting-cta:hover {
     transform: translateY(-4px);
-    box-shadow: 0 0 18px rgba(0, 200, 255, 0.5);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
   }
 
   @media (max-width: 1024px) {
     .hosting-card-price {
-      font-size: 1.6rem;
+      font-size: 1.75rem;
     }
   }
 

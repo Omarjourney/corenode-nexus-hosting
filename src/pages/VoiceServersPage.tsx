@@ -7,6 +7,10 @@ import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
 import { Badge } from "@/components/ui/badge";
 import { catalogPricing, CONTROL_PANELS } from "@/data/pricing";
+import { HostingCard } from "@/components/HostingCard";
+import { FeatureGrid } from "@/components/FeatureGrid";
+import { ComparisonTable } from "@/components/ComparisonTable";
+import { FaqSection } from "@/components/FaqSection";
 
 interface VoiceConfig {
   slots: number[];
@@ -115,6 +119,12 @@ const VoiceServersPage = () => {
     return (platform.pricing.base + (config.slots[0] * platform.pricing.perSlot)).toFixed(2);
   };
 
+  const starterPrices = {
+    teamspeak: calculatePrice(voicePlatforms[0], { slots: [25] }),
+    mumble: calculatePrice(voicePlatforms[1], { slots: [50] }),
+    discord: calculatePrice(voicePlatforms[2], { slots: [0] }),
+  };
+
   return (
     <div className="min-h-screen bg-gradient-hero">
       <SEO
@@ -125,17 +135,50 @@ const VoiceServersPage = () => {
       <Navigation />
       
       <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto space-y-12">
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl sm:text-5xl font-orbitron font-bold text-gradient-tertiary mb-4">
-              Voice Server Hosting
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-inter">
-              Professional voice communication hosting for TeamSpeak, Mumble, and Discord bots 
-              with enterprise-grade performance and reliability.
+          <div className="text-center space-y-3">
+            <p className="text-xs font-orbitron tracking-[0.2em] text-primary">VOICE</p>
+            <h1 className="text-5xl font-orbitron font-bold text-foreground">Voice Server Hosting</h1>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto font-inter">
+              TeamSpeak, Mumble, and Discord bot hosting with unified pricing cards and instant setup.
             </p>
           </div>
+
+          <section className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-3xl font-orbitron font-bold text-foreground">Voice platforms</h2>
+              <p className="text-sm text-muted-foreground font-inter mt-2">Launch every platform from the same CTA.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <HostingCard
+                title="TeamSpeak"
+                price={`$${starterPrices.teamspeak}/mo`}
+                badge="Most Popular"
+                specs={[
+                  "Advanced permissions",
+                  "Channel hierarchy + file transfer",
+                  `${CONTROL_PANELS.pterodactyl} ready`,
+                ]}
+                ctaLabel="Launch Server"
+                href="/order?category=voice&type=TeamSpeak"
+              />
+              <HostingCard
+                title="Mumble"
+                price={`$${starterPrices.mumble}/mo`}
+                specs={["Opus codec", "Positional audio", "Low-latency global routes"]}
+                ctaLabel="Launch Server"
+                href="/order?category=voice&type=Mumble"
+              />
+              <HostingCard
+                title="Discord Bot"
+                price={`$${starterPrices.discord}/mo`}
+                specs={["24/7 uptime", "Custom commands", "API + database ready"]}
+                ctaLabel="Launch Server"
+                href="/order?category=voice&type=DiscordBot"
+              />
+            </div>
+          </section>
 
           {/* Voice Platform Tabs */}
           <Tabs defaultValue="teamspeak" className="space-y-8">
@@ -221,7 +264,9 @@ const VoiceServersPage = () => {
                       </p>
                     </div>
                     <Button asChild className="w-full bg-gradient-primary glow-primary font-orbitron mb-4">
-                      <a href={`/order?category=voice&type=TeamSpeak&slots=${teamSpeakConfig.slots[0]}&storage=${teamSpeakConfig.storage[0]}`}>Deploy TeamSpeak Server</a>
+                      <a href={`/order?category=voice&type=TeamSpeak&slots=${teamSpeakConfig.slots[0]}&storage=${teamSpeakConfig.storage[0]}`}>
+                        Launch TeamSpeak Server
+                      </a>
                     </Button>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-xs">
@@ -294,7 +339,9 @@ const VoiceServersPage = () => {
                       </p>
                     </div>
                     <Button asChild className="w-full bg-gradient-secondary glow-secondary font-orbitron mb-4">
-                      <a href={`/order?category=voice&type=Mumble&slots=${mumbleConfig.slots[0]}`}>Deploy Mumble Server</a>
+                      <a href={`/order?category=voice&type=Mumble&slots=${mumbleConfig.slots[0]}`}>
+                        Launch Mumble Server
+                      </a>
                     </Button>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-xs">
@@ -368,7 +415,9 @@ const VoiceServersPage = () => {
                       </p>
                     </div>
                     <Button asChild className="w-full bg-gradient-tertiary glow-tertiary font-orbitron mb-4">
-                      <a href={`/order?category=voice&type=DiscordBot`}>Deploy Discord Bot</a>
+                      <a href={`/order?category=voice&type=DiscordBot`}>
+                        Launch Discord Bot
+                      </a>
                     </Button>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-xs">
@@ -386,44 +435,35 @@ const VoiceServersPage = () => {
             </TabsContent>
           </Tabs>
 
-          {/* Comparison Table */}
-          <Card className="glass-card p-8 mt-12">
-            <h3 className="text-2xl font-orbitron font-semibold text-foreground mb-6 text-center">
-              Platform Comparison
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-glass-border">
-                    <th className="text-left font-orbitron font-medium text-foreground py-3">Feature</th>
-                    <th className="text-center font-orbitron font-medium text-primary py-3">TeamSpeak</th>
-                    <th className="text-center font-orbitron font-medium text-secondary py-3">Mumble</th>
-                    <th className="text-center font-orbitron font-medium text-tertiary py-3">Discord Bot</th>
-                  </tr>
-                </thead>
-                <tbody className="font-inter">
-                  <tr className="border-b border-glass-border/50">
-                    <td className="py-3 text-foreground">Setup Time</td>
-                    <td className="text-center py-3 text-muted-foreground">&lt; 30s</td>
-                    <td className="text-center py-3 text-muted-foreground">&lt; 60s</td>
-                    <td className="text-center py-3 text-muted-foreground">&lt; 30s</td>
-                  </tr>
-                  <tr className="border-b border-glass-border/50">
-                    <td className="py-3 text-foreground">Max Slots</td>
-                    <td className="text-center py-3 text-muted-foreground">500</td>
-                    <td className="text-center py-3 text-muted-foreground">1000</td>
-                    <td className="text-center py-3 text-muted-foreground">Unlimited</td>
-                  </tr>
-                  <tr>
-                    <td className="py-3 text-foreground">Starting Price</td>
-                    <td className="text-center py-3 text-primary font-medium">$3.99/mo</td>
-                    <td className="text-center py-3 text-secondary font-medium">$2.99/mo</td>
-                    <td className="text-center py-3 text-tertiary font-medium">$4.99/mo</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </Card>
+          <FeatureGrid title="Voice-ready automation" />
+
+          <ComparisonTable
+            title="Platform comparison"
+            columns={["TeamSpeak", "Mumble", "Discord Bot"]}
+            rows={[
+              { label: "Setup time", values: ["< 30s", "< 60s", "< 30s"] },
+              { label: "Max slots", values: ["500", "1000", "Unlimited"] },
+              { label: "Control panel", values: [CONTROL_PANELS.pterodactyl, CONTROL_PANELS.pterodactyl, "API"] },
+              { label: "Starting price", values: ["$3.99/mo", "$2.99/mo", "$4.99/mo"] },
+            ]}
+          />
+
+          <FaqSection
+            items={[
+              {
+                question: "How fast can I launch?",
+                answer: "Provisioning completes in under a minute for each platform, and you can change slot counts anytime.",
+              },
+              {
+                question: "Is DDoS protection included?",
+                answer: "Yes. All voice servers include active mitigation and alerts inside the dashboard.",
+              },
+              {
+                question: "Do you support custom domains?",
+                answer: "TeamSpeak and Mumble both support custom hostnames with guidance from our team.",
+              },
+            ]}
+          />
         </div>
       </div>
     </div>

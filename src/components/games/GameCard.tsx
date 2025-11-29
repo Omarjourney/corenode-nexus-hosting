@@ -15,11 +15,11 @@ export function GameCard({ game }: Props) {
     <HostingCard
       title={game.name}
       label={tagLine}
-      price={`From ${formatPrice(startingPrice)}`}
+      price={`Starting at ${formatPrice(startingPrice)}`}
       specs={[
         `Recommended: ${game.recommendedRam}GB • ${game.defaultTier.toUpperCase()} tier`,
         `Closest plan: ${plan.ram}GB @ ${formatPrice(plan.price)}`,
-        `Tags: ${tagLine}`,
+        "DDoS shield • Instant mod support",
       ]}
       ctaLabel="Launch Server"
       href="/order"
