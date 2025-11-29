@@ -17,7 +17,7 @@ export const minecraftPricing = {
     elite: {
       name: "ELITE",
       description: "CNX CommandCenter™ automation plus priority support",
-      multiplier: 1.35,
+      multiplier: 1.45,
       panel: CONTROL_PANELS.amp
     },
     creator: {
@@ -28,16 +28,13 @@ export const minecraftPricing = {
     }
   },
   sliderSteps: [
-    { ram: 2, cpu: 1, storage: 25, slots: 10, price: 4.49 },
-    { ram: 4, cpu: 2, storage: 40, slots: 20, price: 7.49 },
-    { ram: 6, cpu: 3, storage: 60, slots: 30, price: 10.49 },
-    { ram: 8, cpu: 4, storage: 80, slots: 40, price: 13.49 },
-    { ram: 10, cpu: 4, storage: 100, slots: 50, price: 16.49 },
-    { ram: 12, cpu: 6, storage: 120, slots: 60, price: 19.49 },
-    { ram: 16, cpu: 6, storage: 160, slots: 80, price: 25.49 },
-    { ram: 20, cpu: 8, storage: 200, slots: 100, price: 31.49 },
-    { ram: 24, cpu: 8, storage: 240, slots: 120, price: 37.49 },
-    { ram: 32, cpu: 10, storage: 320, slots: 160, price: 49.49 }
+    { ram: 2, cpu: 1, storage: 25, slots: 10, price: 5.49 },
+    { ram: 4, cpu: 2, storage: 40, slots: 20, price: 7.99 },
+    { ram: 6, cpu: 3, storage: 60, slots: 30, price: 11.49 },
+    { ram: 8, cpu: 4, storage: 80, slots: 40, price: 14.99 },
+    { ram: 16, cpu: 6, storage: 160, slots: 80, price: 34.28 },
+    { ram: 24, cpu: 8, storage: 240, slots: 120, price: 50.28 },
+    { ram: 32, cpu: 10, storage: 320, slots: 160, price: 65.71 }
   ],
   editions: {
     java: {

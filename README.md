@@ -5,10 +5,14 @@ CodeNodeX Hosting is a modern, responsive web application for a game and voice s
 - **Modern landing page:** Clean hero section with call‑to‑action for easy ordering.  
 - **Service pages:** Individual pages for Minecraft, Game Servers, Voice Servers, Web Hosting, and VPS & Dedicated with configurable pricing tiers.  
 - **Dynamic order form:** A dedicated order page (e.g. `/order`) that lets customers choose server type, tier, RAM, add‑ons and game selector.  
-- **Responsive navigation:** Mobile‑friendly navigation with tabs to quickly switch between services and the order page.  
-- **TypeScript & ESLint:** Strict typing and linting rules ensure maintainable, high‑quality code.  
-- **Tailwind configuration:** Preconfigured Tailwind with shadcn/ui for consistent styling and theming.  
-- **Ready for SEO:** Includes basic SEO meta tags structure for improved search visibility (see open PR for details).  
+- **Responsive navigation:** Mobile‑friendly navigation with tabs to quickly switch between services and the order page.
+- **TypeScript & ESLint:** Strict typing and linting rules ensure maintainable, high‑quality code.
+- **Tailwind configuration:** Preconfigured Tailwind with shadcn/ui for consistent styling and theming.
+- **Ready for SEO:** Includes basic SEO meta tags structure for improved search visibility (see open PR for details).
+
+## CPU Density Policy
+- Ryzen 9950X nodes allow up to 22 servers per node at an 8GB average footprint.
+- Mixed density is supported (e.g., 16×8GB + 8×4GB) while honoring performance isolation.
 ## Getting Started  
 To run the project locally using your preferred IDE:  
 ```sh  

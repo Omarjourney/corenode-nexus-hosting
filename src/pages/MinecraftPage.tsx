@@ -3,7 +3,7 @@ import SEO from "@/components/SEO";
 import { MinecraftConfigurator } from "@/components/minecraft/MinecraftConfigurator";
 import minecraftConfig from "@/data/minecraft-config.json";
 import { formatPrice } from "@/utils/pricing";
-import { CONTROL_PANELS, minecraftPricing, getTierPrice } from "@/data/pricing";
+import { CONTROL_PANELS, getTierPrice, minecraftPricing } from "@/data/pricing";
 import { FeatureGrid } from "@/components/FeatureGrid";
 import { ComparisonTable } from "@/components/ComparisonTable";
 import { FaqSection } from "@/components/FaqSection";
@@ -35,6 +35,14 @@ const editionCards = [
     specs: ["Mobile + console optimized", "Crossplay with Xbox/PS/Switch", "Instant world backups"],
   },
 ];
+
+const javaOfficial = minecraftConfig.editions.java.officialPrices;
+const tierStartPrices = {
+  core: javaOfficial.core?.["2"] ?? minecraftConfig.editions.java.sliderSteps[0].price,
+  elite: javaOfficial.elite?.["4"] ?? getTierPrice(minecraftConfig.editions.java.sliderSteps[1].price, "elite"),
+  creator:
+    javaOfficial.creator?.["16"] ?? getTierPrice(minecraftConfig.editions.java.sliderSteps.find((s) => s.ram === 16)?.price || 0, "creator"),
+};
 
 const tierCards = [
   {
@@ -114,8 +122,7 @@ const MinecraftPage = () => (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-9 place-items-center items-stretch">
             {tierCards.map((tier) => {
               const tierData = minecraftPricing.tiers[tier.key];
-              const basePrice = minecraftConfig.editions.java.sliderSteps[0].price;
-              const tierPrice = formatPrice(getTierPrice(basePrice, tier.key));
+              const tierPrice = formatPrice(tierStartPrices[tier.key]);
 
               return (
                 <HostingCard

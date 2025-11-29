@@ -17,10 +17,10 @@ const tiers = [
     panel: "CorePanel Lite™",
     description: "Budget-friendly control with essentials.",
     prices: [
-      { ram: "2GB", price: 4.49 },
-      { ram: "4GB", price: 7.49 },
-      { ram: "6GB", price: 10.49 },
-      { ram: "8GB", price: 13.49 },
+      { ram: "2GB", price: 5.49 },
+      { ram: "4GB", price: 7.99 },
+      { ram: "6GB", price: 11.49 },
+      { ram: "8GB", price: 14.99 },
     ],
   },
   {
@@ -29,9 +29,9 @@ const tiers = [
     description: "AI automation with CrashGuard + Blueprints.",
     prices: [
       { ram: "4GB", price: 11.49 },
-      { ram: "8GB", price: 17.49 },
-      { ram: "12GB", price: 27.49 },
-      { ram: "16GB", price: 36.49 },
+      { ram: "6GB", price: 16.49 },
+      { ram: "8GB", price: 21.49 },
+      { ram: "12GB", price: 31.49 },
     ],
   },
   {
@@ -39,10 +39,9 @@ const tiers = [
     panel: "CommandCenter™ + Dedicated CPU",
     description: "Streamer-grade isolation and automation.",
     prices: [
-      { ram: "16GB", price: 49.99 },
-      { ram: "24GB", price: 69.99 },
-      { ram: "32GB", price: 89.99 },
-      { ram: "48GB", price: 129.99 },
+      { ram: "16GB", price: 59.99 },
+      { ram: "24GB", price: 87.99 },
+      { ram: "32GB", price: 114.99 },
     ],
   },
 ];
@@ -55,12 +54,20 @@ const multiProfiles = [
 ];
 
 const addOns = [
-  { label: "Dedicated IP", price: 2.99 },
-  { label: "Extra 50GB NVMe", price: 2.99 },
-  { label: "Automatic Backups", price: 3.99 },
-  { label: "Modpack Auto-Install", price: 1.99 },
-  { label: "CrashGuard AI", price: 3.49 },
-  { label: "Priority Support", price: 4.99 },
+  { label: "+1GB RAM", price: 2.49 },
+  { label: "+2GB RAM", price: 4.99 },
+  { label: "+4GB RAM", price: 9.99 },
+  { label: "+8GB RAM", price: 19.99 },
+  { label: "CPU Boost (Core → Elite)", price: 5 },
+  { label: "CPU Boost (Elite → Creator)", price: 10 },
+  { label: "+10GB Premium SSD", price: 2.99 },
+  { label: "+25GB Premium SSD", price: 6.99 },
+  { label: "+50GB Premium SSD", price: 12.99 },
+  { label: "+100GB Premium SSD", price: 24.99 },
+  { label: "Basic Backup (50GB)", price: 6.99 },
+  { label: "Pro Backup (100GB)", price: 9.99 },
+  { label: "Enterprise Backup (250GB)", price: 19.99 },
+  { label: "Ultimate Backup (500GB)", price: 34.99 },
 ];
 
 const CheckoutPage = ({ title }: Props) => {
