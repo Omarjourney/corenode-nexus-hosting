@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ interface Plan {
   description: string;
   packages: PackageOption[];
   features: string[];
-  accent: "primary" | "secondary" | "tertiary";
+  accent: "core" | "elite" | "creator";
 }
 
 const plans: Plan[] = [
@@ -35,12 +35,12 @@ const plans: Plan[] = [
       { ram: "24GB", price: "$39.49" },
     ],
     features: [
-      "Basic file access, console & SFTP",
-      "Resource metrics + start/stop/restart",
       "DDoS shielded network",
-      "99.9% uptime SLA",
+      "Resource metrics + start/stop/restart",
+      "Ready-made blueprints",
+      "Uptime-backed SLA",
     ],
-    accent: "primary",
+    accent: "core",
   },
   {
     name: "ELITE",
@@ -60,7 +60,7 @@ const plans: Plan[] = [
       "Multi-Game Profiles + Live Performance Map",
       "Priority routing & proactive monitoring",
     ],
-    accent: "secondary",
+    accent: "elite",
   },
   {
     name: "CREATOR",
@@ -80,9 +80,15 @@ const plans: Plan[] = [
       "Creator-safe CPU isolation",
       "White-glove migration",
     ],
-    accent: "tertiary",
+    accent: "creator",
   },
 ];
+
+const accentPalette: Record<Plan["accent"], string> = {
+  core: "var(--tier-core)",
+  elite: "var(--tier-elite)",
+  creator: "var(--tier-creator)",
+};
 
 const PricingGlowCards = () => (
   <div id="pricing" className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -93,67 +99,79 @@ const PricingGlowCards = () => (
 );
 
 const PricingCard = ({ plan }: { plan: Plan }) => {
-  const [reveal, setReveal] = useState(false);
+  const accentColor = accentPalette[plan.accent];
+  const accentGradient = useMemo(
+    () => `linear-gradient(120deg, ${accentColor}99, ${accentColor}44)`,
+    [accentColor]
+  );
 
   return (
     <Card
-      onMouseEnter={() => setReveal(true)}
-      onMouseLeave={() => setReveal(false)}
       className={cn(
-        "relative glass-card p-8 text-center cursor-pointer transition-transform duration-300",
-        `hover:-translate-y-2 hover:glow-${plan.accent}`
+        "relative glass-card p-7 text-left transition-transform duration-300",
+        "hover:-translate-y-2"
       )}
+      style={{
+        borderColor: `${accentColor}55`,
+        boxShadow: `0 12px 40px ${accentColor}22`,
+      }}
     >
-      {plan.badge && (
-        <Badge className={`absolute left-2 top-2 bg-gradient-${plan.accent} animate-pulse`}>
-          {plan.badge}
-        </Badge>
-      )}
-      {plan.tag && (
-        <Badge className={`absolute right-2 top-2 bg-gradient-${plan.accent}`}>{plan.tag}</Badge>
+      <div className="absolute inset-x-4 top-0 h-1 rounded-b-full" style={{ background: accentGradient }} />
+      {(plan.badge || plan.tag) && (
+        <div className="flex items-center justify-between mb-2">
+          {plan.badge && (
+            <Badge className="bg-secondary text-secondary-foreground">{plan.badge}</Badge>
+          )}
+          {plan.tag && <Badge className="bg-secondary/20 text-secondary">{plan.tag}</Badge>}
+        </div>
       )}
 
-      <div className="space-y-3">
-        <h3 className="text-2xl font-orbitron font-semibold text-foreground">{plan.name}</h3>
-        <p className="text-4xl font-orbitron font-bold text-gradient-primary">{plan.priceLabel}</p>
-        <p className="text-sm text-muted-foreground font-inter">{plan.controlPanel}</p>
+      <div className="space-y-2">
+        <div className="flex items-baseline justify-between">
+          <h3 className="text-2xl font-orbitron font-semibold text-foreground">{plan.name}</h3>
+          <p className="text-sm text-muted-foreground">{plan.controlPanel}</p>
+        </div>
+        <p className="text-4xl font-orbitron font-bold" style={{ color: accentColor }}>
+          {plan.priceLabel}
+        </p>
         <p className="text-sm text-muted-foreground font-inter">{plan.description}</p>
       </div>
 
       <div className="my-4 grid grid-cols-2 gap-2">
         {plan.packages.map((pkg) => (
-          <div key={pkg.ram} className="glass-card p-3 text-sm font-inter">
+          <div
+            key={pkg.ram}
+            className="glass-card p-3 text-sm font-inter border border-glass-border"
+            style={{ borderColor: `${accentColor}33` }}
+          >
             <div className="font-semibold text-foreground">{pkg.ram}</div>
             <div className="text-muted-foreground">{pkg.price}/mo</div>
           </div>
         ))}
       </div>
 
-      <div className="relative">
-        <div className={cn("space-y-2", reveal && "opacity-0")}>
-          <Button asChild className={`w-full bg-gradient-${plan.accent} glow-${plan.accent} font-orbitron`}>
-            <a href={`/order?plan=${encodeURIComponent(plan.name)}&panel=${encodeURIComponent(plan.controlPanel)}`}>
-              Launch {plan.name}
-            </a>
-          </Button>
-        </div>
-
-        <div
-          className={cn(
-            "absolute inset-0 flex flex-col justify-center bg-glass-bg p-6 transition-opacity duration-300",
-            reveal ? "opacity-100" : "opacity-0 pointer-events-none"
-          )}
-        >
-          <ul className="space-y-2 text-left">
-            {plan.features.map((feat) => (
-              <li key={feat} className="flex items-center text-sm font-inter">
-                <CheckCircle className={`mr-2 h-4 w-4 text-${plan.accent} glow-${plan.accent}`} />
-                {feat}
-              </li>
-            ))}
-          </ul>
-        </div>
+      <div className="space-y-2">
+        {plan.features.map((feat) => (
+          <div key={feat} className="flex items-start gap-2 text-sm font-inter">
+            <CheckCircle className="h-4 w-4" style={{ color: accentColor }} />
+            <span className="text-foreground">{feat}</span>
+          </div>
+        ))}
       </div>
+
+      <Button
+        asChild
+        className="w-full mt-5 font-orbitron"
+        style={{
+          background: accentGradient,
+          color: "var(--background)",
+          boxShadow: `0 10px 25px ${accentColor}33`,
+        }}
+      >
+        <a href={`/order?plan=${encodeURIComponent(plan.name)}&panel=${encodeURIComponent(plan.controlPanel)}`}>
+          Launch {plan.name}
+        </a>
+      </Button>
     </Card>
   );
 };

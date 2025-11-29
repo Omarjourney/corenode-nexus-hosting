@@ -11,59 +11,70 @@
 @layer base {
   :root {
     /* Core theme colors */
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 223 26% 8%;
+    --foreground: 210 40% 96%;
 
     /* Glass morphism surfaces */
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --glass-surface: 240 10% 8%;
-    --glass-border: 240 5% 15%;
-    --glass-bg: 240 10% 8% / 0.3;
+    --card: 223 24% 10%;
+    --card-foreground: 210 40% 96%;
+    --glass-surface: 223 18% 12%;
+    --glass-border: 223 16% 22%;
+    --glass-bg: 223 18% 12% / 0.38;
 
-    --popover: 240 10% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 225 20% 12%;
+    --popover-foreground: 210 40% 96%;
 
     /* Neon accent colors */
-    --primary: 194 100% 50%; /* Neon cyan */
-    --primary-foreground: 240 10% 3.9%;
-    --primary-glow: 194 100% 70%;
+    --primary: 188 88% 55%; /* Cyan/teal accent */
+    --primary-foreground: 222 47% 11%;
+    --primary-glow: 188 90% 70%;
 
-    --secondary: 260 100% 70%; /* Neon purple */
-    --secondary-foreground: 0 0% 98%;
-    --secondary-glow: 260 100% 85%;
+    --secondary: 281 70% 63%; /* Purple accent */
+    --secondary-foreground: 222 47% 11%;
+    --secondary-glow: 281 80% 78%;
 
-    --tertiary: 180 100% 60%; /* Neon teal */
-    --tertiary-foreground: 240 10% 3.9%;
-    --tertiary-glow: 180 100% 80%;
+    --tertiary: 199 70% 58%; /* Soft teal */
+    --tertiary-foreground: 222 47% 11%;
+    --tertiary-glow: 199 80% 76%;
+
+    /* Tier + category accents */
+    --tier-core: 210 90% 65%;
+    --tier-elite: 174 78% 58%;
+    --tier-creator: 271 70% 65%;
+    --product-minecraft: 140 65% 55%;
+    --product-games: 188 88% 55%;
+    --product-vps: 30 95% 58%;
+    --product-metal: 217 40% 52%;
 
     /* UI states */
-    --muted: 240 5% 15%;
-    --muted-foreground: 240 5% 65%;
+    --muted: 223 20% 18%;
+    --muted-foreground: 220 15% 75%;
 
     --accent: 194 100% 50%;
     --accent-foreground: 240 10% 3.9%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 72% 58%;
+    --destructive-foreground: 210 40% 96%;
 
-    --border: 240 5% 15%;
-    --input: 240 10% 8%;
-    --ring: 194 100% 50%;
+    --border: 223 16% 22%;
+    --input: 223 18% 16%;
+    --ring: 188 88% 55%;
 
     --radius: 12px;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(194 100% 50%), hsl(260 100% 70%));
-    --gradient-secondary: linear-gradient(135deg, hsl(260 100% 70%), hsl(180 100% 60%));
-    --gradient-tertiary: linear-gradient(135deg, hsl(180 100% 60%), hsl(194 100% 50%));
-    --gradient-hero: linear-gradient(135deg, hsl(240 10% 3.9%) 0%, hsl(240 15% 8%) 50%, hsl(240 10% 3.9%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(188 88% 55%), hsl(281 70% 63%));
+    --gradient-secondary: linear-gradient(135deg, hsl(281 70% 63%), hsl(199 70% 58%));
+    --gradient-tertiary: linear-gradient(135deg, hsl(199 70% 58%), hsl(188 88% 55%));
+    --gradient-hero: radial-gradient(circle at 20% 20%, hsl(188 70% 16% / 0.32), transparent 35%),
+      radial-gradient(circle at 80% 0%, hsl(281 60% 22% / 0.3), transparent 38%),
+      linear-gradient(135deg, hsl(223 26% 8%), hsl(223 20% 10%), hsl(223 26% 8%));
 
     /* Shadows & Glows */
-    --shadow-neon-primary: 0 0 20px hsl(194 100% 50% / 0.3), 0 0 40px hsl(194 100% 50% / 0.1);
-    --shadow-neon-secondary: 0 0 20px hsl(260 100% 70% / 0.3), 0 0 40px hsl(260 100% 70% / 0.1);
-    --shadow-neon-tertiary: 0 0 20px hsl(180 100% 60% / 0.3), 0 0 40px hsl(180 100% 60% / 0.1);
-    --shadow-glass: 0 8px 32px hsl(240 10% 3.9% / 0.3);
+    --shadow-neon-primary: 0 0 16px hsl(188 88% 55% / 0.26), 0 0 28px hsl(188 88% 55% / 0.1);
+    --shadow-neon-secondary: 0 0 16px hsl(281 70% 63% / 0.26), 0 0 28px hsl(281 70% 63% / 0.1);
+    --shadow-neon-tertiary: 0 0 16px hsl(199 70% 58% / 0.26), 0 0 28px hsl(199 70% 58% / 0.1);
+    --shadow-glass: 0 12px 48px hsl(223 26% 4% / 0.4);
 
     /* Sidebar colors */
     --sidebar-background: 240 10% 5%;
