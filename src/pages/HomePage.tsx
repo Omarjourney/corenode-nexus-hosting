@@ -244,18 +244,12 @@ const HomePage = () => {
       <main style={{ backgroundColor: '#0f172a', color: '#ffffff', fontFamily: 'sans-serif' }}>
         {/* HERO SECTION */}
         <section
+          className="hero-shell"
           style={{
-            position: 'relative',
-            width: '100%',
-            minHeight: '50vh',
             backgroundImage:
               "url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&auto=format&fm=webp')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingBottom: '20px',
           }}
         >
           <div
@@ -265,15 +259,7 @@ const HomePage = () => {
               background: 'rgba(15, 23, 42, 0.85)',
             }}
           />
-          <div
-            style={{
-              position: 'relative',
-              zIndex: 1,
-              padding: '40px 20px 20px',
-              textAlign: 'center',
-              maxWidth: '900px',
-            }}
-          >
+          <div className="hero-content" style={{ textAlign: 'center', maxWidth: '900px' }}>
             <h1
               style={{
                 fontSize: '2.8rem',
@@ -323,16 +309,7 @@ const HomePage = () => {
             background: 'transparent',
           }}
         >
-          <div
-            className="features-grid"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-              gap: '20px',
-              maxWidth: '1400px',
-              margin: '0 auto',
-            }}
-          >
+          <div className="features-grid">
             {/* Feature 1: NVMe SSD */}
             <div
               className="feature-card"
@@ -821,8 +798,8 @@ const HomePage = () => {
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto space-y-6">
           <h3 className="text-3xl font-orbitron font-bold text-gradient-secondary text-center">Why CodeNodeX Wins</h3>
-          <div className="overflow-x-auto rounded-xl border border-glass-border bg-glass-surface/50">
-            <table className="w-full text-left text-sm font-inter min-w-[640px]">
+          <div className="comparison-table-wrapper rounded-xl border border-glass-border bg-glass-surface/50">
+            <table className="comparison-table w-full text-left text-sm font-inter">
               <thead>
                 <tr className="text-muted-foreground">
                   <th className="p-3">Feature</th>
@@ -845,6 +822,23 @@ const HomePage = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="comparison-mobile-cards">
+            {differentiators.map((row) => (
+              <div key={row.feature} className="comparison-card">
+                <p className="font-semibold text-foreground mb-2">{row.feature}</p>
+                <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                  <span>Shockbyte</span>
+                  <span>{row.values[0]}</span>
+                  <span>Apex</span>
+                  <span>{row.values[1]}</span>
+                  <span>Bisect</span>
+                  <span>{row.values[2]}</span>
+                  <span className="text-primary font-semibold">CodeNodeX</span>
+                  <span className="text-primary font-semibold">{row.values[3]}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -889,7 +883,7 @@ const HomePage = () => {
 
       {/* Footer */}
       <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-glass-border">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 text-center md:text-left">
+        <div className="max-w-7xl mx-auto footer-grid text-center md:text-left">
           <div className="space-y-2">
             <div className="flex items-center justify-center md:justify-start space-x-2">
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center glow-primary">
@@ -907,7 +901,7 @@ const HomePage = () => {
             <p>Secure payments</p>
             <p>Uptime SLA 99.9%</p>
           </div>
-          <div className="space-y-2 font-inter text-sm">
+          <div className="space-y-2 font-inter text-sm footer-links">
             <p className="font-semibold text-foreground">Products</p>
             <p>CorePanel Lite™ (Budget)</p>
             <p>CNX CommandCenter™ (Premium)</p>

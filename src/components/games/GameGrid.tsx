@@ -23,7 +23,7 @@ export function GameGrid() {
 
   return (
     <section className="space-y-4">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="catalog-filters flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-slate-900/80 px-3 py-3 rounded-xl shadow-lg border border-slate-800/70">
         <input
           placeholder="Search games e.g. 'Rust', 'Survival', 'Sandbox'"
           value={query}
@@ -50,7 +50,7 @@ export function GameGrid() {
             : "No games match your search yet. Try a different keyword or genre."}
         </div>
       ) : (
-        <div className="grid gap-x-8 gap-y-9 sm:grid-cols-2 xl:grid-cols-3 justify-center place-items-center items-stretch">
+        <div className="catalog-grid justify-center place-items-center items-stretch">
           {filtered.map((game) => (
             <GameCard key={game.id} game={game} />
           ))}
