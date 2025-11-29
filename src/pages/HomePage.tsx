@@ -247,12 +247,15 @@ const HomePage = () => {
           style={{
             position: 'relative',
             width: '100%',
-            minHeight: '60vh',
+            minHeight: '50vh',
             backgroundImage:
               "url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&auto=format&fm=webp')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            paddingBottom: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingBottom: '20px',
           }}
         >
           <div
@@ -266,23 +269,42 @@ const HomePage = () => {
             style={{
               position: 'relative',
               zIndex: 1,
-              padding: '80px 20px 40px',
+              padding: '40px 20px 20px',
               textAlign: 'center',
+              maxWidth: '900px',
             }}
           >
-            <h1 style={{ fontSize: '2.8rem', marginBottom: '16px' }}>
+            <h1
+              style={{
+                fontSize: '2.8rem',
+                marginBottom: '12px',
+                fontWeight: '700',
+                lineHeight: '1.2',
+              }}
+            >
               Start My Server in 10 Seconds
             </h1>
-            <p style={{ fontSize: '1.2rem', marginBottom: '24px' }}>
+            <p
+              style={{
+                fontSize: '1.2rem',
+                marginBottom: '20px',
+                color: 'rgba(255,255,255,0.9)',
+              }}
+            >
               Your game hosting, redefined — fast, reliable, scalable.
             </p>
             <a
-              href="/order"
+              href="/#pricing"
               style={{
-                color: '#06b6d4',
+                display: 'inline-block',
+                padding: '12px 32px',
+                background: '#06b6d4',
+                color: 'white',
+                borderRadius: '8px',
                 textDecoration: 'none',
                 fontSize: '1.1rem',
-                fontWeight: 600,
+                fontWeight: '600',
+                transition: 'all 0.3s ease',
               }}
             >
               Get Started →
@@ -294,33 +316,34 @@ const HomePage = () => {
         <section
           className="features-section"
           style={{
-            padding: '48px 20px 64px',
-            background: 'linear-gradient(180deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.95) 100%)',
-            marginTop: '-32px',
+            padding: '0 20px 40px',
+            marginTop: '-60px',
+            position: 'relative',
+            zIndex: 10,
+            background: 'transparent',
           }}
         >
-          <div className="features-grid">
+          <div
+            className="features-grid"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+              gap: '20px',
+              maxWidth: '1400px',
+              margin: '0 auto',
+            }}
+          >
             {/* Feature 1: NVMe SSD */}
             <div
               className="feature-card"
               style={{
                 textAlign: 'center',
-                padding: '24px',
-                background: 'rgba(30, 41, 59, 0.6)',
-                borderRadius: '16px',
-                border: '1px solid rgba(6, 182, 212, 0.2)',
+                padding: '20px',
+                background: 'rgba(30, 41, 59, 0.9)',
+                borderRadius: '12px',
+                border: '1px solid rgba(6, 182, 212, 0.3)',
+                backdropFilter: 'blur(10px)',
                 transition: 'all 0.3s ease',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.6)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(6, 182, 212, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.2)';
-                e.currentTarget.style.boxShadow = 'none';
               }}
             >
               <img
@@ -328,30 +351,29 @@ const HomePage = () => {
                 alt="NVMe SSD Storage"
                 loading="lazy"
                 style={{
-                  width: '96px',
-                  height: '96px',
+                  width: '80px',
+                  height: '80px',
                   objectFit: 'cover',
                   borderRadius: '12px',
-                  margin: '0 auto 16px',
+                  margin: '0 auto 12px',
                   display: 'block',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                 }}
               />
               <h3
                 style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
+                  fontSize: '1rem',
                   color: '#06b6d4',
-                  marginBottom: '8px',
+                  marginBottom: '6px',
+                  fontWeight: '600',
                 }}
               >
                 NVMe Everywhere
               </h3>
               <p
                 style={{
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   color: 'rgba(255,255,255,0.7)',
-                  lineHeight: '1.5',
+                  lineHeight: '1.4',
                 }}
               >
                 Full NVMe stack tuned for low latency
@@ -363,22 +385,11 @@ const HomePage = () => {
               className="feature-card"
               style={{
                 textAlign: 'center',
-                padding: '24px',
-                background: 'rgba(30, 41, 59, 0.6)',
-                borderRadius: '16px',
-                border: '1px solid rgba(6, 182, 212, 0.2)',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.6)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(6, 182, 212, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.2)';
-                e.currentTarget.style.boxShadow = 'none';
+                padding: '20px',
+                background: 'rgba(30, 41, 59, 0.9)',
+                borderRadius: '12px',
+                border: '1px solid rgba(6, 182, 212, 0.3)',
+                backdropFilter: 'blur(10px)',
               }}
             >
               <img
@@ -386,33 +397,25 @@ const HomePage = () => {
                 alt="Global Network"
                 loading="lazy"
                 style={{
-                  width: '96px',
-                  height: '96px',
+                  width: '80px',
+                  height: '80px',
                   objectFit: 'cover',
                   borderRadius: '12px',
-                  margin: '0 auto 16px',
+                  margin: '0 auto 12px',
                   display: 'block',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                 }}
               />
-              <h3
-                style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
-                  color: '#06b6d4',
-                  marginBottom: '8px',
-                }}
-              >
+              <h3 style={{ fontSize: '1rem', color: '#06b6d4', marginBottom: '6px', fontWeight: '600' }}>
                 Global POPs
               </h3>
               <p
                 style={{
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   color: 'rgba(255,255,255,0.7)',
-                  lineHeight: '1.5',
+                  lineHeight: '1.4',
                 }}
               >
-                Route players to the closest edge automatically
+                Route players to closest edge automatically
               </p>
             </div>
 
@@ -421,61 +424,42 @@ const HomePage = () => {
               className="feature-card"
               style={{
                 textAlign: 'center',
-                padding: '24px',
-                background: 'rgba(30, 41, 59, 0.6)',
-                borderRadius: '16px',
-                border: '1px solid rgba(6, 182, 212, 0.2)',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.6)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(6, 182, 212, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.2)';
-                e.currentTarget.style.boxShadow = 'none';
+                padding: '20px',
+                background: 'rgba(30, 41, 59, 0.9)',
+                borderRadius: '12px',
+                border: '1px solid rgba(6, 182, 212, 0.3)',
+                backdropFilter: 'blur(10px)',
               }}
             >
               <div
                 style={{
-                  width: '96px',
-                  height: '96px',
-                  margin: '0 auto 16px',
-                  background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+                  width: '80px',
+                  height: '80px',
+                  margin: '0 auto 12px',
+                  background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
                   borderRadius: '12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 4px 12px rgba(6, 182, 212, 0.4)',
                 }}
               >
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
                   <path d="M12 2L2 7l10 5 10-5-10-5z" />
                   <path d="M2 17l10 5 10-5" />
                   <path d="M2 12l10 5 10-5" />
                 </svg>
               </div>
-              <h3
-                style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
-                  color: '#06b6d4',
-                  marginBottom: '8px',
-                }}
-              >
+              <h3 style={{ fontSize: '1rem', color: '#06b6d4', marginBottom: '6px', fontWeight: '600' }}>
                 10s Boot
               </h3>
               <p
                 style={{
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   color: 'rgba(255,255,255,0.7)',
-                  lineHeight: '1.5',
+                  lineHeight: '1.4',
                 }}
               >
-                Blueprints pre-stage files so servers light up fast
+                Blueprints pre-stage files fast
               </p>
             </div>
 
@@ -484,22 +468,11 @@ const HomePage = () => {
               className="feature-card"
               style={{
                 textAlign: 'center',
-                padding: '24px',
-                background: 'rgba(30, 41, 59, 0.6)',
-                borderRadius: '16px',
-                border: '1px solid rgba(168, 85, 247, 0.2)',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.6)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(168, 85, 247, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.2)';
-                e.currentTarget.style.boxShadow = 'none';
+                padding: '20px',
+                background: 'rgba(30, 41, 59, 0.9)',
+                borderRadius: '12px',
+                border: '1px solid rgba(168, 85, 247, 0.3)',
+                backdropFilter: 'blur(10px)',
               }}
             >
               <img
@@ -507,33 +480,25 @@ const HomePage = () => {
                 alt="AI Monitoring"
                 loading="lazy"
                 style={{
-                  width: '96px',
-                  height: '96px',
+                  width: '80px',
+                  height: '80px',
                   objectFit: 'cover',
                   borderRadius: '50%',
-                  margin: '0 auto 16px',
+                  margin: '0 auto 12px',
                   display: 'block',
-                  boxShadow: '0 4px 12px rgba(168, 85, 247, 0.4)',
                 }}
               />
-              <h3
-                style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
-                  color: '#a855f7',
-                  marginBottom: '8px',
-                }}
-              >
+              <h3 style={{ fontSize: '1rem', color: '#a855f7', marginBottom: '6px', fontWeight: '600' }}>
                 AI HealthGuard
               </h3>
               <p
                 style={{
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   color: 'rgba(255,255,255,0.7)',
-                  lineHeight: '1.5',
+                  lineHeight: '1.4',
                 }}
               >
-                Predictive alerts before lag or crashes
+                Predictive alerts before crashes
               </p>
             </div>
 
@@ -542,60 +507,41 @@ const HomePage = () => {
               className="feature-card"
               style={{
                 textAlign: 'center',
-                padding: '24px',
-                background: 'rgba(30, 41, 59, 0.6)',
-                borderRadius: '16px',
-                border: '1px solid rgba(168, 85, 247, 0.2)',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.6)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(168, 85, 247, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.2)';
-                e.currentTarget.style.boxShadow = 'none';
+                padding: '20px',
+                background: 'rgba(30, 41, 59, 0.9)',
+                borderRadius: '12px',
+                border: '1px solid rgba(168, 85, 247, 0.3)',
+                backdropFilter: 'blur(10px)',
               }}
             >
               <div
                 style={{
-                  width: '96px',
-                  height: '96px',
-                  margin: '0 auto 16px',
-                  background: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',
+                  width: '80px',
+                  height: '80px',
+                  margin: '0 auto 12px',
+                  background: 'linear-gradient(135deg, #a855f7, #9333ea)',
                   borderRadius: '12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 4px 12px rgba(168, 85, 247, 0.4)',
                 }}
               >
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
                   <rect x="3" y="3" width="18" height="18" rx="2" />
                   <path d="M9 12h6M12 9v6" />
                 </svg>
               </div>
-              <h3
-                style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
-                  color: '#a855f7',
-                  marginBottom: '8px',
-                }}
-              >
+              <h3 style={{ fontSize: '1rem', color: '#a855f7', marginBottom: '6px', fontWeight: '600' }}>
                 1-Click Mods
               </h3>
               <p
                 style={{
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   color: 'rgba(255,255,255,0.7)',
-                  lineHeight: '1.5',
+                  lineHeight: '1.4',
                 }}
               >
-                Install packs and switch profiles instantly
+                Install packs instantly
               </p>
             </div>
 
@@ -604,59 +550,40 @@ const HomePage = () => {
               className="feature-card"
               style={{
                 textAlign: 'center',
-                padding: '24px',
-                background: 'rgba(30, 41, 59, 0.6)',
-                borderRadius: '16px',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.6)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(239, 68, 68, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
-                e.currentTarget.style.boxShadow = 'none';
+                padding: '20px',
+                background: 'rgba(30, 41, 59, 0.9)',
+                borderRadius: '12px',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                backdropFilter: 'blur(10px)',
               }}
             >
               <div
                 style={{
-                  width: '96px',
-                  height: '96px',
-                  margin: '0 auto 16px',
-                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  width: '80px',
+                  height: '80px',
+                  margin: '0 auto 12px',
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                   borderRadius: '12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)',
                 }}
               >
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
               </div>
-              <h3
-                style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
-                  color: '#ef4444',
-                  marginBottom: '8px',
-                }}
-              >
+              <h3 style={{ fontSize: '1rem', color: '#ef4444', marginBottom: '6px', fontWeight: '600' }}>
                 Advanced DDoS
               </h3>
               <p
                 style={{
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   color: 'rgba(255,255,255,0.7)',
-                  lineHeight: '1.5',
+                  lineHeight: '1.4',
                 }}
               >
-                Adaptive L3-7 mitigation with live shield status
+                Adaptive L3-7 mitigation
               </p>
             </div>
           </div>
