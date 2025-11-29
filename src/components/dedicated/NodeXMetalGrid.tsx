@@ -1,30 +1,26 @@
-import { plans } from "@/data/plans";
+import { HostingCard } from "@/components/HostingCard";
+import { catalogPricing } from "@/data/pricing";
 
-const metalPlans = plans.nodexMetal;
+const metalPlans = catalogPricing.dedicated.plans;
 
 export function NodeXMetalGrid() {
   return (
     <section className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-9 justify-center place-items-center">
         {metalPlans.map((plan) => (
-          <div
+          <HostingCard
             key={plan.name}
-            className="flex flex-col rounded-2xl bg-slate-900/80 p-5 border border-slate-700/70 hover:border-cyan-400 transition"
-          >
-            <h3 className="mb-1 text-sm font-semibold uppercase tracking-wide text-cyan-300">{plan.name}</h3>
-            <div className="mb-3 text-3xl font-semibold text-slate-100">${plan.price}/mo</div>
-            <ul className="mb-4 text-sm text-slate-200 space-y-1">
-              <li>CNX CommandCenter™ included</li>
-              <li>10Gbps uplink</li>
-              <li>Full root access</li>
-              <li>Free migration service</li>
-            </ul>
-            <button
-              className="mt-auto rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#00AFFF] to-[#8B5CF6] hover:brightness-110 hover:scale-[1.03] transition transform"
-            >
-              Deploy Now
-            </button>
-          </div>
+            title={plan.name}
+            price={`$${plan.price}/mo`}
+            specs={[
+              `CPU: ${plan.cpu}`,
+              `Memory: ${plan.ram}`,
+              `Storage: ${plan.storage}`,
+              "10Gbps uplink • Root access",
+            ]}
+            ctaLabel="Deploy Now"
+            href="/dedicated/checkout"
+          />
         ))}
       </div>
     </section>

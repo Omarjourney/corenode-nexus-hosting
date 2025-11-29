@@ -1,8 +1,7 @@
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
-import { Card } from "@/components/ui/card";
+import { HostingCard } from "@/components/HostingCard";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
 import SEO from "@/components/SEO";
 import { catalogPricing } from "@/data/pricing";
 
@@ -11,38 +10,32 @@ const plans = [
     id: "basic",
     name: "Basic",
     price: catalogPricing.web.core.price,
-    features: [
-      "1 Website",
-      `${catalogPricing.web.core.storage}`,
-      "1 Email",
-      "Free SSL",
-      "Weekly Backups",
+    specs: [
+      "1 Website • 1 Email",
+      `${catalogPricing.web.core.storage} storage`,
+      "Free SSL • Weekly Backups",
     ],
   },
   {
     id: "standard",
     name: "Standard",
     price: catalogPricing.web.elite.price,
-    features: [
-      "5 Websites",
-      `${catalogPricing.web.elite.storage}`,
-      "5 Emails",
+    specs: [
+      "5 Websites • 5 Emails",
+      `${catalogPricing.web.elite.storage} storage`,
       "Free SSL + CDN",
-      "Daily Backups",
-      "Free Migration",
+      "Daily Backups • Free Migration",
     ],
   },
   {
     id: "premium",
     name: "Premium",
     price: catalogPricing.web.creator.price,
-    features: [
-      "Unlimited Websites",
-      `${catalogPricing.web.creator.storage}`,
-      "Unlimited Emails",
+    specs: [
+      "Unlimited Websites • Unlimited Emails",
+      `${catalogPricing.web.creator.storage} storage`,
       "Free SSL + CDN",
-      "Real-Time Backups",
-      "Priority Support",
+      "Real-Time Backups • Priority Support",
     ],
   },
 ];
@@ -51,7 +44,7 @@ const WebHostingPage = () => {
   const [billing, setBilling] = useState(false); // false = monthly
 
   const displayPrice = (price: number) => {
-    return billing ? `${(price * 12).toFixed(2)}/yr` : `${price}/mo`;
+    return billing ? `$${(price * 12).toFixed(2)}/yr` : `$${price}/mo`;
   };
 
   return (
@@ -74,24 +67,16 @@ const WebHostingPage = () => {
               <span className="font-inter text-sm">Yearly</span>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-9 justify-center place-items-center mb-12">
             {plans.map((plan) => (
-              <Card key={plan.id} className="glass-card p-6 text-center hover-scale hover-glow-primary">
-                <h3 className="font-orbitron font-semibold text-foreground text-xl mb-2">
-                  {plan.name}
-                </h3>
-                <div className="text-3xl font-orbitron font-bold text-gradient-primary mb-4">
-                  {displayPrice(plan.price)}
-                </div>
-                <ul className="space-y-1 mb-6 text-sm text-muted-foreground font-inter text-left">
-                  {plan.features.map((feat) => (
-                    <li key={feat}>• {feat}</li>
-                  ))}
-                </ul>
-                <Button asChild className="w-full bg-gradient-primary glow-primary font-orbitron">
-                  <a href="/web-hosting/checkout">Get Started</a>
-                </Button>
-              </Card>
+              <HostingCard
+                key={plan.id}
+                title={plan.name}
+                price={displayPrice(plan.price)}
+                specs={plan.specs}
+                ctaLabel="Get Started"
+                href="/web-hosting/checkout"
+              />
             ))}
           </div>
         </div>

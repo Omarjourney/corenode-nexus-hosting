@@ -139,6 +139,58 @@
     background: var(--gradient-hero);
   }
 
+  /* Unified hosting card design */
+  .hosting-card {
+    width: 100%;
+    max-width: 420px;
+    min-height: 260px;
+    aspect-ratio: 1 / 0.62;
+    padding: 28px 24px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #0B0F17 0%, #111827 100%);
+    box-shadow: 0px 0px 10px rgba(0, 229, 255, 0.12), 0px 4px 12px rgba(0, 0, 0, 0.55);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .hosting-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0px 0px 14px rgba(0, 229, 255, 0.25), 0px 6px 16px rgba(0, 0, 0, 0.6);
+  }
+
+  .hosting-card-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+
+  .hosting-card-price {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #00E5FF;
+  }
+
+  .hosting-card-spec {
+    font-size: 14px;
+    line-height: 20px;
+    color: #A3B3C2;
+  }
+
+  .hosting-cta {
+    background: linear-gradient(90deg, #00AFFF 0%, #8B5CF6 100%);
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    color: #ffffff;
+    transition: transform 0.25s ease, filter 0.25s ease;
+  }
+
+  .hosting-cta:hover {
+    transform: scale(1.03);
+    filter: brightness(1.05);
+  }
+
   /* Text gradients */
   .text-gradient-primary {
     background: var(--gradient-primary);
