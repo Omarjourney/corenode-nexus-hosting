@@ -248,9 +248,10 @@ const HomePage = () => {
             position: 'relative',
             width: '100%',
             minHeight: '75vh',
-            backgroundImage: "url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&q=80')",
-            backgroundPosition: 'center',
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&auto=format&fm=webp')",
             backgroundSize: 'cover',
+            backgroundPosition: 'center',
           }}
         >
           <div
@@ -301,7 +302,7 @@ const HomePage = () => {
           {/* NVMe SSD Storage */}
           <div style={{ width: '120px', textAlign: 'center' }}>
             <img
-              src="https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&q=80"
+              src="https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&auto=format&fm=webp"
               alt="NVMe SSD Storage"
               loading="lazy"
               width={80}
@@ -314,7 +315,7 @@ const HomePage = () => {
           {/* Global POPs */}
           <div style={{ width: '120px', textAlign: 'center' }}>
             <img
-              src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80"
+              src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&auto=format&fm=webp"
               alt="Global Network"
               loading="lazy"
               width={120}
@@ -345,7 +346,7 @@ const HomePage = () => {
           {/* AI HealthGuard */}
           <div style={{ width: '120px', textAlign: 'center' }}>
             <img
-              src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&q=80"
+              src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&auto=format&fm=webp"
               alt="AI Monitoring"
               loading="lazy"
               width={80}
@@ -375,7 +376,7 @@ const HomePage = () => {
           {/* Advanced DDoS */}
           <div style={{ width: '120px', textAlign: 'center' }}>
             <img
-              src="https://illustrations.popsy.co/amber/shield-security.svg"
+              src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=400&auto=format&fm=webp"
               alt="DDoS Protection"
               loading="lazy"
               width={64}
@@ -405,7 +406,7 @@ const HomePage = () => {
             }}
           >
             <img
-              src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=600&q=80"
+              src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=600&auto=format&fm=webp"
               alt="Minecraft Hosting"
               loading="lazy"
               style={{ width: '100%', height: '200px', objectFit: 'cover' }}
@@ -430,7 +431,7 @@ const HomePage = () => {
             }}
           >
             <img
-              src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=600&q=80"
+              src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=600&auto=format&fm=webp"
               alt="Game Servers"
               loading="lazy"
               style={{ width: '100%', height: '200px', objectFit: 'cover' }}
@@ -455,7 +456,7 @@ const HomePage = () => {
             }}
           >
             <img
-              src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=600&q=80"
+              src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=600&auto=format&fm=webp"
               alt="Voice Servers"
               loading="lazy"
               style={{ width: '100%', height: '200px', objectFit: 'cover' }}
