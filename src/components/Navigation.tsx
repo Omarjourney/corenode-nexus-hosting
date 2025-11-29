@@ -64,7 +64,13 @@ const Navigation = () => {
       name: "VPS Hosting",
       href: "/vps",
       dropdown: true,
-      sections: ["Lite", "Max", "Extreme"]
+      sections: [
+        { label: "NodeX Budget VPS", to: "/vps/budget" },
+        { label: "NodeX Standard VPS", to: "/vps/standard" },
+        { label: "NodeX Premium VPS", to: "/vps/premium" },
+        { label: "NodeX Extreme VPS", to: "/vps/extreme" },
+        { label: "NodeX Ryzen VPS", to: "/vps/ryzen" },
+      ]
     },
     {
       name: "Dedicated Servers",
