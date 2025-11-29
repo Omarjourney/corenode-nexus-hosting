@@ -35,7 +35,7 @@ const VpsPage = () => (
               Fixed tiers with 10Gbps networking and instant handoff.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 justify-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-9 justify-center place-items-center items-stretch">
             {plans.map((plan, index) => (
               <HostingCard
                 key={plan.name}

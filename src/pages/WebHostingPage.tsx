@@ -78,7 +78,7 @@ const WebHostingPage = () => {
               <h2 className="text-3xl font-orbitron font-bold text-foreground">Choose your plan</h2>
               <p className="text-sm text-muted-foreground font-inter mt-2">Three simple tiers with consistent resources.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-9 justify-center place-items-center items-stretch">
               {plans.map((plan, index) => (
                 <HostingCard
                   key={plan.id}

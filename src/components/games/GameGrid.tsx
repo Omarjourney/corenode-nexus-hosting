@@ -50,7 +50,7 @@ export function GameGrid() {
             : "No games match your search yet. Try a different keyword or genre."}
         </div>
       ) : (
-        <div className="grid gap-x-8 gap-y-9 sm:grid-cols-2 xl:grid-cols-3 justify-center place-items-center">
+        <div className="grid gap-x-8 gap-y-9 sm:grid-cols-2 xl:grid-cols-3 justify-center place-items-center items-stretch">
           {filtered.map((game) => (
             <GameCard key={game.id} game={game} />
           ))}

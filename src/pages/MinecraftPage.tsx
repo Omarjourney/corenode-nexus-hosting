@@ -9,7 +9,32 @@ import { ComparisonTable } from "@/components/ComparisonTable";
 import { FaqSection } from "@/components/FaqSection";
 import { HostingCard } from "@/components/HostingCard";
 
-const startPrice = formatPrice(minecraftConfig.editions.java.sliderSteps[0].price);
+const editionStartPrices = Object.values(minecraftConfig.editions)
+  .map((edition) => edition.sliderSteps?.[0]?.price)
+  .filter((value): value is number => typeof value === "number");
+
+const startPriceValue = editionStartPrices.length
+  ? Math.min(...editionStartPrices)
+  : minecraftConfig.editions.java.sliderSteps[0].price;
+
+const startPrice = formatPrice(startPriceValue);
+
+const editionCards = [
+  {
+    key: "java" as const,
+    name: "Java Edition",
+    description: minecraftConfig.editions.java.description,
+    startPrice: formatPrice(minecraftConfig.editions.java.sliderSteps[0].price),
+    specs: ["Forge, Fabric, Paper, Spigot", "Modpack & plugin manager", "Cross-version support"],
+  },
+  {
+    key: "bedrock" as const,
+    name: "Bedrock Edition",
+    description: minecraftConfig.editions.bedrock.description,
+    startPrice: formatPrice(minecraftConfig.editions.bedrock.sliderSteps[0].price),
+    specs: ["Mobile + console optimized", "Crossplay with Xbox/PS/Switch", "Instant world backups"],
+  },
+];
 
 const tierCards = [
   {
@@ -52,22 +77,44 @@ const MinecraftPage = () => (
       <div className="max-w-6xl mx-auto space-y-12">
         <header className="space-y-3 text-center">
           <p className="text-xs font-orbitron tracking-[0.2em] text-primary">MINECRAFT</p>
-          <h1 className="text-5xl font-orbitron font-bold text-foreground">Java Hosting</h1>
+          <h1 className="text-5xl font-orbitron font-bold text-foreground">Java & Bedrock Hosting</h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto font-inter">
-            Choose your RAM tier, slide resources, and launch instantly with {CONTROL_PANELS.pterodactyl} or {CONTROL_PANELS.amp}. Pricing follows the RAM plan—no surprises.
+            Choose Java or Bedrock, slide resources, and launch instantly with {CONTROL_PANELS.pterodactyl} or {" "}
+            {CONTROL_PANELS.amp}. Pricing follows the RAM plan—no surprises.
           </p>
           <div className="text-sm text-foreground font-inter">Starting at {startPrice}</div>
         </header>
 
         <section className="space-y-6">
           <div className="text-center">
+            <h2 className="text-3xl font-orbitron font-bold text-foreground">Pick your edition</h2>
+            <p className="text-sm text-muted-foreground font-inter mt-2">
+              Java and Bedrock cards now share the same layout, pricing color, and CTA.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-9 place-items-center items-stretch">
+            {editionCards.map((edition) => (
+              <HostingCard
+                key={edition.key}
+                title={edition.name}
+                price={`Starting at ${edition.startPrice}`}
+                specs={[edition.description, ...edition.specs]}
+                ctaLabel="Launch Server"
+                href={`/order?edition=${edition.key}`}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section className="space-y-6">
+          <div className="text-center">
             <h2 className="text-3xl font-orbitron font-bold text-foreground">Minecraft tiers</h2>
             <p className="text-sm text-muted-foreground font-inter mt-2">CORE, ELITE, and CREATOR cards follow one consistent layout.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-9 place-items-center items-stretch">
             {tierCards.map((tier) => {
               const tierData = minecraftPricing.tiers[tier.key];
-              const basePrice = minecraftConfig.sliderSteps?.[0]?.price || minecraftConfig.editions.java.sliderSteps[0].price;
+              const basePrice = minecraftConfig.editions.java.sliderSteps[0].price;
               const tierPrice = formatPrice(getTierPrice(basePrice, tier.key));
 
               return (
