@@ -10,16 +10,18 @@ export function GameCard({ game }: Props) {
   const startingPrice = getLowestTierPrice(game.defaultTier);
 
   return (
-    <div className="flex flex-col rounded-2xl bg-slate-900/70 p-4 border border-slate-700/60 hover:border-cyan-400/70 transition">
+    <div className="flex flex-col rounded-[12px] bg-gradient-to-br from-[#0B0F17] to-[#111827] p-5 border border-cyan-500/25 shadow-[0_4px_12px_rgba(0,0,0,0.4)] hover:border-cyan-400/60 transition">
       <div className="mb-1 text-xs uppercase tracking-wide text-slate-400">{game.tags.join(" · ")}</div>
       <h3 className="mb-2 text-lg font-semibold text-slate-100">{game.name}</h3>
       <div className="mb-2 text-sm text-slate-300">
         Recommended: {game.recommendedRam}GB, {game.defaultTier.toUpperCase()} tier
       </div>
-      <div className="mb-3 text-2xl font-semibold text-cyan-300">From {formatPrice(startingPrice)}</div>
+      <div className="mb-3 text-2xl font-extrabold text-[#00E5FF]">From {formatPrice(startingPrice)}</div>
       <div className="mb-4 text-xs text-slate-400">Closest plan match: {plan.ram}GB @ {formatPrice(plan.price)}</div>
-      <button className="mt-auto rounded-xl bg-cyan-500 py-2 text-sm font-semibold text-slate-900 hover:bg-cyan-400">
-        Configure Server
+      <button
+        className="mt-auto rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#00AFFF] to-[#8B5CF6] hover:brightness-110 hover:scale-[1.03] transition transform"
+      >
+        Launch Server
       </button>
     </div>
   );

@@ -44,9 +44,7 @@ const MinecraftPage = () => (
       <div className="max-w-6xl mx-auto space-y-10">
         <header className="space-y-4 text-center">
           <p className="text-xs font-orbitron tracking-[0.2em] text-primary">MINECRAFT</p>
-          <h1 className="text-4xl sm:text-5xl font-orbitron font-bold text-gradient-primary">
-            Java & Bedrock Hosting
-          </h1>
+          <h1 className="text-4xl sm:text-5xl font-orbitron font-bold text-gradient-primary">Java Hosting</h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto font-inter">
             Choose your RAM tier, slide resources, and launch instantly with {CONTROL_PANELS.pterodactyl} or {CONTROL_PANELS.amp}.
             Pricing automatically follows the RAM plan—no surprises.

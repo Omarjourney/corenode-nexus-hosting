@@ -78,7 +78,7 @@ const HomePage = () => {
     {
       icon: Gamepad2,
       title: "Minecraft Hosting",
-      description: "Java & Bedrock with Blueprints & modpack installer",
+        description: "Java with Blueprints & modpack installer",
       color: "primary",
       link: "/minecraft"
     },

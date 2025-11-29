@@ -926,27 +926,5 @@
     "defaultTier": "core",
     "recommendedRam": 4,
     "category": "game"
-  },
-  {
-    "id": "minecraft-java",
-    "name": "Minecraft Java Edition",
-    "tags": [
-      "minecraft",
-      "sandbox"
-    ],
-    "defaultTier": "core",
-    "recommendedRam": 4,
-    "category": "minecraft"
-  },
-  {
-    "id": "minecraft-bedrock",
-    "name": "Minecraft Bedrock Edition",
-    "tags": [
-      "minecraft",
-      "crossplay"
-    ],
-    "defaultTier": "core",
-    "recommendedRam": 2,
-    "category": "minecraft"
   }
 ]

@@ -19,8 +19,10 @@ export function NodeXMetalGrid() {
               <li>Full root access</li>
               <li>Free migration service</li>
             </ul>
-            <button className="mt-auto rounded-xl bg-cyan-500 py-2 text-sm font-semibold text-slate-900 hover:bg-cyan-400">
-              Upgrade Now
+            <button
+              className="mt-auto rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#00AFFF] to-[#8B5CF6] hover:brightness-110 hover:scale-[1.03] transition transform"
+            >
+              Deploy Now
             </button>
           </div>
         ))}

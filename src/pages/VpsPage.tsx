@@ -40,8 +40,11 @@ const VpsPage = () => (
               <div className="text-sm text-muted-foreground font-inter mb-4">
                 {plan.ssd} NVMe • {plan.bandwidth} Bandwidth
               </div>
-              <Button asChild className="w-full bg-gradient-primary glow-primary font-orbitron">
-                <a href="/vps/checkout">Upgrade Now</a>
+              <Button
+                asChild
+                className="w-full font-orbitron text-white bg-gradient-to-r from-[#00AFFF] to-[#8B5CF6] transition transform hover:brightness-110 hover:scale-105"
+              >
+                <a href="/vps/checkout">Deploy Now</a>
               </Button>
             </Card>
           ))}

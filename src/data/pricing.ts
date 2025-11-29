@@ -44,11 +44,6 @@ export const minecraftPricing = {
       name: "Java Edition",
       recommended: 4,
       description: "Forge, Fabric, Paper & Spigot with one-click modpack swaps"
-    },
-    bedrock: {
-      name: "Bedrock Edition",
-      recommended: 2,
-      description: "Mobile, console, and PC cross-play with RTX-ready hosting"
     }
   }
 };
