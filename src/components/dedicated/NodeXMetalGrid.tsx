@@ -18,7 +18,7 @@ export function NodeXMetalGrid() {
               `Storage: ${plan.storage}`,
               "10Gbps uplink • Root access",
             ]}
-            ctaLabel="Deploy Now"
+            ctaLabel="Buy Now"
             href="/dedicated/checkout"
           />
         ))}

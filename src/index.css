@@ -142,53 +142,83 @@
   /* Unified hosting card design */
   .hosting-card {
     width: 100%;
-    max-width: 420px;
-    min-height: 260px;
-    aspect-ratio: 1 / 0.62;
-    padding: 28px 24px;
-    border-radius: 12px;
-    background: linear-gradient(180deg, #0B0F17 0%, #111827 100%);
-    box-shadow: 0px 0px 10px rgba(0, 229, 255, 0.12), 0px 4px 12px rgba(0, 0, 0, 0.55);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    height: 100%;
+    min-height: 340px;
+    padding: 30px;
+    border-radius: 14px;
+    background: #0d0f14;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 0 25px rgba(0, 200, 255, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
   }
 
   .hosting-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0px 0px 14px rgba(0, 229, 255, 0.25), 0px 6px 16px rgba(0, 0, 0, 0.6);
+    transform: translateY(-4px);
+    box-shadow: 0 0 18px rgba(0, 200, 255, 0.5);
+    filter: brightness(1.02);
   }
 
   .hosting-card-title {
-    font-size: 22px;
+    margin-top: 20px;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
     font-weight: 700;
-    color: #FFFFFF;
+    color: #ffffff;
   }
 
   .hosting-card-price {
-    font-size: 32px;
+    margin-top: 18px;
+    margin-bottom: 16px;
+    font-size: 1.8rem;
     font-weight: 800;
     letter-spacing: -0.5px;
-    color: #00E5FF;
+    color: #3bc6ff;
   }
 
   .hosting-card-spec {
     font-size: 14px;
-    line-height: 20px;
-    color: #A3B3C2;
+    line-height: 1.45;
+    color: #c5c9d2;
   }
 
   .hosting-cta {
-    background: linear-gradient(90deg, #00AFFF 0%, #8B5CF6 100%);
-    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 48px;
     border-radius: 10px;
     font-weight: 700;
     font-size: 16px;
+    background: linear-gradient(90deg, #00c8ff 0%, #8a55ff 100%);
     color: #ffffff;
-    transition: transform 0.25s ease, filter 0.25s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
 
   .hosting-cta:hover {
-    transform: scale(1.03);
-    filter: brightness(1.05);
+    transform: translateY(-4px);
+    box-shadow: 0 0 18px rgba(0, 200, 255, 0.5);
+  }
+
+  @media (max-width: 1024px) {
+    .hosting-card-price {
+      font-size: 1.6rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hosting-card {
+      padding: 50px 40px;
+      border-radius: 14px;
+    }
+
+    .hosting-card-title {
+      font-size: 1rem;
+    }
+
+    .hosting-card-price {
+      font-size: 1.4rem;
+    }
   }
 
   /* Text gradients */
