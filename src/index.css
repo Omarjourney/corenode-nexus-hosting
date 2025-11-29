@@ -98,12 +98,12 @@
   .features-grid {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 24px;
+    gap: 20px;
     max-width: 1400px;
     margin: 0 auto;
   }
 
-  @media (max-width: 1280px) {
+  @media (max-width: 1199px) {
     .features-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 20px;
@@ -112,14 +112,14 @@
 
   @media (max-width: 768px) {
     .features-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 20px;
     }
   }
 
   .feature-card {
     min-height: 120px;
-    padding: 20px;
+    padding: 16px;
   }
 
   .hero-shell {
@@ -287,7 +287,7 @@
     display: none;
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 768px) {
     .comparison-table-wrapper {
       display: none;
     }
@@ -492,5 +492,29 @@
 
   body {
     @apply bg-background text-foreground;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  button,
+  .btn,
+  .cta-button,
+  .button {
+    transition: transform 180ms ease, filter 180ms ease, box-shadow 200ms ease;
+  }
+
+  button:hover,
+  .btn:hover,
+  .cta-button:hover,
+  .button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+  }
+
+  button:active,
+  .btn:active,
+  .cta-button:active,
+  .button:active {
+    transform: scale(0.97);
   }
 }

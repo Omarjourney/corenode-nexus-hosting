@@ -203,13 +203,31 @@ const defaultQuiz: QuizAnswer = {
   skill: "beginner",
 };
 
+const InfoTooltip = ({ label }: { label: string }) => (
+  <Tooltip delayDuration={100}>
+    <TooltipTrigger asChild>
+      <span className="inline-flex items-center justify-center w-5 h-5 text-xs rounded-full bg-foreground/10 text-foreground/80 ml-1 align-middle">
+        ?
+      </span>
+    </TooltipTrigger>
+    <TooltipContent className="max-w-xs text-sm leading-relaxed">{label}</TooltipContent>
+  </Tooltip>
+);
+
 const HomePage = () => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<QuizAnswer>(defaultQuiz);
+  const [showStickyCta, setShowStickyCta] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => setActiveTestimonial((prev) => (prev + 1) % testimonials.length), 4000);
     return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => setShowStickyCta(window.scrollY > 320);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const recommendation = useMemo(() => {
@@ -262,19 +280,20 @@ const HomePage = () => {
           <div className="hero-content" style={{ textAlign: 'center', maxWidth: '900px' }}>
             <h1
               style={{
-                fontSize: '2.8rem',
+                fontSize: 'clamp(32px, 5vw, 48px)',
                 marginBottom: '12px',
                 fontWeight: '700',
-                lineHeight: '1.2',
+                lineHeight: 1.2,
               }}
             >
               Start My Server in 10 Seconds
             </h1>
             <p
               style={{
-                fontSize: '1.2rem',
+                fontSize: '1.05rem',
                 marginBottom: '20px',
                 color: 'rgba(255,255,255,0.9)',
+                lineHeight: 1.5,
               }}
             >
               Your game hosting, redefined — fast, reliable, scalable.
@@ -282,13 +301,15 @@ const HomePage = () => {
             <a
               href="/#pricing"
               style={{
-                display: 'inline-block',
+                display: 'inline-flex',
+                minHeight: '44px',
                 padding: '12px 32px',
+                alignItems: 'center',
                 background: '#06b6d4',
                 color: 'white',
                 borderRadius: '8px',
                 textDecoration: 'none',
-                fontSize: '1.1rem',
+                fontSize: '1.05rem',
                 fontWeight: '600',
                 transition: 'all 0.3s ease',
               }}
@@ -303,7 +324,7 @@ const HomePage = () => {
           className="features-section"
           style={{
             padding: '0 20px 40px',
-            marginTop: '-60px',
+            marginTop: '-30px',
             position: 'relative',
             zIndex: 10,
             background: 'transparent',
@@ -315,7 +336,7 @@ const HomePage = () => {
               className="feature-card"
               style={{
                 textAlign: 'center',
-                padding: '20px',
+                padding: '16px',
                 background: 'rgba(30, 41, 59, 0.9)',
                 borderRadius: '12px',
                 border: '1px solid rgba(6, 182, 212, 0.3)',
@@ -324,9 +345,11 @@ const HomePage = () => {
               }}
             >
               <img
-                src="https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&auto=format&fm=webp&q=90"
+                src="https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&auto=format&fm=webp"
                 alt="NVMe SSD Storage"
                 loading="lazy"
+                width="80"
+                height="80"
                 style={{
                   width: '80px',
                   height: '80px',
@@ -362,7 +385,7 @@ const HomePage = () => {
               className="feature-card"
               style={{
                 textAlign: 'center',
-                padding: '20px',
+                padding: '16px',
                 background: 'rgba(30, 41, 59, 0.9)',
                 borderRadius: '12px',
                 border: '1px solid rgba(6, 182, 212, 0.3)',
@@ -370,9 +393,11 @@ const HomePage = () => {
               }}
             >
               <img
-                src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&auto=format&fm=webp&q=90"
+                src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&auto=format&fm=webp"
                 alt="Global Network"
                 loading="lazy"
+                width="80"
+                height="80"
                 style={{
                   width: '80px',
                   height: '80px',
@@ -401,31 +426,27 @@ const HomePage = () => {
               className="feature-card"
               style={{
                 textAlign: 'center',
-                padding: '20px',
+                padding: '16px',
                 background: 'rgba(30, 41, 59, 0.9)',
                 borderRadius: '12px',
                 border: '1px solid rgba(6, 182, 212, 0.3)',
                 backdropFilter: 'blur(10px)',
               }}
             >
-              <div
+              <img
+                src="https://illustrations.popsy.co/amber/rocket-launch.svg"
+                alt="Fast Deployment"
+                loading="lazy"
+                width="80"
+                height="80"
                 style={{
                   width: '80px',
                   height: '80px',
                   margin: '0 auto 12px',
-                  background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  objectFit: 'contain',
+                  display: 'block',
                 }}
-              >
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                  <path d="M2 17l10 5 10-5" />
-                  <path d="M2 12l10 5 10-5" />
-                </svg>
-              </div>
+              />
               <h3 style={{ fontSize: '1rem', color: '#06b6d4', marginBottom: '6px', fontWeight: '600' }}>
                 10s Boot
               </h3>
@@ -445,7 +466,7 @@ const HomePage = () => {
               className="feature-card"
               style={{
                 textAlign: 'center',
-                padding: '20px',
+                padding: '16px',
                 background: 'rgba(30, 41, 59, 0.9)',
                 borderRadius: '12px',
                 border: '1px solid rgba(168, 85, 247, 0.3)',
@@ -453,9 +474,11 @@ const HomePage = () => {
               }}
             >
               <img
-                src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&auto=format&fm=webp&q=90"
+                src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&auto=format&fm=webp"
                 alt="AI Monitoring"
                 loading="lazy"
+                width="80"
+                height="80"
                 style={{
                   width: '80px',
                   height: '80px',
@@ -466,7 +489,7 @@ const HomePage = () => {
                 }}
               />
               <h3 style={{ fontSize: '1rem', color: '#a855f7', marginBottom: '6px', fontWeight: '600' }}>
-                AI HealthGuard
+                AI HealthGuard <InfoTooltip label="AI HealthGuard™ predicts instability before it impacts players." />
               </h3>
               <p
                 style={{
@@ -484,30 +507,27 @@ const HomePage = () => {
               className="feature-card"
               style={{
                 textAlign: 'center',
-                padding: '20px',
+                padding: '16px',
                 background: 'rgba(30, 41, 59, 0.9)',
                 borderRadius: '12px',
                 border: '1px solid rgba(168, 85, 247, 0.3)',
                 backdropFilter: 'blur(10px)',
               }}
             >
-              <div
+              <img
+                src="https://illustrations.popsy.co/amber/one-click.svg"
+                alt="1-Click Mods"
+                loading="lazy"
+                width="80"
+                height="80"
                 style={{
                   width: '80px',
                   height: '80px',
                   margin: '0 auto 12px',
-                  background: 'linear-gradient(135deg, #a855f7, #9333ea)',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  objectFit: 'contain',
+                  display: 'block',
                 }}
-              >
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <path d="M9 12h6M12 9v6" />
-                </svg>
-              </div>
+              />
               <h3 style={{ fontSize: '1rem', color: '#a855f7', marginBottom: '6px', fontWeight: '600' }}>
                 1-Click Mods
               </h3>
@@ -527,29 +547,28 @@ const HomePage = () => {
               className="feature-card"
               style={{
                 textAlign: 'center',
-                padding: '20px',
+                padding: '16px',
                 background: 'rgba(30, 41, 59, 0.9)',
                 borderRadius: '12px',
                 border: '1px solid rgba(239, 68, 68, 0.3)',
                 backdropFilter: 'blur(10px)',
               }}
             >
-              <div
+              <img
+                src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=400&auto=format&fm=webp"
+                alt="Advanced DDoS"
+                loading="lazy"
+                width="80"
+                height="80"
                 style={{
                   width: '80px',
                   height: '80px',
                   margin: '0 auto 12px',
-                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  objectFit: 'cover',
+                  display: 'block',
                   borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                 }}
-              >
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-              </div>
+              />
               <h3 style={{ fontSize: '1rem', color: '#ef4444', marginBottom: '6px', fontWeight: '600' }}>
                 Advanced DDoS
               </h3>
@@ -660,13 +679,13 @@ const HomePage = () => {
             }}
           >
             <img
-              src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fm=webp&q=80"
+              src="https://illustrations.popsy.co/amber/web-development.svg"
               alt="Web Hosting"
               loading="lazy"
               style={{
                 width: '100%',
                 height: '200px',
-                objectFit: 'cover',
+                objectFit: 'contain',
               }}
             />
             <div style={{ padding: '16px' }}>
@@ -693,6 +712,15 @@ const HomePage = () => {
             CORE (CorePanel Lite™), ELITE (CNX CommandCenter™), and CREATOR (CommandCenter™ + Dedicated CPU) with transparent pricing.
           </p>
           <PricingGlowCards />
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between glass-card p-4 border border-glass-border">
+            <div className="flex flex-wrap gap-3 text-sm text-muted-foreground font-inter">
+              <span className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-glass-surface/60 border border-glass-border">⚡ 1,247 servers deployed today</span>
+              <span className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-glass-surface/60 border border-glass-border">🚀 Limited slots available in your region</span>
+            </div>
+            <Button asChild className="bg-gradient-primary text-background min-h-11">
+              <Link to="/order">Start My Server</Link>
+            </Button>
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="glass-card p-6 space-y-3 lg:col-span-2">
               <h3 className="text-xl font-orbitron font-semibold">Multi-Game Profile System</h3>
@@ -881,6 +909,31 @@ const HomePage = () => {
         </div>
       </section>
 
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {["50,000+ servers deployed", "24/7 support", "99.9% uptime SLA", "Creator-loved testimonials"]
+            .map((item) => (
+              <Card key={item} className="glass-card p-6 space-y-2 border border-glass-border">
+                <h3 className="text-lg font-orbitron text-foreground">{item}</h3>
+                <p className="text-sm text-muted-foreground font-inter leading-relaxed">
+                  We keep teams online with proactive monitoring, real humans on chat, and proven reliability.
+                </p>
+                <Button asChild variant="outline" className="min-h-11">
+                  <Link to="/order">Repeat CTA: Start My Server</Link>
+                </Button>
+              </Card>
+            ))}
+        </div>
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((index) => (
+            <Card key={index} className="glass-card p-4 space-y-2 border border-dashed border-glass-border">
+              <p className="text-sm text-muted-foreground">Testimonial placeholder {index}</p>
+              <p className="text-foreground font-semibold">“CommandCenter™ keeps our community smooth.”</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-glass-border">
         <div className="max-w-7xl mx-auto footer-grid text-center md:text-left">
@@ -920,6 +973,14 @@ const HomePage = () => {
           </div>
         </div>
       </footer>
+      {showStickyCta && (
+        <Button
+          asChild
+          className="fixed bottom-4 right-4 z-50 bg-gradient-primary text-background shadow-lg min-h-11"
+        >
+          <Link to="/order">Start My Server</Link>
+        </Button>
+      )}
     </div>
   );
 };

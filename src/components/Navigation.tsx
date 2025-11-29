@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Menu, X } from "lucide-react";
@@ -9,12 +9,30 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
+  const navRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
 
   useEffect(() => {
     setActiveDropdown(null);
     setIsOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const closeDropdowns = (event?: MouseEvent) => {
+      if (event && navRef.current?.contains(event.target as Node)) return;
+      setActiveDropdown(null);
+    };
+
+    const handleScroll = () => setActiveDropdown(null);
+
+    document.addEventListener("click", closeDropdowns);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      document.removeEventListener("click", closeDropdowns);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   type Section = string | { label: string; to: string };
   const navItems: { name: string; href: string; dropdown?: boolean; sections?: Section[] }[] = [
@@ -70,7 +88,7 @@ const Navigation = () => {
 
   return (
     <>
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-nav">
+    <nav ref={navRef} className="fixed top-0 left-0 right-0 z-50 glass-nav">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -103,16 +121,21 @@ const Navigation = () => {
                         ? "text-primary glow-primary"
                         : "text-foreground/80 hover-glow-primary"
                     )}
-                    onClick={() => setActiveDropdown(null)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveDropdown((current) =>
+                        current === item.name && item.dropdown ? null : item.name
+                      );
+                    }}
                   >
                     <span>{item.name}</span>
                     {item.dropdown && <ChevronDown className="w-4 h-4" />}
                   </Link>
-                  
+
                   {/* Dropdown Menu */}
                   {item.dropdown && activeDropdown === item.name && (
-                    <div 
-                      className="absolute top-full left-0 w-64 glass-card mt-2 py-4 shadow-xl border border-glass-border"
+                    <div
+                      className="absolute top-full left-0 w-64 glass-card mt-2 py-4 shadow-xl border border-glass-border z-40"
                     >
                       {item.sections?.map((section, index) => {
                         const label = typeof section === 'string' ? section : section.label;

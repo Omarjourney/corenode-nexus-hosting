@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface PackageOption {
   ram: string;
@@ -89,6 +90,17 @@ const accentPalette: Record<Plan["accent"], string> = {
   creator: "var(--tier-creator)",
 };
 
+const InfoTooltip = ({ label }: { label: string }) => (
+  <Tooltip delayDuration={50}>
+    <TooltipTrigger asChild>
+      <span className="inline-flex items-center justify-center w-4 h-4 text-[10px] rounded-full bg-foreground/10 text-foreground/80">
+        ?
+      </span>
+    </TooltipTrigger>
+    <TooltipContent className="max-w-xs text-xs leading-relaxed">{label}</TooltipContent>
+  </Tooltip>
+);
+
 const PricingGlowCards = () => (
   <div id="pricing" className="grid grid-cols-1 md:grid-cols-3 gap-8">
     {plans.map((plan) => (
@@ -104,11 +116,21 @@ const PricingCard = ({ plan }: { plan: Plan }) => {
     [accentColor]
   );
 
+  const orderClass = plan.name === "ELITE" ? "order-1" : plan.name === "CORE" ? "order-2" : "order-3";
+  const tierGlow =
+    plan.name === "ELITE"
+      ? "shadow-[0_0_20px_rgba(34,211,238,0.35)]"
+      : plan.name === "CREATOR"
+        ? "shadow-[0_0_24px_rgba(154,77,255,0.35)]"
+        : "";
+
   return (
     <Card
       className={cn(
-        "relative glass-card p-7 text-left transition-transform duration-300",
-        "hover:-translate-y-2"
+        "relative glass-card p-7 text-left transition-transform duration-300 flex flex-col gap-3",
+        "hover:-translate-y-2",
+        `${orderClass} md:order-none`,
+        tierGlow
       )}
       style={{
         borderColor: `${accentColor}55`,
@@ -117,18 +139,31 @@ const PricingCard = ({ plan }: { plan: Plan }) => {
     >
       <div className="absolute inset-x-4 top-0 h-1 rounded-b-full" style={{ background: accentGradient }} />
       {(plan.badge || plan.tag) && (
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-2 h-6 relative">
           {plan.badge && (
-            <Badge className="bg-secondary text-secondary-foreground">{plan.badge}</Badge>
+            <Badge className="absolute -top-2 right-0 bg-secondary text-secondary-foreground shadow-md">
+              {plan.badge}
+            </Badge>
           )}
-          {plan.tag && <Badge className="bg-secondary/20 text-secondary">{plan.tag}</Badge>}
+          {plan.tag && <Badge className="absolute -top-2 left-0 bg-secondary/20 text-secondary">{plan.tag}</Badge>}
         </div>
       )}
 
       <div className="space-y-2">
         <div className="flex items-baseline justify-between">
           <h3 className="text-2xl font-orbitron font-semibold text-foreground">{plan.name}</h3>
-          <p className="text-sm text-muted-foreground">{plan.controlPanel}</p>
+          <p className="text-sm text-muted-foreground flex items-center gap-1">
+            {plan.controlPanel}
+            {plan.controlPanel.includes("CorePanel") && (
+              <InfoTooltip label="CorePanel Lite™ is our streamlined panel for fast starts." />
+            )}
+            {plan.controlPanel.includes("CommandCenter") && (
+              <InfoTooltip label="CNX CommandCenter™ automates deployments, monitoring, and rollbacks." />
+            )}
+            {plan.controlPanel.includes("Dedicated CPU") && (
+              <InfoTooltip label="Dedicated CPU ensures isolation for heavy creator workloads." />
+            )}
+          </p>
         </div>
         <p className="text-4xl font-orbitron font-bold" style={{ color: accentColor }}>
           {plan.priceLabel}
@@ -136,7 +171,7 @@ const PricingCard = ({ plan }: { plan: Plan }) => {
         <p className="text-sm text-muted-foreground font-inter">{plan.description}</p>
       </div>
 
-      <div className="my-4 grid grid-cols-2 gap-2">
+      <div className="my-4 grid grid-cols-2 gap-3">
         {plan.packages.map((pkg) => (
           <div
             key={pkg.ram}
@@ -149,7 +184,7 @@ const PricingCard = ({ plan }: { plan: Plan }) => {
         ))}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         {plan.features.map((feat) => (
           <div key={feat} className="flex items-start gap-2 text-sm font-inter">
             <CheckCircle className="h-4 w-4" style={{ color: accentColor }} />
@@ -160,7 +195,11 @@ const PricingCard = ({ plan }: { plan: Plan }) => {
 
       <Button
         asChild
-        className="w-full mt-5 font-orbitron"
+        className={cn(
+          "w-full mt-5 font-orbitron min-h-11",
+          plan.name === "ELITE" && "ring-2 ring-cyan-300/40",
+          plan.name === "CREATOR" && "border border-white/20"
+        )}
         style={{
           background: accentGradient,
           color: "var(--background)",
