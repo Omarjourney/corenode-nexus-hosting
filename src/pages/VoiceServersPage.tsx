@@ -150,7 +150,7 @@ const VoiceServersPage = () => {
               <h2 className="text-3xl font-orbitron font-bold text-foreground">Voice platforms</h2>
               <p className="text-sm text-muted-foreground font-inter mt-2">Launch every platform from the same CTA.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-9 place-items-center items-stretch">
               <HostingCard
                 title="TeamSpeak"
                 price={`$${starterPrices.teamspeak}/mo`}
