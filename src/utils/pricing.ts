@@ -16,6 +16,12 @@ export function getClosestPlan(tier: TierId, ram: number) {
   }, tierPlans[0]);
 }
 
+export function getLowestTierPrice(tier: TierId): number | null {
+  const tierPlans = plans[tier];
+  if (!tierPlans?.length) return null;
+  return tierPlans.reduce((best, plan) => (plan.price < best ? plan.price : best), tierPlans[0].price);
+}
+
 export function formatPrice(value: number | null): string {
   if (value == null) return "--";
   return `$${value.toFixed(2)}/mo`;

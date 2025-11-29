@@ -1,122 +1,214 @@
 "use client";
 
-import { useState } from "react";
-import { formatPrice, getPlanPrice } from "@/utils/pricing";
+import { useEffect, useMemo, useState } from "react";
+import config from "@/data/minecraft-config.json";
+import { formatPrice } from "@/utils/pricing";
+import type { TierId } from "@/types/hosting";
 
-const RAM_STOPS = [2, 4, 6, 8, 10, 12, 16, 24];
+const editionKeys = Object.keys(config.editions) as (keyof typeof config.editions)[];
+const tierKeys = Object.keys(config.tiers) as TierId[];
+
+function calculateTierPrice(base: number, tier: TierId) {
+  const multiplier = config.tiers[tier].multiplier;
+  return parseFloat((base * multiplier).toFixed(2));
+}
 
 export function MinecraftConfigurator() {
-  const [ram, setRam] = useState<number>(4);
-  const [cpu, setCpu] = useState<number>(3);
+  const [edition, setEdition] = useState<(typeof editionKeys)[number]>("java");
+  const [tier, setTier] = useState<TierId>("core");
+  const [stepIndex, setStepIndex] = useState<number>(1);
+  const [cpu, setCpu] = useState<number>(2);
   const [storage, setStorage] = useState<number>(40);
-  const [slots, setSlots] = useState<number>(10);
+  const [slots, setSlots] = useState<number>(20);
 
-  const corePrice = getPlanPrice("core", ram);
-  const elitePrice = getPlanPrice("elite", ram);
+  const steps = config.editions[edition].sliderSteps;
+  const step = steps[stepIndex] ?? steps[0];
+
+  useEffect(() => {
+    const editionSteps = config.editions[edition].sliderSteps;
+    const recommendedIndex = Math.max(
+      0,
+      editionSteps.findIndex((s) => s.ram === config.editions[edition].recommended)
+    );
+    setStepIndex(recommendedIndex === -1 ? 0 : recommendedIndex);
+  }, [edition]);
+
+  useEffect(() => {
+    setCpu(step.cpu);
+    setStorage(step.storage);
+    setSlots(step.slots);
+  }, [step]);
+
+  const cpuUpgradeCost = useMemo(
+    () => Math.max(0, cpu - step.cpu) * config.billing.cpuUpgradePerCore,
+    [cpu, step]
+  );
+
+  const storageUpgradeCost = useMemo(
+    () => Math.max(0, storage - step.storage) * config.billing.storagePerGb,
+    [storage, step]
+  );
+
+  const slotUpgradeCost = useMemo(() => {
+    if (slots <= step.slots) return 0;
+    const packs = Math.ceil((slots - step.slots) / config.billing.slotPackSize);
+    return packs * config.billing.slotPackPrice;
+  }, [slots, step]);
+
+  const tierBasePrice = calculateTierPrice(step.price, tier);
+  const totalPrice = useMemo(() => {
+    if (!Number.isFinite(tierBasePrice)) return null;
+    return parseFloat((tierBasePrice + cpuUpgradeCost + storageUpgradeCost + slotUpgradeCost).toFixed(2));
+  }, [tierBasePrice, cpuUpgradeCost, storageUpgradeCost, slotUpgradeCost]);
+
+  const ramMarkers = steps.map((s) => `${s.ram}GB`);
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)]">
-      {/* Left: configurator */}
-      <div className="rounded-2xl bg-slate-900/60 p-6 shadow-lg border border-slate-700/60">
-        <h2 className="mb-4 text-xl font-semibold text-cyan-300">Configure Your Java Server</h2>
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.1fr)]">
+      <div className="rounded-2xl bg-slate-900/60 p-6 shadow-lg border border-slate-700/60 space-y-6">
+        <div className="flex flex-wrap gap-2">
+          {editionKeys.map((key) => (
+            <button
+              key={key}
+              onClick={() => setEdition(key)}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold border ${
+                edition === key
+                  ? "border-cyan-400 bg-cyan-500/20 text-cyan-100"
+                  : "border-slate-700 bg-slate-800/60 text-slate-200"
+              }`}
+            >
+              {config.editions[key].name}
+            </button>
+          ))}
+        </div>
 
-        {/* RAM slider */}
-        <div className="mb-4">
-          <div className="mb-1 flex justify-between text-sm">
-            <span>RAM: {ram}GB</span>
-            <span className="text-xs text-slate-400">Pricing is based on RAM tier.</span>
+        <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-semibold">RAM: {step.ram}GB</span>
+            <span className="text-xs text-slate-400">Base price: {formatPrice(step.price)}</span>
           </div>
           <input
             type="range"
             min={0}
-            max={RAM_STOPS.length - 1}
+            max={steps.length - 1}
             step={1}
-            value={RAM_STOPS.indexOf(ram)}
-            onChange={(e) => setRam(RAM_STOPS[Number(e.target.value)])}
+            value={stepIndex}
+            onChange={(e) => setStepIndex(Number(e.target.value))}
             className="w-full"
           />
-          <div className="mt-1 flex justify-between text-[11px] text-slate-400">
-            {RAM_STOPS.map((v) => (
-              <span key={v}>{v}GB</span>
+          <div className="mt-1 grid grid-cols-4 gap-1 text-[11px] text-slate-400">
+            {ramMarkers.map((label) => (
+              <span key={label}>{label}</span>
             ))}
           </div>
         </div>
 
-        {/* CPU, Storage, Slots – informational only */}
-        <div className="mb-4 grid gap-4 md:grid-cols-3">
-          <div>
-            <div className="mb-1 text-sm">CPU Cores: {cpu}</div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-semibold">CPU Cores: {cpu}</span>
+              <span className="text-xs text-slate-400">Upgrade: {formatPrice(cpuUpgradeCost)}</span>
+            </div>
             <input
               type="range"
-              min={2}
-              max={12}
+              min={step.cpu}
+              max={step.cpu + 6}
+              step={1}
               value={cpu}
               onChange={(e) => setCpu(Number(e.target.value))}
               className="w-full"
             />
+            <p className="text-xs text-slate-500">Base cores included. Costs apply only above {step.cpu} vCPU.</p>
           </div>
-          <div>
-            <div className="mb-1 text-sm">Storage: {storage}GB NVMe</div>
+
+          <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-semibold">Storage: {storage}GB NVMe</span>
+              <span className="text-xs text-slate-400">Upgrade: {formatPrice(storageUpgradeCost)}</span>
+            </div>
             <input
               type="range"
-              min={20}
-              max={200}
+              min={step.storage}
+              max={step.storage + 300}
               step={10}
               value={storage}
               onChange={(e) => setStorage(Number(e.target.value))}
               className="w-full"
             />
-          </div>
-          <div>
-            <div className="mb-1 text-sm">Player Slots: {slots}</div>
-            <input
-              type="range"
-              min={4}
-              max={100}
-              step={4}
-              value={slots}
-              onChange={(e) => setSlots(Number(e.target.value))}
-              className="w-full"
-            />
+            <p className="text-xs text-slate-500">${config.billing.storagePerGb.toFixed(3)}/GB beyond included {step.storage}GB.</p>
           </div>
         </div>
 
-        <p className="text-xs text-slate-400">
-          CPU, storage, and slots are recommendations only. Final billing is determined by RAM tier and selected panel.
-        </p>
+        <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-semibold">Player Slots: {slots}</span>
+            <span className="text-xs text-slate-400">Premium packs: {formatPrice(slotUpgradeCost)}</span>
+          </div>
+          <input
+            type="range"
+            min={step.slots}
+            max={step.slots + 200}
+            step={4}
+            value={slots}
+            onChange={(e) => setSlots(Number(e.target.value))}
+            className="w-full"
+          />
+          <p className="text-xs text-slate-500">Slots are bundled in {config.billing.slotPackSize}-slot packs when you exceed included {step.slots}.</p>
+        </div>
       </div>
 
-      {/* Right: pricing cards */}
-      <div className="grid gap-4 md:grid-cols-1">
-        <div className="rounded-2xl bg-slate-900/70 p-5 border border-slate-700/60">
-          <div className="mb-1 text-xs uppercase tracking-wide text-slate-400">CORE</div>
-          <div className="mb-2 text-3xl font-semibold text-cyan-300">{formatPrice(corePrice)}</div>
-          <ul className="mb-4 text-sm text-slate-200 space-y-1">
-            <li>CorePanel Lite™ control panel</li>
-            <li>NVMe storage &amp; DDoS shield</li>
-            <li>Daily backups (optional add-on)</li>
-            <li>Multi-game profiles available</li>
-          </ul>
-          <button className="w-full rounded-xl bg-cyan-500 py-2 text-sm font-semibold text-slate-900 hover:bg-cyan-400">
-            Launch CORE Server
+      <div className="grid gap-4">
+        <div className="rounded-2xl bg-slate-900/70 p-5 border border-slate-700/60 space-y-4">
+          <div className="flex flex-wrap gap-2">
+            {tierKeys.map((key) => (
+              <button
+                key={key}
+                onClick={() => setTier(key)}
+                className={`rounded-lg px-3 py-2 text-sm font-semibold border ${
+                  tier === key
+                    ? "border-violet-400 bg-violet-500/20 text-violet-100"
+                    : "border-slate-700 bg-slate-800/60 text-slate-200"
+                }`}
+              >
+                {config.tiers[key].name}
+              </button>
+            ))}
+          </div>
+
+          <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-4 space-y-1 text-sm text-slate-200">
+            <div className="flex justify-between"><span>Base ({step.ram}GB {config.tiers[tier].name})</span><span>{formatPrice(tierBasePrice)}</span></div>
+            <div className="flex justify-between text-slate-400"><span>CPU upgrades</span><span>{formatPrice(cpuUpgradeCost)}</span></div>
+            <div className="flex justify-between text-slate-400"><span>Storage upgrades</span><span>{formatPrice(storageUpgradeCost)}</span></div>
+            <div className="flex justify-between text-slate-400"><span>Premium slots</span><span>{formatPrice(slotUpgradeCost)}</span></div>
+            <div className="flex justify-between font-semibold text-cyan-300 pt-2 border-t border-slate-800">
+              <span>Estimated Monthly</span>
+              <span>{formatPrice(totalPrice)}</span>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 text-sm text-slate-200 space-y-1">
+            <div className="flex justify-between"><span>Edition</span><span>{config.editions[edition].name}</span></div>
+            <div className="flex justify-between"><span>Panel</span><span>{config.tiers[tier].panel}</span></div>
+            <div className="flex justify-between"><span>Plan ID</span><span className="font-mono text-xs">{config.editions[edition].planIds[tier]}</span></div>
+          </div>
+
+          <button
+            className="w-full rounded-xl bg-violet-400 py-3 text-sm font-semibold text-slate-900 hover:bg-violet-300 disabled:bg-slate-600 disabled:text-slate-200"
+            disabled={!totalPrice}
+            aria-disabled={!totalPrice}
+          >
+            Launch {config.editions[edition].name} ({config.tiers[tier].name})
           </button>
         </div>
 
-        <div className="rounded-2xl bg-violet-900/60 p-5 border border-violet-500/70 relative">
-          <span className="absolute right-4 top-3 rounded-full bg-violet-500 px-2 py-0.5 text-[10px] font-semibold uppercase text-slate-900">
-            Most Popular
-          </span>
-          <div className="mb-1 text-xs uppercase tracking-wide text-slate-200">ELITE – CNX CommandCenter™</div>
-          <div className="mb-2 text-3xl font-semibold text-violet-100">{formatPrice(elitePrice)}</div>
-          <ul className="mb-4 text-sm text-slate-100 space-y-1">
-            <li>CNX CommandCenter™ automation</li>
-            <li>AI HealthGuard &amp; CrashGuard</li>
-            <li>Priority support SLA</li>
-            <li>Multi-game profiles &amp; blueprints</li>
+        <div className="rounded-2xl bg-slate-900/40 p-4 border border-slate-800 text-sm text-slate-300 space-y-2">
+          <div className="font-semibold text-slate-100">What this covers</div>
+          <ul className="list-disc list-inside space-y-1">
+            <li>RAM slider drives base pricing by tier</li>
+            <li>CPU upgrades only bill above the included cores</li>
+            <li>Storage billed at ${config.billing.storagePerGb.toFixed(3)}/GB beyond included NVMe</li>
+            <li>Slots stay free until premium packs are added</li>
           </ul>
-          <button className="w-full rounded-xl bg-violet-400 py-2 text-sm font-semibold text-slate-900 hover:bg-violet-300">
-            Launch ELITE Server
-          </button>
         </div>
       </div>
     </div>

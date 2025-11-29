@@ -1,5 +1,5 @@
 import type { GameDefinition } from "@/types/hosting";
-import { formatPrice, getClosestPlan } from "@/utils/pricing";
+import { formatPrice, getClosestPlan, getLowestTierPrice } from "@/utils/pricing";
 
 interface Props {
   game: GameDefinition;
@@ -7,6 +7,7 @@ interface Props {
 
 export function GameCard({ game }: Props) {
   const plan = getClosestPlan(game.defaultTier, game.recommendedRam);
+  const startingPrice = getLowestTierPrice(game.defaultTier);
 
   return (
     <div className="flex flex-col rounded-2xl bg-slate-900/70 p-4 border border-slate-700/60 hover:border-cyan-400/70 transition">
@@ -15,7 +16,8 @@ export function GameCard({ game }: Props) {
       <div className="mb-2 text-sm text-slate-300">
         Recommended: {game.recommendedRam}GB, {game.defaultTier.toUpperCase()} tier
       </div>
-      <div className="mb-3 text-2xl font-semibold text-cyan-300">From {formatPrice(plan.price)}</div>
+      <div className="mb-3 text-2xl font-semibold text-cyan-300">From {formatPrice(startingPrice)}</div>
+      <div className="mb-4 text-xs text-slate-400">Closest plan match: {plan.ram}GB @ {formatPrice(plan.price)}</div>
       <button className="mt-auto rounded-xl bg-cyan-500 py-2 text-sm font-semibold text-slate-900 hover:bg-cyan-400">
         Configure Server
       </button>

@@ -2,7 +2,8 @@ import { Cpu, HardDrive, Server, Users } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
 import { MinecraftConfigurator } from "@/components/minecraft/MinecraftConfigurator";
-import { formatPrice, getPlanPrice } from "@/utils/pricing";
+import minecraftConfig from "@/data/minecraft-config.json";
+import { formatPrice } from "@/utils/pricing";
 import { CONTROL_PANELS } from "@/data/pricing";
 
 const featureCards = [
@@ -28,7 +29,7 @@ const featureCards = [
   },
 ];
 
-const startPrice = formatPrice(getPlanPrice("core", 2));
+const startPrice = formatPrice(minecraftConfig.editions.java.sliderSteps[0].price);
 
 const MinecraftPage = () => (
   <div className="min-h-screen bg-gradient-hero">

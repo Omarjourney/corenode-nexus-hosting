@@ -31,4 +31,5 @@ export interface GameDefinition {
   defaultTier: TierId;
   recommendedRam: number;
   featured?: boolean;
+  category?: "game" | "minecraft" | "voice" | "bots" | string;
 }
