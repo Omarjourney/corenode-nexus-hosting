@@ -1,8 +1,8 @@
 import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import AddOns from "@/components/AddOns";
+import { HostingCard } from "@/components/HostingCard";
+import { Card } from "@/components/ui/card";
 import { BRAND_NAME, catalogPricing } from "@/data/pricing";
 
 const plans = catalogPricing.vps.plans;
@@ -25,28 +25,19 @@ const VpsPage = () => (
             Scalable virtual private servers with full root access and NVMe storage.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-9 justify-center place-items-center mb-12">
           {plans.map((plan) => (
-            <Card key={plan.name} className="glass-card p-6 text-center hover-scale hover-glow-primary">
-              <h3 className="font-orbitron font-semibold text-foreground text-xl mb-2">
-                {plan.name}
-              </h3>
-              <div className="text-3xl font-orbitron font-bold text-gradient-primary mb-2">
-                ${plan.price}/mo
-              </div>
-              <div className="text-sm text-muted-foreground font-inter mb-4">
-                {plan.vcpu} vCPU • {plan.ram} RAM
-              </div>
-              <div className="text-sm text-muted-foreground font-inter mb-4">
-                {plan.ssd} NVMe • {plan.bandwidth} Bandwidth
-              </div>
-              <Button
-                asChild
-                className="w-full font-orbitron text-white bg-gradient-to-r from-[#00AFFF] to-[#8B5CF6] transition transform hover:brightness-110 hover:scale-105"
-              >
-                <a href="/vps/checkout">Deploy Now</a>
-              </Button>
-            </Card>
+            <HostingCard
+              key={plan.name}
+              title={plan.name}
+              price={`$${plan.price}/mo`}
+              specs={[
+                `${plan.vcpu} vCPU • ${plan.ram} RAM`,
+                `${plan.ssd} NVMe • ${plan.bandwidth} Bandwidth`,
+              ]}
+              ctaLabel="Deploy Now"
+              href="/vps/checkout"
+            />
           ))}
         </div>
         <Card className="glass-card p-6">
