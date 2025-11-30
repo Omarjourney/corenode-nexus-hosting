@@ -62,17 +62,73 @@ const regionCards = [
   { id: "KANSASCITY", name: "Kansas City, MO", flag: "🇺🇸" },
 ] as const;
 
+const regionMatchers: Record<(typeof regionCards)[number]["id"], RegExp[]> = {
+  MIAMI: [/miami/i, /fl/],
+  LOSANGELES: [/los\s*angeles/i, /la,/i, /california/i],
+  NUREMBERG: [/nuremberg/i, /de\b/i],
+  JOHOR: [/johor/i, /my\b/i, /malaysia/i],
+  KANSASCITY: [/kansas\s*city/i, /mo\b/i],
+};
+
+const familyMeta: Record<(typeof tierCards)[number]["id"], TierMeta> = {
+  BASIC: {
+    cpuFamily: "Xeon E3 / early Silver",
+    clock: "3.0 – 3.4 GHz base",
+    geekbench: "700 – 1200",
+    pricePerGb: "$0.38 / GB",
+    markup: "38%",
+    description:
+      "Perfect for entry workloads, remote labs, and staging pipelines that value price over peak clocks.",
+  },
+  CORE: {
+    cpuFamily: "Xeon E-22xx & Silver 42xx",
+    clock: "3.5 – 4.0 GHz boost",
+    geekbench: "1200 – 1900",
+    pricePerGb: "$0.45 / GB",
+    markup: "45%",
+    description:
+      "Mainstream Xeon and EPYC performance for production web stacks, SaaS, and control planes.",
+  },
+  ULTRA: {
+    cpuFamily: "Xeon Gold 62xx/63xx",
+    clock: "3.2 – 3.8 GHz boost",
+    geekbench: "1900 – 2600",
+    pricePerGb: "$0.52 / GB",
+    markup: "52%",
+    description:
+      "High-core count, NVMe-first compute tuned for analytics, streaming, and busy multi-tenant nodes.",
+  },
+  TITAN: {
+    cpuFamily: "Dual Xeon Gold / Platinum",
+    clock: "3.0 – 3.6 GHz boost",
+    geekbench: "2400 – 3200",
+    pricePerGb: "$0.60 / GB",
+    markup: "60%",
+    description:
+      "Extreme throughput for virtualization clusters, render farms, and enterprise-grade failover.",
+  },
+  VELOCITY: {
+    cpuFamily: "Ryzen 7000 / 5000 series",
+    clock: "4.5 – 5.7 GHz boost",
+    geekbench: "2200 – 3400",
+    pricePerGb: "$0.55 / GB",
+    markup: "55%",
+    description:
+      "Latency-sensitive Ryzen and EPYC Milan-X silicon for game panels, edge services, and bursty APIs.",
+  },
+};
+
 interface InventoryServer {
-  id: string;
+  rs_id: string;
+  family: string;
   cpu: string;
   ram: string;
   storage: string;
   bandwidth: string;
   location: string;
-  availability: "available" | "soldout";
-  base_price: number;
   cnx_price: number;
-  stock?: string;
+  base_price: number;
+  status: "available" | "soldout";
   region?: string;
 }
 
@@ -93,17 +149,36 @@ interface TierMeta {
 }
 
 interface InventoryResponse {
-  family: string;
-  region: string;
-  meta: TierMeta;
+  family?: string | null;
+  region?: string | null;
   servers: InventoryServer[];
-  regionSummary?: Record<string, RegionStat>;
 }
 
 const priceFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 });
 
 const gradientButton =
   "bg-[linear-gradient(135deg,#00E5FF_0%,#8B5CF6_50%,#1EE5C9_100%)] text-slate-900 hover:brightness-110";
+
+function resolveRegion(location: string): (typeof regionCards)[number]["id"] {
+  const normalizedLocation = location || "";
+  const match = Object.entries(regionMatchers).find(([, patterns]) =>
+    patterns.some((pattern) => pattern.test(normalizedLocation)),
+  );
+  return (match?.[0] as (typeof regionCards)[number]["id"]) || "MIAMI";
+}
+
+function summarizeByRegion(servers: InventoryServer[]): Record<string, RegionStat> {
+  return regionCards.reduce((acc, region) => {
+    const scoped = servers.filter((server) => server.region === region.id);
+    acc[region.id] = {
+      label: region.name,
+      total: scoped.length,
+      available: scoped.filter((srv) => srv.status === "available").length,
+      flag: region.flag,
+    } as RegionStat;
+    return acc;
+  }, {} as Record<string, RegionStat>);
+}
 
 export function DedicatedConfigurator() {
   const [selectedTier, setSelectedTier] = useState<(typeof tierCards)[number]["id"]>("CORE");
@@ -117,26 +192,49 @@ export function DedicatedConfigurator() {
 
   const selectedTierCard = useMemo(() => tierCards.find((card) => card.id === selectedTier), [selectedTier]);
 
-  const apiBase = import.meta.env.VITE_API_BASE || '';
+  const apiBase = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '');
 
-  const requestInventory = useCallback(async (family: string, region: string): Promise<InventoryResponse> => {
-    const query = new URLSearchParams({ family, region }).toString();
-    const response = await fetch(`${apiBase}/api/dedicated/servers?${query}`);
-    if (!response.ok) {
-      throw new Error('Failed to load inventory');
-    }
-    return response.json();
-  }, [apiBase]);
+  const hydrateServers = useCallback(
+    (payload: InventoryResponse, family: string): InventoryServer[] =>
+      (payload.servers || []).map((server) => {
+        const resolvedRegion = resolveRegion(server.location);
+        return {
+          ...server,
+          family: server.family || family,
+          region: resolvedRegion,
+          status: server.status === 'soldout' ? 'soldout' : 'available',
+        };
+      }),
+    [],
+  );
+
+  const requestInventory = useCallback(
+    async (family: string, region?: string): Promise<InventoryResponse> => {
+      const query = new URLSearchParams();
+      if (family) query.set('family', family);
+      if (region) query.set('region', region);
+
+      const url = `${apiBase}/api/servers.php${query.toString() ? `?${query.toString()}` : ''}`;
+      const response = await fetch(url, { headers: { Accept: 'application/json' } });
+      if (!response.ok) {
+        throw new Error('Failed to load inventory');
+      }
+      return response.json();
+    },
+    [apiBase],
+  );
 
   const preloadTierMinimums = useCallback(async () => {
     const entries = await Promise.all(
       tierCards.map(async (tier) => {
         try {
-          const payload = await requestInventory(tier.id, 'ALL');
-          const minPrice = payload.servers
-            .filter((server) => server.availability === 'available')
-            .reduce((min, server) => (min === 0 ? server.cnx_price : Math.min(min, server.cnx_price)), 0);
-          return [tier.id, minPrice || (payload.servers[0]?.cnx_price ?? 0)];
+          const payload = await requestInventory(tier.id);
+          const hydrated = hydrateServers(payload, tier.id);
+          const availablePrices = hydrated
+            .filter((server) => server.status === 'available')
+            .map((server) => server.cnx_price);
+          const minPrice = availablePrices.length > 0 ? Math.min(...availablePrices) : hydrated[0]?.cnx_price || 0;
+          return [tier.id, minPrice];
         } catch (err) {
           console.error('[CNX] Failed to prefetch tier pricing', err);
           return [tier.id, 0];
@@ -144,38 +242,51 @@ export function DedicatedConfigurator() {
       }),
     );
     setFromPrices(Object.fromEntries(entries));
-  }, [requestInventory]);
+  }, [hydrateServers, requestInventory]);
 
-  const fetchRegionSummary = useCallback(async (tier: string) => {
-    try {
-      const payload = await requestInventory(tier, 'ALL');
-      setRegionSummary(payload.regionSummary || {});
-      setTierMeta(payload.meta);
-      setError(null);
-    } catch (err) {
-      console.error(err);
-      setError('Unable to refresh region availability');
-    }
-  }, [requestInventory]);
+  const fetchRegionSummary = useCallback(
+    async (tier: string) => {
+      try {
+        const payload = await requestInventory(tier);
+        const hydrated = hydrateServers(payload, tier);
+        setRegionSummary(summarizeByRegion(hydrated));
+        setTierMeta(familyMeta[tier as keyof typeof familyMeta]);
+        setError(null);
+      } catch (err) {
+        console.error(err);
+        setError('Unable to refresh region availability');
+      }
+    },
+    [hydrateServers, requestInventory],
+  );
 
-  const fetchInventory = useCallback(async (tier: string, region: string) => {
-    try {
-      setLoading(true);
-      const payload = await requestInventory(tier, region);
-      setInventory(payload.servers);
-      setTierMeta(payload.meta);
-      setError(null);
-    } catch (err) {
-      console.error(err);
-      setError('Unable to load inventory right now.');
-    } finally {
-      setLoading(false);
-    }
-  }, [requestInventory]);
+  const fetchInventory = useCallback(
+    async (tier: string, region: string) => {
+      try {
+        setLoading(true);
+        const payload = await requestInventory(tier, region);
+        const hydrated = hydrateServers(payload, tier);
+        const scoped = region ? hydrated.filter((server) => server.region === region) : hydrated;
+        setInventory(scoped);
+        setTierMeta(familyMeta[tier as keyof typeof familyMeta]);
+        setError(null);
+      } catch (err) {
+        console.error(err);
+        setError('Unable to load inventory right now.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [hydrateServers, requestInventory],
+  );
 
   useEffect(() => {
     preloadTierMinimums();
   }, [preloadTierMinimums]);
+
+  useEffect(() => {
+    setTierMeta(familyMeta[selectedTier]);
+  }, [selectedTier]);
 
   useEffect(() => {
     fetchRegionSummary(selectedTier);
@@ -368,10 +479,10 @@ export function DedicatedConfigurator() {
                 </TableHeader>
                 <TableBody>
                   {inventory.map((server) => {
-                    const isSoldOut = server.availability === 'soldout';
+                    const isSoldOut = server.status === 'soldout';
                     return (
                       <TableRow
-                        key={server.id}
+                        key={server.rs_id}
                         className={cn(
                           'border-b border-glass-border transition-all duration-200',
                           'hover:-translate-y-0.5 hover:shadow-[0_10px_35px_rgba(0,229,255,0.12)]',
