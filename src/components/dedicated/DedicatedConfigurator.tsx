@@ -392,10 +392,3 @@ function EmptyInventoryCard() {
     </div>
   );
 }
-
-        <h4 className="text-xl font-semibold text-foreground">No Servers Available in This Region</h4>
-        <p className="text-muted-foreground">Try another NodeX Metal tier or region.</p>
-        <Button variant="outline" className="border-primary/30 text-primary">Browse other regions</Button>
-      </div>
-    );
-  }
