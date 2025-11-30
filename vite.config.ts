@@ -11,6 +11,11 @@ export default defineConfig(({ mode }) => ({
     proxy: {
       "/api": "https://api.corenodex.com",
     },
+    // Disable the HMR overlay to avoid a persistent red error screen
+    // (useful while repairing syntax/HMR issues during dev).
+    hmr: {
+      overlay: false,
+    },
   },
   plugins: [
     react(),
