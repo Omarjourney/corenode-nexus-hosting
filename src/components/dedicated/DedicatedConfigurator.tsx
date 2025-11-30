@@ -6,86 +6,21 @@ import { Button } from "@/components/ui/button";
 import { API_BASE } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
-const tierCards = [
-  {
-    id: "BASIC",
-    name: "NodeX Metal Basic™",
-    descriptor: "Budget-friendly Xeon and EPYC nodes",
-    accent: "from-cyan-400/25 via-cyan-500/10 to-transparent",
-    border: "border-cyan-400/40",
-    icon: Cpu,
-    badgeClass: "text-cyan-300",
-  },
-  {
-    id: "CORE",
-    name: "NodeX Metal Core™",
-    descriptor: "Mainstream Xeon / EPYC performance",
-    accent: "from-cyan-300/30 via-cyan-400/20 to-transparent",
-    border: "border-cyan-300/60",
-    icon: Rocket,
-    badgeClass: "text-cyan-200",
-  },
-  {
-    id: "ULTRA",
-    name: "NodeX Metal Ultra™",
-    descriptor: "Premium Gold-series throughput",
-    accent: "from-amber-300/30 via-amber-400/10 to-transparent",
-    border: "border-amber-300/70",
-    icon: Crown,
-    badgeClass: "text-amber-200",
-  },
-  {
-    id: "TITAN",
-    name: "NodeX Metal Titan™",
-    descriptor: "Extreme dual-socket density",
-    accent: "from-fuchsia-400/30 via-purple-500/10 to-transparent",
-    border: "border-purple-400/70",
-    icon: ShieldCheck,
-    badgeClass: "text-purple-200",
-  },
-  {
-    id: "VELOCITY",
-    name: "NodeX Metal Velocity™",
-    descriptor: "Ryzen-tuned for low latency",
-    accent: "from-orange-400/30 via-orange-500/15 to-transparent",
-    border: "border-orange-400/70",
-    icon: Zap,
-    badgeClass: "text-orange-200",
-  },
-] as const;
-
-type TierId = (typeof tierCards)[number]["id"];
-type RegionId = string;
-
-interface RegionStat {
-  code: string;
-  name: string;
-  flag?: string;
-  available: number;
-  soldOut: boolean;
-  stockPercent?: number;
-  loadPercent?: number;
-  level?: string;
-  cheapestMonthly?: number;
-}
-
-interface ApiServer {
+type ApiServer = {
   productId: string;
+  region: string;
   name: string;
   details: string;
-  region: string;
+  stock: number;
   price: {
-    monthly: number;
+    monthly: string;
+    sixMonth?: string;
+    yearly: string;
+    twoYear?: string;
   };
-  available?: number | boolean;
-  availability?: number;
-  stock?: number;
-  load?: number;
-  level?: string;
-  flag?: string;
-}
+};
 
-interface TierMeta {
+// Removed duplicate DedicatedConfigurator component to resolve duplicate identifier error.
   cpuFamily: string;
   clock: string;
   geekbench: string;
@@ -94,189 +29,37 @@ interface TierMeta {
   description: string;
 }
 
-function getAvailableCount(server: ApiServer): number {
-  if (typeof server.available === "number") return server.available;
-  if (typeof server.availability === "number") return server.availability;
-  if (typeof server.stock === "number") return server.stock;
-  if (typeof server.available === "boolean") return server.available ? 1 : 0;
-  return 0;
+interface InventoryResponse {
+  family?: string | null;
+  region?: string | null;
+  servers: InventoryServer[];
 }
 
-function buildRegions(servers: ApiServer[]): RegionStat[] {
-  const regionMap = new Map<string, RegionStat>();
-  const regions = Array.from(new Set(servers.map((s) => s.region)));
+const priceFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 });
 
-  regions.forEach((region) => {
-    regionMap.set(region, {
-      code: region,
-      name: region,
-      available: 0,
-      soldOut: false,
-    });
-  });
+const gradientButton =
+  "bg-[linear-gradient(135deg,#00E5FF_0%,#8B5CF6_50%,#1EE5C9_100%)] text-slate-900 hover:brightness-110";
 
-  servers.forEach((server) => {
-    const count = getAvailableCount(server);
-    const existing = regionMap.get(server.region);
-
-    if (!existing) return;
-
-    existing.available += count;
-    existing.stockPercent = existing.stockPercent ?? server.stock;
-    existing.loadPercent = existing.loadPercent ?? server.load;
-    existing.level = existing.level ?? server.level;
-    existing.flag = existing.flag ?? server.flag;
-    const monthly = server.price?.monthly;
-    existing.cheapestMonthly =
-      existing.cheapestMonthly === undefined
-        ? monthly
-        : Math.min(existing.cheapestMonthly, monthly ?? existing.cheapestMonthly);
-  });
-
-  return Array.from(regionMap.values()).map((region) => ({
-    ...region,
-    soldOut: region.available <= 0,
-  }));
-}
-
-async function autoDetectBestRegion(regions: RegionStat[]): Promise<string> {
-  const results = await Promise.all(
-    regions.map(async (r) => {
-      const start = performance.now();
-      await fetch(`https://api.corenodex.com/ping?region=${r.code}`).catch(() => {});
-      const end = performance.now();
-
-      return { region: r.code, ping: end - start };
-    }),
+function resolveRegion(location: string): (typeof regionCards)[number]["id"] {
+  const normalizedLocation = location || "";
+  const match = Object.entries(regionMatchers).find(([, patterns]) =>
+    patterns.some((pattern) => pattern.test(normalizedLocation)),
   );
-
-  results.sort((a, b) => a.ping - b.ping);
-  return results[0]?.region || regions[0]?.code || "";
+  return (match?.[0] as (typeof regionCards)[number]["id"]) || "MIAMI";
 }
 
-interface DedicatedServer {
-  id: string;
-  name: string;
-  tier: TierId;
-  cpu: string;
-  ram: string;
-  storage: string;
-  basePrice: number;
-  locations: string[];
-  availability: number;
-  bandwidth?: string;
+function summarizeByRegion(servers: InventoryServer[]): Record<string, RegionStat> {
+  return regionCards.reduce((acc, region) => {
+    const scoped = servers.filter((server) => server.region === region.id);
+    acc[region.id] = {
+      label: region.name,
+      total: scoped.length,
+      available: scoped.filter((srv) => srv.status === "available").length,
+      flag: region.flag,
+    } as RegionStat;
+    return acc;
+  }, {} as Record<string, RegionStat>);
 }
-
-const staticServers: DedicatedServer[] = [
-  {
-    id: "basic",
-    name: "NodeX Metal Basic™",
-    tier: "BASIC",
-    cpu: "AMD Ryzen 5600X (6C/12T)",
-    ram: "32GB DDR4",
-    storage: "2x1TB NVMe RAID1",
-    basePrice: 109,
-    locations: ["Miami, FL", "Los Angeles, CA"],
-    availability: 12,
-    bandwidth: "25TB @ 10Gbps",
-  },
-  {
-    id: "core",
-    name: "NodeX Metal Core™",
-    tier: "CORE",
-    cpu: "AMD Ryzen 7600 (6C/12T)",
-    ram: "64GB DDR5",
-    storage: "2x1TB NVMe RAID1",
-    basePrice: 149,
-    locations: ["Miami, FL", "Los Angeles, CA", "Nuremberg, DE"],
-    availability: 8,
-    bandwidth: "25TB @ 10Gbps",
-  },
-  {
-    id: "ultra",
-    name: "NodeX Metal Ultra™",
-    tier: "ULTRA",
-    cpu: "AMD Ryzen 7950X (16C/32T)",
-    ram: "128GB DDR5",
-    storage: "2x2TB NVMe RAID1",
-    basePrice: 199,
-    locations: ["Los Angeles, CA", "Nuremberg, DE"],
-    availability: 6,
-    bandwidth: "25TB @ 10Gbps",
-  },
-  {
-    id: "titan",
-    name: "NodeX Metal Titan™",
-    tier: "TITAN",
-    cpu: "Threadripper Pro 5955WX (16C/32T)",
-    ram: "256GB DDR4 ECC",
-    storage: "4x4TB NVMe RAID10",
-    basePrice: 399,
-    locations: ["Los Angeles, CA"],
-    availability: 3,
-    bandwidth: "25TB @ 10Gbps",
-  },
-  {
-    id: "velocity",
-    name: "NodeX Metal Velocity™",
-    tier: "VELOCITY",
-    cpu: "Dual EPYC 7543P (64C/128T)",
-    ram: "512GB DDR4 ECC",
-    storage: "8x3.84TB NVMe RAID10",
-    basePrice: 599,
-    locations: ["Los Angeles, CA", "Johor, MY"],
-    availability: 2,
-    bandwidth: "25TB @ 10Gbps",
-  },
-];
-
-const familyMeta: Record<TierId, TierMeta> = {
-  BASIC: {
-    cpuFamily: "Xeon E3 / early Silver",
-    clock: "3.0 – 3.4 GHz base",
-    geekbench: "700 – 1200",
-    pricePerGb: "$0.38 / GB",
-    markup: "38%",
-    description:
-      "Perfect for entry workloads, remote labs, and staging pipelines that value price over peak clocks.",
-  },
-  CORE: {
-    cpuFamily: "Xeon E-22xx & Silver 42xx",
-    clock: "3.5 – 4.0 GHz boost",
-    geekbench: "1200 – 1900",
-    pricePerGb: "$0.45 / GB",
-    markup: "45%",
-    description:
-      "Mainstream Xeon and EPYC performance for production web stacks, SaaS, and control planes.",
-  },
-  ULTRA: {
-    cpuFamily: "Xeon Gold 62xx/63xx",
-    clock: "3.2 – 3.8 GHz boost",
-    geekbench: "1900 – 2600",
-    pricePerGb: "$0.52 / GB",
-    markup: "52%",
-    description:
-      "High-core count, NVMe-first compute tuned for analytics, streaming, and busy multi-tenant nodes.",
-  },
-  TITAN: {
-    cpuFamily: "Dual Xeon Gold / Platinum",
-    clock: "3.0 – 3.6 GHz boost",
-    geekbench: "2400 – 3200",
-    pricePerGb: "$0.60 / GB",
-    markup: "60%",
-    description:
-      "Extreme throughput for virtualization clusters, render farms, and enterprise-grade failover.",
-  },
-  VELOCITY: {
-    cpuFamily: "Ryzen 7000 / 5000 series",
-    clock: "4.5 – 5.7 GHz boost",
-    geekbench: "2200 – 3400",
-    pricePerGb: "$0.55 / GB",
-    markup: "55%",
-    description:
-      "Latency-sensitive Ryzen and EPYC Milan-X silicon for game panels, edge services, and bursty APIs.",
-  },
-};
 
 export function DedicatedConfigurator() {
   const [selectedTier, setSelectedTier] = useState<TierId>("CORE");
