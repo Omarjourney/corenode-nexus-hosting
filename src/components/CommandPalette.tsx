@@ -18,7 +18,6 @@ const actions: Action[] = [
   { id: 'web', label: 'Get Web Hosting', hint: 'cPanel plans', to: '/web-hosting' },
   { id: 'vps', label: 'Compare VPS Plans', hint: 'Scalable compute', to: '/vps' },
   { id: 'dedicated', label: 'Dedicated Servers', hint: 'Bare metal', to: '/dedicated' },
-  { id: 'launch-lab', label: 'Open Launch Lab', hint: 'Visual builder', to: '/launch-lab' },
   { id: 'pro-config', label: 'Open Pro Configurator', hint: 'Guided 3-step wizard', to: '/pro-configurator' },
   { id: 'latency', label: 'Check Latency Map', hint: 'Region ping preview', to: '/latency' },
   { id: 'order', label: 'Go to Order Form', hint: 'Advanced options', to: '/order' },
