@@ -1,14 +1,40 @@
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import matter from "gray-matter";
 import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
 
-const posts = import.meta.glob("../../blog/*.md", { eager: true, import: "default", query: "?raw" });
+// TypeScript declaration for import.meta.glob
+declare global {
+  interface ImportMeta {
+    glob(
+      pattern: string,
+      options?: {
+        eager?: boolean;
+        import?: string;
+        query?: string;
+      }
+    ): Record<string, any>;
+  }
+}
+
+const posts = import.meta.glob("../../blog/*.md", { eager: true, import: "default", query: "?raw" }) as Record<string, any>;
 
 const BlogPostPage = () => {
-  const { slug } = useParams<{ slug: string }>();
-  const content = posts[`../../blog/${slug}.md`];
+  const { slug } = useParams<{ slug?: string }>();
+  if (!slug) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <p className="p-4">Post not found.</p>
+      </div>
+    );
+  }
+
+  // Find the matching key robustly because import.meta.glob keys can vary in path format
+  const key = Object.keys(posts).find((k) => k.endsWith(`/blog/${slug}.md`) || k.endsWith(`/${slug}.md`));
+  const content = key ? posts[key] : undefined;
   if (!content) {
     return (
       <div className="min-h-screen bg-background">
@@ -17,25 +43,20 @@ const BlogPostPage = () => {
       </div>
     );
   }
-  const raw = content as string;
-  const metaMatch = /^---\n([\s\S]*?)\n---/.exec(raw);
-  const meta: Record<string, string> = {};
-  let body = raw;
-  if (metaMatch) {
-    metaMatch[1].split("\n").forEach((line) => {
-      const [key, ...rest] = line.split(":");
-      meta[key.trim()] = rest.join(":").trim().replace(/^"|"$/g, "");
-    });
-    body = raw.slice(metaMatch[0].length);
-  }
+  // Unwrap possible module shape (some bundlers return { default: string })
+  const raw = typeof content === "string" ? content : (content?.default ?? String(content));
+
+  // Use gray-matter to parse frontmatter reliably
+  const { data: metaData, content: body } = matter(String(raw));
+  const meta = (metaData || {}) as Record<string, any>;
   return (
     <>
       <SEO
-        title={`${meta.title} – CodeNodeX Hosting`}
-        description={meta.description}
-        keywords={meta.keywords}
+        title={meta.title ? `${meta.title} – CodeNodeX Hosting` : 'CodeNodeX Hosting'}
+        description={meta.description ?? ''}
+        keywords={meta.keywords ?? ''}
         canonical={`https://example.com/blog/${slug}`}
-        jsonLd={{ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: meta.title }}
+        jsonLd={{ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: meta.title ?? '' }}
       />
       <div className="min-h-screen bg-background">
         <Navigation />
