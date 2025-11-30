@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Cpu, Crown, Gauge, MapPin, Rocket, ShieldCheck, Zap } from "lucide-react";
+import { AlertTriangle, Cpu, Crown, Gauge, MapPin, RefreshCw, Rocket, ShieldCheck, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -159,6 +159,39 @@ const priceFormatter = new Intl.NumberFormat("en-US", { style: "currency", curre
 const gradientButton =
   "bg-[linear-gradient(135deg,#00E5FF_0%,#8B5CF6_50%,#1EE5C9_100%)] text-slate-900 hover:brightness-110";
 
+const CACHE_KEY = 'cnx_dedicated_inventory';
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+
+interface CachedData {
+  timestamp: number;
+  inventory: Record<string, InventoryServer[]>;
+  fromPrices: Record<string, number>;
+}
+
+function getCache(): CachedData | null {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) return null;
+    const data = JSON.parse(cached) as CachedData;
+    if (Date.now() - data.timestamp > CACHE_DURATION) {
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function setCache(inventory: Record<string, InventoryServer[]>, fromPrices: Record<string, number>) {
+  try {
+    const data: CachedData = { timestamp: Date.now(), inventory, fromPrices };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+  } catch {
+    // Storage full or unavailable
+  }
+}
+
 function resolveRegion(location: string): (typeof regionCards)[number]["id"] {
   const normalizedLocation = location || "";
   const match = Object.entries(regionMatchers).find(([, patterns]) =>
@@ -184,15 +217,29 @@ export function DedicatedConfigurator() {
   const [selectedTier, setSelectedTier] = useState<(typeof tierCards)[number]["id"]>("CORE");
   const [selectedRegion, setSelectedRegion] = useState<(typeof regionCards)[number]["id"]>("MIAMI");
   const [inventory, setInventory] = useState<InventoryServer[]>([]);
+  const [cachedInventory, setCachedInventory] = useState<Record<string, InventoryServer[]>>({});
   const [tierMeta, setTierMeta] = useState<TierMeta | null>(null);
   const [regionSummary, setRegionSummary] = useState<Record<string, RegionStat>>({});
   const [fromPrices, setFromPrices] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [usingCachedData, setUsingCachedData] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const selectedTierCard = useMemo(() => tierCards.find((card) => card.id === selectedTier), [selectedTier]);
 
   const apiBase = 'https://api.corenodex.com/api';
+
+  // Load cached data on mount
+  useEffect(() => {
+    const cached = getCache();
+    if (cached) {
+      setCachedInventory(cached.inventory);
+      if (Object.keys(fromPrices).length === 0) {
+        setFromPrices(cached.fromPrices);
+      }
+    }
+  }, []);
 
   const hydrateServers = useCallback(
     (payload: InventoryResponse, family: string): InventoryServer[] =>
@@ -225,11 +272,13 @@ export function DedicatedConfigurator() {
   );
 
   const preloadTierMinimums = useCallback(async () => {
+    const allInventory: Record<string, InventoryServer[]> = {};
     const entries = await Promise.all(
       tierCards.map(async (tier) => {
         try {
           const payload = await requestInventory(tier.id);
           const hydrated = hydrateServers(payload, tier.id);
+          allInventory[tier.id] = hydrated;
           const availablePrices = hydrated
             .filter((server) => server.status === 'available')
             .map((server) => server.cnx_price);
@@ -237,11 +286,19 @@ export function DedicatedConfigurator() {
           return [tier.id, minPrice];
         } catch (err) {
           console.error('[CNX] Failed to prefetch tier pricing', err);
-          return [tier.id, 0];
+          // Use cached price if available
+          const cached = getCache();
+          return [tier.id, cached?.fromPrices[tier.id] || 0];
         }
       }),
     );
-    setFromPrices(Object.fromEntries(entries));
+    const priceMap = Object.fromEntries(entries);
+    setFromPrices(priceMap);
+    setCachedInventory(allInventory);
+    // Cache successful fetches
+    if (Object.keys(allInventory).length > 0) {
+      setCache(allInventory, priceMap);
+    }
   }, [hydrateServers, requestInventory]);
 
   const fetchRegionSummary = useCallback(
@@ -264,21 +321,45 @@ export function DedicatedConfigurator() {
     async (tier: string, region: string) => {
       try {
         setLoading(true);
+        setUsingCachedData(false);
         const payload = await requestInventory(tier, region);
         const hydrated = hydrateServers(payload, tier);
         const scoped = region ? hydrated.filter((server) => server.region === region) : hydrated;
         setInventory(scoped);
         setTierMeta(familyMeta[tier as keyof typeof familyMeta]);
         setError(null);
+        // Update cache with fresh data
+        setCachedInventory((prev) => {
+          const updated = { ...prev, [tier]: hydrated };
+          setCache(updated, fromPrices);
+          return updated;
+        });
       } catch (err) {
         console.error(err);
-        setError('Unable to load inventory right now.');
+        // Try to use cached data as fallback
+        const cached = cachedInventory[tier] || getCache()?.inventory[tier];
+        if (cached && cached.length > 0) {
+          const scoped = region ? cached.filter((server) => server.region === region) : cached;
+          setInventory(scoped);
+          setUsingCachedData(true);
+          setError('Unable to connect to server. Showing cached data.');
+        } else {
+          setInventory([]);
+          setError('Unable to load inventory. Please try again.');
+        }
+        setTierMeta(familyMeta[tier as keyof typeof familyMeta]);
       } finally {
         setLoading(false);
       }
     },
-    [hydrateServers, requestInventory],
+    [hydrateServers, requestInventory, cachedInventory, fromPrices],
   );
+
+  const handleRetry = useCallback(() => {
+    setRetryCount((c) => c + 1);
+    setError(null);
+    fetchInventory(selectedTier, selectedRegion);
+  }, [fetchInventory, selectedTier, selectedRegion]);
 
   useEffect(() => {
     preloadTierMinimums();
@@ -456,10 +537,28 @@ export function DedicatedConfigurator() {
           </div>
         </div>
         <div className="glass-card p-4 rounded-2xl border border-glass-border">
+          {usingCachedData && (
+            <div className="mb-4 flex items-center justify-between gap-4 p-3 rounded-xl bg-amber-500/10 border border-amber-400/30">
+              <div className="flex items-center gap-2 text-amber-200 text-sm">
+                <AlertTriangle className="w-4 h-4" />
+                <span>Showing cached data. Live inventory may differ.</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRetry}
+                disabled={loading}
+                className="border-amber-400/40 text-amber-200 hover:bg-amber-500/20"
+              >
+                <RefreshCw className={cn("w-4 h-4 mr-2", loading && "animate-spin")} />
+                Refresh
+              </Button>
+            </div>
+          )}
           {loading ? (
             <div className="py-10 text-center text-muted-foreground">Loading inventory…</div>
-          ) : error ? (
-            <div className="py-10 text-center text-rose-300">{error}</div>
+          ) : error && !usingCachedData ? (
+            <ErrorStateCard error={error} onRetry={handleRetry} loading={loading} />
           ) : inventory.length === 0 ? (
             <EmptyInventoryCard />
           ) : (
@@ -543,6 +642,26 @@ function EmptyInventoryCard() {
       <p className="text-muted-foreground">Try another NodeX Metal tier or region.</p>
       <Button variant="outline" className="border-primary/30 text-primary">
         Browse other regions
+      </Button>
+    </div>
+  );
+}
+
+function ErrorStateCard({ error, onRetry, loading }: { error: string; onRetry: () => void; loading: boolean }) {
+  return (
+    <div className="glass-card border border-dashed border-rose-400/30 rounded-2xl p-8 text-center space-y-4">
+      <div className="w-12 h-12 mx-auto rounded-full bg-rose-500/10 flex items-center justify-center text-rose-400">
+        <AlertTriangle className="w-6 h-6" />
+      </div>
+      <h4 className="text-xl font-semibold text-foreground">Connection Issue</h4>
+      <p className="text-muted-foreground max-w-md mx-auto">{error}</p>
+      <Button 
+        onClick={onRetry} 
+        disabled={loading}
+        className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-400/40"
+      >
+        <RefreshCw className={cn("w-4 h-4 mr-2", loading && "animate-spin")} />
+        Try Again
       </Button>
     </div>
   );
