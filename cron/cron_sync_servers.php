@@ -1,8 +1,8 @@
 <?php
 // */10 * * * * /usr/bin/php /path/to/project/cron/cron_sync_servers.php >/dev/null 2>&1
 
-require_once __DIR__ . '/../includes/ReliableSiteAPI.php';
-require_once __DIR__ . '/../includes/db.php';
+require_once dirname(__DIR__) . '/includes/ReliableSiteAPI.php';
+require_once dirname(__DIR__) . '/includes/db.php';
 
 $api = new ReliableSiteAPI();
 
