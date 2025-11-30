@@ -248,15 +248,7 @@ export function DedicatedConfigurator() {
                       </span>
                     </div>
                   </button>
-                );
-              })}
-            </div>
-          </div>
 
-          <Card className="glass-card flex-1 lg:max-w-md p-6 border border-primary/20 bg-[#1A243A]/70 transition-all duration-500">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-xs text-muted-foreground">Service Details</p>
                 <h3 className="text-xl font-bold text-foreground">{tierMeta?.cpuFamily || '—'}</h3>
               </div>
               <Gauge className="w-6 h-6 text-primary" />
