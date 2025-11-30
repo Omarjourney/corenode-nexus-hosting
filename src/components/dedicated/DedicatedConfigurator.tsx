@@ -117,18 +117,6 @@ export function DedicatedConfigurator() {
 
   const selectedTierCard = useMemo(() => tierCards.find((card) => card.id === selectedTier), [selectedTier]);
 
-  useEffect(() => {
-    preloadTierMinimums();
-  }, [preloadTierMinimums]);
-
-  useEffect(() => {
-    fetchRegionSummary(selectedTier);
-  }, [fetchRegionSummary, selectedTier]);
-
-  useEffect(() => {
-    fetchInventory(selectedTier, selectedRegion);
-  }, [fetchInventory, selectedRegion, selectedTier]);
-
   const apiBase = import.meta.env.VITE_API_BASE || '';
 
   const requestInventory = useCallback(async (family: string, region: string): Promise<InventoryResponse> => {
@@ -184,6 +172,18 @@ export function DedicatedConfigurator() {
       setLoading(false);
     }
   }, [requestInventory]);
+
+  useEffect(() => {
+    preloadTierMinimums();
+  }, [preloadTierMinimums]);
+
+  useEffect(() => {
+    fetchRegionSummary(selectedTier);
+  }, [fetchRegionSummary, selectedTier]);
+
+  useEffect(() => {
+    fetchInventory(selectedTier, selectedRegion);
+  }, [fetchInventory, selectedRegion, selectedTier]);
 
   const summaryForSelectedRegion = useMemo(() => regionSummary[selectedRegion], [regionSummary, selectedRegion]);
 
