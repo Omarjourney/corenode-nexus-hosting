@@ -6,12 +6,20 @@ export interface Plan {
 }
 
 export interface AddonPrices {
-  dedicatedIp: number;
-  extra50Gb: number;
-  backups: number;
-  modpackInstall: number;
-  crashGuard: number;
-  prioritySupport: number;
+  ramPlus1Gb: number;
+  ramPlus2Gb: number;
+  ramPlus4Gb: number;
+  ramPlus8Gb: number;
+  cpuBoostCoreToElite: number;
+  cpuBoostEliteToCreator: number;
+  storagePlus10Gb: number;
+  storagePlus25Gb: number;
+  storagePlus50Gb: number;
+  storagePlus100Gb: number;
+  backupBasic50Gb: number;
+  backupPro100Gb: number;
+  backupEnterprise250Gb: number;
+  backupUltimate500Gb: number;
 }
 
 export interface ProfileTier {

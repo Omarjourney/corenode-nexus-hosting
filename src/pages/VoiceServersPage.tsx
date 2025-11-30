@@ -25,7 +25,7 @@ interface VoicePlatform {
   features: string[];
   pricing: {
     base: number;
-    perSlot: number;
+    perSlot?: number;
   };
 }
 import { 
@@ -100,20 +100,12 @@ const VoiceServersPage = () => {
     }
   ];
 
-  interface Pricing {
-    base: number;
-    perSlot: number;
-  }
-  interface VoicePlatform {
-    name: string;
-    pricing: Pricing;
-  }
   interface SlotConfig {
     slots: number[];
   }
 
   const calculatePrice = (platform: VoicePlatform, config: SlotConfig) => {
-    if (platform.name === "Discord Bot") {
+    if (platform.name === "Discord Bot" || !platform.pricing.perSlot) {
       return platform.pricing.base.toFixed(2);
     }
     return (platform.pricing.base + (config.slots[0] * platform.pricing.perSlot)).toFixed(2);

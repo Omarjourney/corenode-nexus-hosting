@@ -13,9 +13,7 @@ const REGIONS: Region[] = [
   { name: 'São Paulo', lat: -23.5505, lon: -46.6333 },
 ];
 type RegionLatency = { region: Region; latency: number | null };
-
 type Marker = { location: [number, number]; size: number; color?: [number, number, number] };
-type RegionLatency = { region: Region; latency: number | null };
 
 function approximateLatencyKm(km: number) {
   // ~5ms per 1000km baseline + 15ms overhead
