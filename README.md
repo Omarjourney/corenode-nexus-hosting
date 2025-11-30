@@ -32,14 +32,23 @@ We welcome contributions! Here’s how to get started:
 - Ensure ESLint passes (`npm run lint`) and the site builds (`npm run build`).  
 - Commit your changes with a clear message and open a pull request.  
 If you’re adding a new feature, please include a short description in the PR explaining what it does and any relevant testing steps.  
-## Roadmap & Ideas  
-Here are some ideas to take this project to great heights:  
-- Implement a fully functional checkout flow that integrates with a payment gateway to accept orders.  
-- Add pricing tables and plan comparisons for each service page.  
-- Integrate a CMS (e.g. Strapi or Sanity) for managing content (blog posts, FAQs, knowledge base) without code changes.  
-- Enhance SEO with dynamic metadata and structured data for each page.  
-- Add a contact form and live chat widget to improve customer support.  
-- Include internationalization (i18n) support so the site can reach a global audience.  
-Feel free to suggest additional improvements or open issues with your ideas!  
+## Roadmap & Ideas
+Here are some ideas to take this project to great heights:
+- Implement a fully functional checkout flow that integrates with a payment gateway to accept orders.
+- Add pricing tables and plan comparisons for each service page.
+- Integrate a CMS (e.g. Strapi or Sanity) for managing content (blog posts, FAQs, knowledge base) without code changes.
+- Enhance SEO with dynamic metadata and structured data for each page.
+- Add a contact form and live chat widget to improve customer support.
+- Include internationalization (i18n) support so the site can reach a global audience.
+Feel free to suggest additional improvements or open issues with your ideas!
+
+## ReliableSite Dedicated API v2 integration
+- PHP client lives in `includes/ReliableSiteAPI.php` (cURL, JWT caching in `storage/`).
+- Cron sync script: `cron/cron_sync_servers.php` (run every 10 minutes) pulls inventory into the `servers` table.
+- SQL to create inventory table: `database/migrations/create_servers_table.sql`.
+- Frontend uses `/api/servers.php?family=CORE&region=MIAMI` to read the synced inventory.
+- Required environment variables:
+  - `RELIABLESITE_API_KEY` (for API auth)
+  - `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_PORT` (MySQL access)
 ---  
 *This project is maintained by Omar. For questions or support, please open an issue or reach out via the repository.*
