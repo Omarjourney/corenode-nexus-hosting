@@ -247,27 +247,27 @@ export function DedicatedConfigurator() {
                         <Icon className="w-6 h-6 text-primary" />
                       </span>
                     </div>
-                  </button>
+                    </button>
 
-                <h3 className="text-xl font-bold text-foreground">{tierMeta?.cpuFamily || '—'}</h3>
+                  <h3 className="text-xl font-bold text-foreground">{tierMeta?.cpuFamily || '—'}</h3>
+                </div>
+                <Gauge className="w-6 h-6 text-primary" />
               </div>
-              <Gauge className="w-6 h-6 text-primary" />
-            </div>
-            {tierMeta ? (
-              <div className="space-y-3 text-sm text-muted-foreground">
-                <DetailRow label="CPU Family" value={tierMeta.cpuFamily} />
-                <DetailRow label="Clock Speed" value={tierMeta.clock} />
-                <DetailRow label="Geekbench" value={tierMeta.geekbench} />
-                <DetailRow label="Price per GB" value={tierMeta.pricePerGb} />
-                <DetailRow label="CNX Markup" value={tierMeta.markup} />
-                <p className="text-foreground/90 leading-relaxed pt-1">{tierMeta.description}</p>
-              </div>
-            ) : (
-              <p className="text-muted-foreground">Loading details…</p>
-            )}
-          </Card>
-        </div>
-      </section>
+              {tierMeta ? (
+                <div className="space-y-3 text-sm text-muted-foreground">
+                  <DetailRow label="CPU Family" value={tierMeta.cpuFamily} />
+                  <DetailRow label="Clock Speed" value={tierMeta.clock} />
+                  <DetailRow label="Geekbench" value={tierMeta.geekbench} />
+                  <DetailRow label="Price per GB" value={tierMeta.pricePerGb} />
+                  <DetailRow label="CNX Markup" value={tierMeta.markup} />
+                  <p className="text-foreground/90 leading-relaxed pt-1">{tierMeta.description}</p>
+                </div>
+              ) : (
+                <p className="text-muted-foreground">Loading details…</p>
+              )}
+            </Card>
+          </div>
+        </section>
 
       <section className="space-y-6">
         <div className="flex flex-col lg:flex-row gap-6">
