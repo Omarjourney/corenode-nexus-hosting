@@ -1,0 +1,22 @@
+{
+  "brand": "CoreNodeX",
+  "nav": {
+    "home": "Inicio",
+    "features": "Funciones",
+    "pricing": "Precios",
+    "docs": "Documentación",
+    "contact": "Contacto"
+  },
+  "actions": {
+    "launch": "Abrir Consola",
+    "explore": "Explorar"
+  },
+  "theme": {
+    "light": "Claro",
+    "dark": "Oscuro"
+  },
+  "language": {
+    "label": "Idioma",
+    "description": "Elige tu idioma de comando"
+  }
+}
