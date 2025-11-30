@@ -3,6 +3,7 @@ import { Cpu, Crown, Gauge, Rocket, ShieldCheck, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { API_BASE } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 const tierCards = [
@@ -65,6 +66,7 @@ interface RegionStat {
   stockPercent?: number;
   loadPercent?: number;
   level?: string;
+  cheapestMonthly?: number;
 }
 
 interface ApiServer {
@@ -102,29 +104,33 @@ function getAvailableCount(server: ApiServer): number {
 
 function buildRegions(servers: ApiServer[]): RegionStat[] {
   const regionMap = new Map<string, RegionStat>();
+  const regions = Array.from(new Set(servers.map((s) => s.region)));
+
+  regions.forEach((region) => {
+    regionMap.set(region, {
+      code: region,
+      name: region,
+      available: 0,
+      soldOut: false,
+    });
+  });
 
   servers.forEach((server) => {
     const count = getAvailableCount(server);
     const existing = regionMap.get(server.region);
 
-    if (existing) {
-      existing.available += count;
-      existing.stockPercent = existing.stockPercent ?? server.stock;
-      existing.loadPercent = existing.loadPercent ?? server.load;
-      existing.level = existing.level ?? server.level;
-      existing.flag = existing.flag ?? server.flag;
-    } else {
-      regionMap.set(server.region, {
-        code: server.region,
-        name: server.region,
-        flag: server.flag,
-        available: count,
-        soldOut: false,
-        stockPercent: server.stock,
-        loadPercent: server.load,
-        level: server.level,
-      });
-    }
+    if (!existing) return;
+
+    existing.available += count;
+    existing.stockPercent = existing.stockPercent ?? server.stock;
+    existing.loadPercent = existing.loadPercent ?? server.load;
+    existing.level = existing.level ?? server.level;
+    existing.flag = existing.flag ?? server.flag;
+    const monthly = server.price?.monthly;
+    existing.cheapestMonthly =
+      existing.cheapestMonthly === undefined
+        ? monthly
+        : Math.min(existing.cheapestMonthly, monthly ?? existing.cheapestMonthly);
   });
 
   return Array.from(regionMap.values()).map((region) => ({
@@ -283,13 +289,14 @@ export function DedicatedConfigurator() {
   const servers = staticServers;
 
   useEffect(() => {
-    fetch("https://api.corenodex.com/api/dedicatedServers.php")
+    fetch(`${API_BASE}/dedicatedServers.php`)
       .then((r) => r.json())
       .then((data) => {
         const servers = (data?.servers ?? []) as ApiServer[];
-        const regions = buildRegions(servers);
-        setRegionData(regions);
-        setSelectedRegion(regions[0]?.code || "");
+        const regions = Array.from(new Set(servers.map((s) => s.region)));
+        const regionStats = buildRegions(servers);
+        setRegionData(regionStats);
+        setSelectedRegion(regions[0] || regionStats[0]?.code || "");
         setFullServerData(servers);
         setLoading(false);
       })
@@ -472,22 +479,29 @@ export function DedicatedConfigurator() {
           <Card className="glass-card flex-1 p-6 border border-border">
             <h3 className="font-orbitron text-xl mb-2">Region Insights</h3>
 
-            {regionData.map((r) => (
-              <div key={r.code} className="flex justify-between items-center py-2 border-b border-border/30 last:border-b-0">
-                <span>
-                  {r.flag} {r.name}
-                </span>
-
-                <span
-                  className={cn(
-                    "px-2 py-1 rounded text-xs",
-                    r.soldOut ? "bg-red-600/20 text-red-400" : "bg-green-600/20 text-green-400",
-                  )}
+            {loading ? (
+              <p className="text-sm text-muted-foreground">Loading inventory...</p>
+            ) : fullServerData.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No servers available</p>
+            ) : (
+              regionData.map((r) => (
+                <div
+                  key={r.code}
+                  className="flex justify-between items-center py-2 border-b border-border/30 last:border-b-0"
                 >
-                  {r.soldOut ? "Sold Out" : `${r.available} Available`}
-                </span>
-              </div>
-            ))}
+                  <span>
+                    {r.flag} {r.name}
+                  </span>
+
+                  <span className="flex items-center gap-2 text-sm">
+                    <span>{r.available} servers</span>
+                    {typeof r.cheapestMonthly === "number" ? (
+                      <span className="text-muted-foreground text-xs">from ${r.cheapestMonthly}/mo</span>
+                    ) : null}
+                  </span>
+                </div>
+              ))
+            )}
           </Card>
         </div>
       </section>
