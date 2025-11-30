@@ -174,25 +174,24 @@ const CheckoutPage = ({ title }: Props) => {
 
               <div className="space-y-3">
                 <h3 className="font-orbitron font-semibold text-lg">3. Multi-Game Profiles</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <RadioGroup
+                  value={profile}
+                  onValueChange={setProfile}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                >
                   {multiProfiles.map((item) => (
-                    <label key={item.label} className={`glass-card p-3 border ${profile === item.label ? "border-secondary ring-2 ring-secondary/40" : "border-glass-border"}`}>
+                    <label key={item.label} className={`glass-card p-3 border cursor-pointer ${profile === item.label ? "border-secondary ring-2 ring-secondary/40" : "border-glass-border"}`}>
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-semibold text-foreground">{item.label}</p>
                           <p className="text-xs text-muted-foreground">Switch between saved game setups instantly.</p>
                         </div>
-                        <RadioGroupItem
-                          value={item.label}
-                          id={item.label}
-                          checked={profile === item.label}
-                          onCheckedChange={() => setProfile(item.label)}
-                        />
+                        <RadioGroupItem value={item.label} id={item.label} />
                       </div>
                       <p className="text-sm text-muted-foreground">{item.price === 0 ? "Included" : `$${item.price.toFixed(2)}/mo`}</p>
                     </label>
                   ))}
-                </div>
+                </RadioGroup>
               </div>
 
               <Separator className="my-2" />

@@ -4,10 +4,10 @@ import { useParams, useSearchParams } from "react-router-dom";
 import {
   Award,
   BadgeCheck,
-  Chip,
+  CircuitBoard,
   Cpu,
   Flame,
-  Lightning,
+  Zap,
   MapPin,
   Rocket,
   Save,
@@ -41,7 +41,7 @@ const tierBorders: Record<ServiceTier, string> = {
 
 const tierIcons: Record<ServiceTier, JSX.Element> = {
   budget: <Server className="h-5 w-5" />,
-  standard: <Chip className="h-5 w-5" />,
+  standard: <CircuitBoard className="h-5 w-5" />,
   premium: <Award className="h-5 w-5" />,
   extreme: <Rocket className="h-5 w-5" />,
   ryzen: <Flame className="h-5 w-5" />,
@@ -861,7 +861,7 @@ const VpsPage = () => {
         <div className="fixed bottom-4 inset-x-0 px-4 sm:px-6 lg:px-8 z-40">
           <div className="max-w-5xl mx-auto glass-card p-4 rounded-2xl border border-primary/40 flex items-center justify-between shadow-[0_0_30px_rgba(0,234,255,0.2)]">
             <div className="flex items-center gap-3 text-sm">
-              <Lightning className="h-5 w-5 text-primary" />
+              <Zap className="h-5 w-5 text-primary" />
               <span className="text-foreground">Configure Your VPS →</span>
             </div>
             <div className="flex gap-3">
