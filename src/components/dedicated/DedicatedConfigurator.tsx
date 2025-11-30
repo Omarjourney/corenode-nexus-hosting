@@ -192,7 +192,7 @@ export function DedicatedConfigurator() {
 
   const selectedTierCard = useMemo(() => tierCards.find((card) => card.id === selectedTier), [selectedTier]);
 
-  const apiBase = (import.meta.env.VITE_API_BASE || 'https://api.corenodex.com/api').replace(/\/$/, '');
+  const apiBase = 'https://api.corenodex.com/api';
 
   const hydrateServers = useCallback(
     (payload: InventoryResponse, family: string): InventoryServer[] =>
@@ -214,7 +214,7 @@ export function DedicatedConfigurator() {
       if (family) query.set('family', family);
       if (region) query.set('region', region);
 
-      const url = `${apiBase}/api/servers.php${query.toString() ? `?${query.toString()}` : ''}`;
+      const url = `${apiBase}/servers.php${query.toString() ? `?${query.toString()}` : ''}`;
       const response = await fetch(url, { headers: { Accept: 'application/json' } });
       if (!response.ok) {
         throw new Error('Failed to load inventory');
