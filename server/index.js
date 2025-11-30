@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const gameModulesRouter = require('./routes/game-modules');
+const dedicatedRouter = require('./routes/dedicated');
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/', gameModulesRouter);
+app.use('/', dedicatedRouter);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {

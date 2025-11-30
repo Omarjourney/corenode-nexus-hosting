@@ -1,11 +1,11 @@
 import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
-import { Card } from "@/components/ui/card";
-import AddOns from "@/components/AddOns";
-import { NodeXMetalGrid } from "@/components/dedicated/NodeXMetalGrid";
 import { FeatureGrid } from "@/components/FeatureGrid";
 import { ComparisonTable } from "@/components/ComparisonTable";
 import { FaqSection } from "@/components/FaqSection";
+import { Card } from "@/components/ui/card";
+import AddOns from "@/components/AddOns";
+import { DedicatedConfigurator } from "@/components/dedicated/DedicatedConfigurator";
 
 const DedicatedPage = () => (
   <div className="min-h-screen bg-gradient-hero">
@@ -25,12 +25,14 @@ const DedicatedPage = () => (
           </p>
         </div>
 
-        <section className="space-y-6">
-          <div className="text-center">
-            <h2 className="text-3xl font-orbitron font-bold text-foreground">Purchase your server</h2>
-            <p className="text-sm text-muted-foreground font-inter mt-2">Fixed pricing, instant remote access, and clean SLAs.</p>
+        <section className="space-y-8">
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl font-orbitron font-bold text-foreground">Configure your NodeX Metal™</h2>
+            <p className="text-sm text-muted-foreground font-inter max-w-2xl mx-auto">
+              Guided 3-step flow with live ReliableSite inventory, CNX markups, and instant availability insights.
+            </p>
           </div>
-          <NodeXMetalGrid />
+          <DedicatedConfigurator />
         </section>
 
         <Card className="glass-card p-6">
