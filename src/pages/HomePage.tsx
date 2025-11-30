@@ -7,7 +7,6 @@ import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
 import LiveStatsBar from "@/components/LiveStatsBar";
 import PricingGlowCards from "@/components/PricingGlowCards";
-import DeploySimulator from "@/components/DeploySimulator";
 import {
   Activity,
   ArrowRight,

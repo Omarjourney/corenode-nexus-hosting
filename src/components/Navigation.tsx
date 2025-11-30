@@ -77,16 +77,6 @@ const Navigation = () => {
       href: "/dedicated",
       dropdown: true,
       sections: ["Entry", "Pro", "Extreme"]
-    },
-    {
-      name: "Labs",
-      href: "/launch-lab",
-      dropdown: true,
-      sections: [
-        { label: "Launch Lab", to: "/launch-lab" },
-        { label: "Pro Configurator", to: "/pro-configurator" },
-        { label: "Latency Map", to: "/latency" },
-      ]
     }
   ];
 

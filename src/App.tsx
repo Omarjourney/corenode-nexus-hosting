@@ -17,7 +17,6 @@ import VpsDedicatedPage from "./pages/VpsDedicatedPage";
 import BlogIndex from "./pages/BlogIndex";
 import BlogPostPage from "./pages/BlogPostPage";
 import NotFound from "./pages/NotFound";
-import LaunchLabPage from "./pages/LaunchLabPage";
 import ProConfiguratorPage from "./pages/ProConfiguratorPage";
 import LatencyPage from "./pages/LatencyPage";
 import CommandPalette from "./components/CommandPalette";
@@ -48,7 +47,6 @@ const App = () => (
             <Route path="/blog" element={<BlogIndex />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/order" element={<ServerOrderPage />} />
-            <Route path="/launch-lab" element={<LaunchLabPage />} />
             <Route path="/pro-configurator" element={<ProConfiguratorPage />} />
             <Route path="/latency" element={<LatencyPage />} />
             <Route path="*" element={<NotFound />} />
