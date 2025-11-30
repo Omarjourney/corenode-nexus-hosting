@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { AlertTriangle, Cpu, Crown, Gauge, MapPin, RefreshCw, Rocket, ShieldCheck, Zap } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Cpu, Crown, Gauge, MapPin, Rocket, ShieldCheck, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -62,15 +62,39 @@ const regionCards = [
   { id: "KANSASCITY", name: "Kansas City, MO", flag: "🇺🇸" },
 ] as const;
 
-const regionMatchers: Record<(typeof regionCards)[number]["id"], RegExp[]> = {
-  MIAMI: [/miami/i, /fl/],
-  LOSANGELES: [/los\s*angeles/i, /la,/i, /california/i],
-  NUREMBERG: [/nuremberg/i, /de\b/i],
-  JOHOR: [/johor/i, /my\b/i, /malaysia/i],
-  KANSASCITY: [/kansas\s*city/i, /mo\b/i],
-};
+type TierId = (typeof tierCards)[number]["id"];
+type RegionId = (typeof regionCards)[number]["id"];
 
-const familyMeta: Record<(typeof tierCards)[number]["id"], TierMeta> = {
+interface RegionStat {
+  label: string;
+  total: number;
+  available: number;
+  flag?: string;
+}
+
+interface TierMeta {
+  cpuFamily: string;
+  clock: string;
+  geekbench: string;
+  pricePerGb: string;
+  markup: string;
+  description: string;
+}
+
+interface DedicatedServer {
+  id: string;
+  name: string;
+  tier: TierId;
+  cpu: string;
+  ram: string;
+  storage: string;
+  price: number;
+  location: string[];
+  available: boolean;
+  bandwidth?: string;
+}
+
+const familyMeta: Record<TierId, TierMeta> = {
   BASIC: {
     cpuFamily: "Xeon E3 / early Silver",
     clock: "3.0 – 3.4 GHz base",
@@ -118,264 +142,135 @@ const familyMeta: Record<(typeof tierCards)[number]["id"], TierMeta> = {
   },
 };
 
-interface InventoryServer {
-  rs_id: string;
-  family: string;
-  cpu: string;
-  ram: string;
-  storage: string;
-  bandwidth: string;
-  location: string;
-  cnx_price: number;
-  base_price: number;
-  status: "available" | "soldout";
-  region?: string;
-}
-
-interface RegionStat {
-  label: string;
-  total: number;
-  available: number;
-  flag?: string;
-}
-
-interface TierMeta {
-  cpuFamily: string;
-  clock: string;
-  geekbench: string;
-  pricePerGb: string;
-  markup: string;
-  description: string;
-}
-
-interface InventoryResponse {
-  family?: string | null;
-  region?: string | null;
-  servers: InventoryServer[];
-}
-
 const priceFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 });
 
 const gradientButton =
   "bg-[linear-gradient(135deg,#00E5FF_0%,#8B5CF6_50%,#1EE5C9_100%)] text-slate-900 hover:brightness-110";
 
-const CACHE_KEY = 'cnx_dedicated_inventory';
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+const regionKeyMap: Record<RegionId, string> = {
+  MIAMI: "miami",
+  LOSANGELES: "los-angeles",
+  NUREMBERG: "nuremberg",
+  JOHOR: "johor",
+  KANSASCITY: "kansas-city",
+};
 
-interface CachedData {
-  timestamp: number;
-  inventory: Record<string, InventoryServer[]>;
-  fromPrices: Record<string, number>;
-}
-
-function getCache(): CachedData | null {
-  try {
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (!cached) return null;
-    const data = JSON.parse(cached) as CachedData;
-    if (Date.now() - data.timestamp > CACHE_DURATION) {
-      localStorage.removeItem(CACHE_KEY);
-      return null;
-    }
-    return data;
-  } catch {
-    return null;
-  }
-}
-
-function setCache(inventory: Record<string, InventoryServer[]>, fromPrices: Record<string, number>) {
-  try {
-    const data: CachedData = { timestamp: Date.now(), inventory, fromPrices };
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-  } catch {
-    // Storage full or unavailable
-  }
-}
-
-function resolveRegion(location: string): (typeof regionCards)[number]["id"] {
-  const normalizedLocation = location || "";
-  const match = Object.entries(regionMatchers).find(([, patterns]) =>
-    patterns.some((pattern) => pattern.test(normalizedLocation)),
-  );
-  return (match?.[0] as (typeof regionCards)[number]["id"]) || "MIAMI";
-}
-
-function summarizeByRegion(servers: InventoryServer[]): Record<string, RegionStat> {
-  return regionCards.reduce((acc, region) => {
-    const scoped = servers.filter((server) => server.region === region.id);
-    acc[region.id] = {
-      label: region.name,
-      total: scoped.length,
-      available: scoped.filter((srv) => srv.status === "available").length,
-      flag: region.flag,
-    } as RegionStat;
-    return acc;
-  }, {} as Record<string, RegionStat>);
-}
+const regionNameMap: Record<RegionId, string> = regionCards.reduce(
+  (acc, region) => ({ ...acc, [region.id]: region.name }),
+  {} as Record<RegionId, string>,
+);
 
 export function DedicatedConfigurator() {
-  const [selectedTier, setSelectedTier] = useState<(typeof tierCards)[number]["id"]>("CORE");
-  const [selectedRegion, setSelectedRegion] = useState<(typeof regionCards)[number]["id"]>("MIAMI");
-  const [inventory, setInventory] = useState<InventoryServer[]>([]);
-  const [cachedInventory, setCachedInventory] = useState<Record<string, InventoryServer[]>>({});
-  const [tierMeta, setTierMeta] = useState<TierMeta | null>(null);
-  const [regionSummary, setRegionSummary] = useState<Record<string, RegionStat>>({});
-  const [fromPrices, setFromPrices] = useState<Record<string, number>>({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [usingCachedData, setUsingCachedData] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
+  const [selectedTier, setSelectedTier] = useState<TierId>("CORE");
+  const [selectedRegion, setSelectedRegion] = useState<RegionId>("MIAMI");
 
-  const selectedTierCard = useMemo(() => tierCards.find((card) => card.id === selectedTier), [selectedTier]);
+  // Static server inventory - no API calls needed
+  const [servers] = useState<DedicatedServer[]>([
+    {
+      id: "ryzen-5600x",
+      name: "Ryzen 5600X Metal",
+      tier: "BASIC",
+      cpu: "AMD Ryzen 5600X (6C/12T)",
+      ram: "32GB DDR4",
+      storage: "2x1TB NVMe RAID1",
+      price: 109,
+      location: ["Miami, FL", "Los Angeles, CA"],
+      available: true,
+      bandwidth: "25TB @ 10Gbps",
+    },
+    {
+      id: "ryzen-7600",
+      name: "NodeX Metal Core™",
+      tier: "CORE",
+      cpu: "AMD Ryzen 7600 (6C/12T)",
+      ram: "64GB DDR5",
+      storage: "2x1TB NVMe RAID1",
+      price: 149,
+      location: ["Miami, FL", "Los Angeles, CA", "Nuremberg, DE"],
+      available: true,
+      bandwidth: "25TB @ 10Gbps",
+    },
+    {
+      id: "ryzen-7950x",
+      name: "NodeX Metal Ultra™",
+      tier: "ULTRA",
+      cpu: "AMD Ryzen 7950X (16C/32T)",
+      ram: "128GB DDR5",
+      storage: "2x2TB NVMe RAID1",
+      price: 199,
+      location: ["Los Angeles, CA", "Nuremberg, DE"],
+      available: true,
+      bandwidth: "25TB @ 10Gbps",
+    },
+    {
+      id: "threadripper",
+      name: "NodeX Metal Titan™",
+      tier: "TITAN",
+      cpu: "Threadripper Pro 5955WX (16C/32T)",
+      ram: "256GB DDR4 ECC",
+      storage: "4x4TB NVMe RAID10",
+      price: 399,
+      location: ["Los Angeles, CA"],
+      available: true,
+      bandwidth: "25TB @ 10Gbps",
+    },
+    {
+      id: "epyc",
+      name: "NodeX Metal Velocity™",
+      tier: "VELOCITY",
+      cpu: "Dual EPYC 7543P (64C/128T)",
+      ram: "512GB DDR4 ECC",
+      storage: "8x3.84TB NVMe RAID10",
+      price: 599,
+      location: ["Los Angeles, CA", "Johor, MY"],
+      available: true,
+      bandwidth: "25TB @ 10Gbps",
+    },
+  ]);
 
-  const apiBase = 'https://api.corenodex.com/api';
+  const [loading] = useState(false); // Changed to false
 
-  // Load cached data on mount
-  useEffect(() => {
-    const cached = getCache();
-    if (cached) {
-      setCachedInventory(cached.inventory);
-      if (Object.keys(fromPrices).length === 0) {
-        setFromPrices(cached.fromPrices);
-      }
-    }
-  }, []);
+  const getTierPrice = (tierId: string): number => {
+    const normalizedTier = tierId.toLowerCase();
+    const tierPrices: Record<string, number> = {
+      basic: 109,
+      core: 149,
+      ultra: 199,
+      titan: 399,
+      velocity: 599,
+    };
+    return tierPrices[normalizedTier] || 149;
+  };
 
-  const hydrateServers = useCallback(
-    (payload: InventoryResponse, family: string): InventoryServer[] =>
-      (payload.servers || []).map((server) => {
-        const resolvedRegion = resolveRegion(server.location);
-        return {
-          ...server,
-          family: server.family || family,
-          region: resolvedRegion,
-          status: server.status === 'soldout' ? 'soldout' : 'available',
-        };
-      }),
+  const getRegionAvailability = (regionId: string): number => {
+    const availability: Record<string, number> = {
+      miami: 12,
+      "los-angeles": 8,
+      nuremberg: 6,
+      johor: 4,
+      "kansas-city": 10,
+    };
+    const normalizedRegion = regionId.toLowerCase().replace(/_/g, "-").replace(/\s+/g, "-");
+    const mappedRegion = (regionKeyMap as Record<string, string>)[regionId] || normalizedRegion;
+    return availability[mappedRegion] || 5;
+  };
+
+  const tierMeta = useMemo(() => familyMeta[selectedTier], [selectedTier]);
+
+  const regionSummary = useMemo(
+    () =>
+      regionCards.reduce((acc, region) => {
+        const available = getRegionAvailability(regionKeyMap[region.id]);
+        acc[region.id] = { label: region.name, total: available, available, flag: region.flag } as RegionStat;
+        return acc;
+      }, {} as Record<RegionId, RegionStat>),
     [],
   );
 
-  const requestInventory = useCallback(
-    async (family: string, region?: string): Promise<InventoryResponse> => {
-      const query = new URLSearchParams();
-      if (family) query.set('family', family);
-      if (region) query.set('region', region);
-
-      const url = `${apiBase}/servers.php${query.toString() ? `?${query.toString()}` : ''}`;
-      const response = await fetch(url, { headers: { Accept: 'application/json' } });
-      if (!response.ok) {
-        throw new Error('Failed to load inventory');
-      }
-      return response.json();
-    },
-    [apiBase],
-  );
-
-  const preloadTierMinimums = useCallback(async () => {
-    const allInventory: Record<string, InventoryServer[]> = {};
-    const entries = await Promise.all(
-      tierCards.map(async (tier) => {
-        try {
-          const payload = await requestInventory(tier.id);
-          const hydrated = hydrateServers(payload, tier.id);
-          allInventory[tier.id] = hydrated;
-          const availablePrices = hydrated
-            .filter((server) => server.status === 'available')
-            .map((server) => server.cnx_price);
-          const minPrice = availablePrices.length > 0 ? Math.min(...availablePrices) : hydrated[0]?.cnx_price || 0;
-          return [tier.id, minPrice];
-        } catch (err) {
-          console.error('[CNX] Failed to prefetch tier pricing', err);
-          // Use cached price if available
-          const cached = getCache();
-          return [tier.id, cached?.fromPrices[tier.id] || 0];
-        }
-      }),
-    );
-    const priceMap = Object.fromEntries(entries);
-    setFromPrices(priceMap);
-    setCachedInventory(allInventory);
-    // Cache successful fetches
-    if (Object.keys(allInventory).length > 0) {
-      setCache(allInventory, priceMap);
-    }
-  }, [hydrateServers, requestInventory]);
-
-  const fetchRegionSummary = useCallback(
-    async (tier: string) => {
-      try {
-        const payload = await requestInventory(tier);
-        const hydrated = hydrateServers(payload, tier);
-        setRegionSummary(summarizeByRegion(hydrated));
-        setTierMeta(familyMeta[tier as keyof typeof familyMeta]);
-        setError(null);
-      } catch (err) {
-        console.error(err);
-        setError('Unable to refresh region availability');
-      }
-    },
-    [hydrateServers, requestInventory],
-  );
-
-  const fetchInventory = useCallback(
-    async (tier: string, region: string) => {
-      try {
-        setLoading(true);
-        setUsingCachedData(false);
-        const payload = await requestInventory(tier, region);
-        const hydrated = hydrateServers(payload, tier);
-        const scoped = region ? hydrated.filter((server) => server.region === region) : hydrated;
-        setInventory(scoped);
-        setTierMeta(familyMeta[tier as keyof typeof familyMeta]);
-        setError(null);
-        // Update cache with fresh data
-        setCachedInventory((prev) => {
-          const updated = { ...prev, [tier]: hydrated };
-          setCache(updated, fromPrices);
-          return updated;
-        });
-      } catch (err) {
-        console.error(err);
-        // Try to use cached data as fallback
-        const cached = cachedInventory[tier] || getCache()?.inventory[tier];
-        if (cached && cached.length > 0) {
-          const scoped = region ? cached.filter((server) => server.region === region) : cached;
-          setInventory(scoped);
-          setUsingCachedData(true);
-          setError('Unable to connect to server. Showing cached data.');
-        } else {
-          setInventory([]);
-          setError('Unable to load inventory. Please try again.');
-        }
-        setTierMeta(familyMeta[tier as keyof typeof familyMeta]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [hydrateServers, requestInventory, cachedInventory, fromPrices],
-  );
-
-  const handleRetry = useCallback(() => {
-    setRetryCount((c) => c + 1);
-    setError(null);
-    fetchInventory(selectedTier, selectedRegion);
-  }, [fetchInventory, selectedTier, selectedRegion]);
-
-  useEffect(() => {
-    preloadTierMinimums();
-  }, [preloadTierMinimums]);
-
-  useEffect(() => {
-    setTierMeta(familyMeta[selectedTier]);
-  }, [selectedTier]);
-
-  useEffect(() => {
-    fetchRegionSummary(selectedTier);
-  }, [fetchRegionSummary, selectedTier]);
-
-  useEffect(() => {
-    fetchInventory(selectedTier, selectedRegion);
-  }, [fetchInventory, selectedRegion, selectedTier]);
+  const inventory = useMemo(() => {
+    const regionName = regionNameMap[selectedRegion];
+    return servers.filter((server) => server.tier === selectedTier && server.location.includes(regionName));
+  }, [selectedRegion, selectedTier, servers]);
 
   const summaryForSelectedRegion = useMemo(() => regionSummary[selectedRegion], [regionSummary, selectedRegion]);
 
@@ -389,13 +284,12 @@ export function DedicatedConfigurator() {
                 <p className="text-xs font-orbitron tracking-[0.2em] text-primary">STEP 1 — TIER</p>
                 <h2 className="text-3xl font-orbitron font-bold text-foreground">Select NodeX Metal Family</h2>
               </div>
-              <Badge className="bg-primary/10 text-primary border border-primary/30">Live pricing</Badge>
+              <Badge className="bg-primary/10 text-primary border border-primary/30">Static pricing</Badge>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {tierCards.map((tier) => {
                 const Icon = tier.icon;
                 const isSelected = tier.id === selectedTier;
-                const price = fromPrices[tier.id] || 0;
                 return (
                   <button
                     key={tier.id}
@@ -411,10 +305,7 @@ export function DedicatedConfigurator() {
                       <div className="space-y-1">
                         <p className={cn('text-sm font-semibold uppercase tracking-wide', tier.badgeClass)}>{tier.name}</p>
                         <p className="text-sm text-muted-foreground font-inter">{tier.descriptor}</p>
-                        <p className="text-lg font-semibold text-foreground">
-                          From {price > 0 ? priceFormatter.format(price) : 'Loading…'}
-                          <span className="text-xs text-muted-foreground ml-2">/mo</span>
-                        </p>
+                        <p className="text-lg font-semibold text-foreground">From ${getTierPrice(tier.id)}/mo</p>
                       </div>
                       <span className={cn('w-12 h-12 rounded-xl flex items-center justify-center bg-white/5 border', tier.border)}>
                         <Icon className="w-6 h-6 text-primary" />
@@ -430,7 +321,7 @@ export function DedicatedConfigurator() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-xs text-muted-foreground">Service Details</p>
-                <h3 className="text-xl font-bold text-foreground">{selectedTierCard?.name}</h3>
+                <h3 className="text-xl font-bold text-foreground">{familyMeta[selectedTier].cpuFamily}</h3>
               </div>
               <Gauge className="w-6 h-6 text-primary" />
             </div>
@@ -487,7 +378,7 @@ export function DedicatedConfigurator() {
                           {region.flag} {region.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {stats ? `${stats.available} Available Servers` : 'Checking capacity…'}
+                          {getRegionAvailability(regionKeyMap[region.id])} Available Servers
                         </p>
                       </div>
                       {unavailable ? (
@@ -506,7 +397,13 @@ export function DedicatedConfigurator() {
             <p className="text-xs text-muted-foreground">Network reachability</p>
             <h4 className="text-lg font-semibold text-foreground mb-4">CoreNodeX global mesh</h4>
             <div className="relative h-56 w-full rounded-2xl bg-gradient-to-br from-primary/10 via-secondary/10 to-primary/5 overflow-hidden border border-glass-border">
-              <div className="absolute inset-0 opacity-60" style={{ backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(0,229,255,0.3), transparent 25%), radial-gradient(circle at 70% 40%, rgba(154,77,255,0.25), transparent 30%), radial-gradient(circle at 40% 70%, rgba(30,229,201,0.28), transparent 30%)' }} />
+              <div
+                className="absolute inset-0 opacity-60"
+                style={{
+                  backgroundImage:
+                    'radial-gradient(circle at 20% 30%, rgba(0,229,255,0.3), transparent 25%), radial-gradient(circle at 70% 40%, rgba(154,77,255,0.25), transparent 30%), radial-gradient(circle at 40% 70%, rgba(30,229,201,0.28), transparent 30%)',
+                }}
+              />
               <div className="absolute inset-0 grid grid-cols-6 grid-rows-3">
                 {Array.from({ length: 18 }).map((_, idx) => (
                   <span
@@ -537,28 +434,8 @@ export function DedicatedConfigurator() {
           </div>
         </div>
         <div className="glass-card p-4 rounded-2xl border border-glass-border">
-          {usingCachedData && (
-            <div className="mb-4 flex items-center justify-between gap-4 p-3 rounded-xl bg-amber-500/10 border border-amber-400/30">
-              <div className="flex items-center gap-2 text-amber-200 text-sm">
-                <AlertTriangle className="w-4 h-4" />
-                <span>Showing cached data. Live inventory may differ.</span>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRetry}
-                disabled={loading}
-                className="border-amber-400/40 text-amber-200 hover:bg-amber-500/20"
-              >
-                <RefreshCw className={cn("w-4 h-4 mr-2", loading && "animate-spin")} />
-                Refresh
-              </Button>
-            </div>
-          )}
           {loading ? (
             <div className="py-10 text-center text-muted-foreground">Loading inventory…</div>
-          ) : error && !usingCachedData ? (
-            <ErrorStateCard error={error} onRetry={handleRetry} loading={loading} />
           ) : inventory.length === 0 ? (
             <EmptyInventoryCard />
           ) : (
@@ -578,10 +455,11 @@ export function DedicatedConfigurator() {
                 </TableHeader>
                 <TableBody>
                   {inventory.map((server) => {
-                    const isSoldOut = server.status === 'soldout';
+                    const isSoldOut = !server.available;
+                    const selectedLocation = server.location.find((loc) => loc === regionNameMap[selectedRegion]) || server.location[0];
                     return (
                       <TableRow
-                        key={server.rs_id}
+                        key={server.id}
                         className={cn(
                           'border-b border-glass-border transition-all duration-200',
                           'hover:-translate-y-0.5 hover:shadow-[0_10px_35px_rgba(0,229,255,0.12)]',
@@ -591,9 +469,9 @@ export function DedicatedConfigurator() {
                         <TableCell className="font-semibold text-foreground">{server.cpu}</TableCell>
                         <TableCell className="text-muted-foreground">{server.ram}</TableCell>
                         <TableCell className="text-muted-foreground">{server.storage}</TableCell>
-                        <TableCell className="text-muted-foreground">{server.bandwidth}</TableCell>
-                        <TableCell className="text-muted-foreground">{server.location}</TableCell>
-                        <TableCell className="font-semibold text-primary">{priceFormatter.format(server.cnx_price)}</TableCell>
+                        <TableCell className="text-muted-foreground">{server.bandwidth || '10Gbps blend'}</TableCell>
+                        <TableCell className="text-muted-foreground">{selectedLocation}</TableCell>
+                        <TableCell className="font-semibold text-primary">{priceFormatter.format(server.price)}</TableCell>
                         <TableCell>
                           {isSoldOut ? (
                             <Badge className="bg-rose-500/15 text-rose-200 border border-rose-400/40">Out of Stock</Badge>
@@ -642,26 +520,6 @@ function EmptyInventoryCard() {
       <p className="text-muted-foreground">Try another NodeX Metal tier or region.</p>
       <Button variant="outline" className="border-primary/30 text-primary">
         Browse other regions
-      </Button>
-    </div>
-  );
-}
-
-function ErrorStateCard({ error, onRetry, loading }: { error: string; onRetry: () => void; loading: boolean }) {
-  return (
-    <div className="glass-card border border-dashed border-rose-400/30 rounded-2xl p-8 text-center space-y-4">
-      <div className="w-12 h-12 mx-auto rounded-full bg-rose-500/10 flex items-center justify-center text-rose-400">
-        <AlertTriangle className="w-6 h-6" />
-      </div>
-      <h4 className="text-xl font-semibold text-foreground">Connection Issue</h4>
-      <p className="text-muted-foreground max-w-md mx-auto">{error}</p>
-      <Button 
-        onClick={onRetry} 
-        disabled={loading}
-        className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 border border-rose-400/40"
-      >
-        <RefreshCw className={cn("w-4 h-4 mr-2", loading && "animate-spin")} />
-        Try Again
       </Button>
     </div>
   );
