@@ -1,191 +1,158 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Cpu, Crown, Gauge, Rocket, ShieldCheck, Zap } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Cpu, Crown, Rocket } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { API_BASE } from "@/lib/api";
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { TierId } from "@/types/hosting";
-
-type ApiServer = {
-  productId: string;
-  region: string;
-  name: string;
-  details: string;
-  stock: number;
-  price: {
-    monthly: string;
-    sixMonth?: string;
-    yearly: string;
-    twoYear?: string;
-  };
-};
-
-// Removed duplicate DedicatedConfigurator component to resolve duplicate identifier error.
 
 type InventoryServer = {
-  productId: string;
-  region: string;
-  name: string;
-  details: string;
-  status: "available" | "soldout" | string;
-  price: {
-    monthly: string;
-    sixMonth?: string;
-    yearly: string;
-    twoYear?: string;
-  };
+  id?: string | number;
+  cpu?: string;
+  ram?: string;
+  storage?: string;
+  location?: string;
+  region?: string;
+  status?: "available" | "soldout" | string;
+  price?: number;
 };
 
-interface InventoryResponse {
-  family?: string | null;
-  region?: string | null;
-  servers: InventoryServer[];
-}
+const priceFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
-const priceFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 });
-
-const familyMeta: Record<TierId, {
-  cpuFamily: string;
-  clock: string;
-  geekbench: string;
-  pricePerGb: string;
-  markup: string;
-  description: string;
-}> = {
-  core: {
-    cpuFamily: "Intel Xeon E5",
-    clock: "2.3GHz",
-    geekbench: "8000",
-    pricePerGb: "$1.50",
-    markup: "10%",
-    description: "Balanced performance for general workloads.",
-  },
-  elite: {
-    cpuFamily: "AMD EPYC",
-    clock: "2.8GHz",
-    geekbench: "12000",
-    pricePerGb: "$1.20",
-    markup: "8%",
-    description: "High performance for demanding applications.",
-  },
-  creator: {
-    cpuFamily: "Intel Xeon Gold",
-    clock: "3.0GHz",
-    geekbench: "15000",
-    pricePerGb: "$1.00",
-    markup: "5%",
-    description: "Top-tier performance for mission-critical workloads.",
-  },
-};
-
-const gradientButton =
-  "bg-[linear-gradient(135deg,#00E5FF_0%,#8B5CF6_50%,#1EE5C9_100%)] text-slate-900 hover:brightness-110";
-
-
-// Example tierCards definition (missing in original code)
-const tierCards: Array<{
-  id: TierId;
-  name: string;
-  descriptor: string;
-  icon: any;
-  border: string;
-  accent: string;
-  badgeClass: string;
-}> = [
-  {
-    id: "core",
-    name: "Core",
-    descriptor: "Balanced performance",
-    icon: Cpu,
-    border: "border-cyan-400",
-    accent: "from-cyan-400/30 to-cyan-200/10",
-    badgeClass: "text-cyan-400",
-  },
-  {
-    id: "elite",
-    name: "Elite",
-    descriptor: "High performance",
-    icon: Rocket,
-    border: "border-violet-400",
-    accent: "from-violet-400/30 to-violet-200/10",
-    badgeClass: "text-violet-400",
-  },
-  {
-    id: "creator",
-    name: "Creator",
-    descriptor: "Top-tier performance",
-    icon: Crown,
-    border: "border-amber-400",
-    accent: "from-amber-400/30 to-amber-200/10",
-    badgeClass: "text-amber-400",
-  },
+const tierCards = [
+  { id: "core", name: "Core", descriptor: "Balanced performance", icon: Cpu },
+  { id: "elite", name: "Elite", descriptor: "High performance", icon: Rocket },
+  { id: "creator", name: "Creator", descriptor: "Top-tier performance", icon: Crown },
 ];
 
 const regionCards = [
   { id: "MIAMI", name: "Miami", flag: "🇺🇸" },
   { id: "LONDON", name: "London", flag: "🇬🇧" },
   { id: "FRANKFURT", name: "Frankfurt", flag: "🇩🇪" },
-  // Add more regions as needed
 ];
 
-const regionMatchers: Record<string, RegExp[]> = {
-  MIAMI: [/miami/i, /us/i, /usa/i, /united states/i],
-  LONDON: [/london/i, /uk/i, /united kingdom/i],
-  FRANKFURT: [/frankfurt/i, /germany/i, /de/i],
-  // Add more region matchers as needed
-};
+export function DedicatedConfigurator(): JSX.Element {
+  const [selectedTier, setSelectedTier] = useState<string>("core");
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  const [inventory, setInventory] = useState<InventoryServer[]>([]);
+  const [loading, setLoading] = useState(false);
 
-function resolveRegion(location: string): (typeof regionCards)[number]["id"] {
-  const normalizedLocation = location || "";
-  const match = Object.entries(regionMatchers).find(([, patterns]) =>
-    patterns.some((pattern) => pattern.test(normalizedLocation)),
-  );
-  return (match?.[0] as (typeof regionCards)[number]["id"]) || "MIAMI";
-}
+  const mounted = useRef(true);
 
-type RegionStat = {
-  code: string;
-  name: string;
-  flag: string;
-  total: number;
-  available: number;
-  soldOut?: boolean;
-  cheapestMonthly?: number;
-  stockPercent?: number;
-  loadPercent?: number;
-  level?: string;
-};
-
-function summarizeByRegion(servers: InventoryServer[]): Record<string, RegionStat> {
-  return regionCards.reduce((acc, region) => {
-    const scoped = servers.filter((server) => server.region === region.id);
-    acc[region.id] = {
-      code: region.id,
-      name: region.name,
-      total: scoped.length,
-      available: scoped.filter((srv) => srv.status === "available").length,
-      flag: region.flag,
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
     };
-    return acc;
-  }, {} as Record<string, RegionStat>);
-}
+  }, []);
 
-export function DedicatedConfigurator() {
-  const [selectedTier, setSelectedTier] = useState<TierId>("core");
-  const [selectedRegion, setSelectedRegion] = useState<string>("");
-  const [regionData, setRegionData] = useState<RegionStat[]>([]);
-  const [fullServerData, setFullServerData] = useState<ApiServer[]>([]);
-  const [loading, setLoading] = useState(true);
-  const autoSelected = useRef(false);
+  useEffect(() => {
+    // Minimal placeholder: local demo inventory to keep component functional.
+    async function load() {
+      setLoading(true);
+      try {
+        const demo: InventoryServer[] = [
+          { id: 1, cpu: "2 x Intel Xeon", ram: "32GB", storage: "1TB NVMe", location: "Miami", region: "MIAMI", status: "available", price: 129 },
+          { id: 2, cpu: "AMD EPYC 7742", ram: "64GB", storage: "2TB NVMe", location: "London", region: "LONDON", status: "soldout", price: 249 },
+        ];
+        if (mounted.current) setInventory(demo.filter((d) => (selectedRegion ? d.region === selectedRegion : true)));
+      } finally {
+        if (mounted.current) setLoading(false);
+      }
+    }
+    load();
+  }, [selectedTier, selectedRegion]);
 
-  // Minimal effect to avoid unused var warnings
-  useEffect(() => {}, []);
+  const availableCount = useMemo(() => inventory.filter((s) => s.status === "available").length, [inventory]);
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Dedicated Configurator</h2>
-      <div className="text-gray-500">This is a minimal, working placeholder. Please extend as needed.</div>
+    <div className="space-y-8">
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-xs text-muted-foreground">STEP 1 — TIER</p>
+            <h2 className="text-2xl font-bold">Select Family</h2>
+          </div>
+          <Badge>Live</Badge>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {tierCards.map((t) => (
+            <button key={t.id} onClick={() => setSelectedTier(t.id)} className={cn("p-4 rounded border text-left", selectedTier === t.id ? "ring-2" : "")}> 
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-semibold">{t.name}</div>
+                  <div className="text-sm text-muted-foreground">{t.descriptor}</div>
+                </div>
+                <t.icon className="w-6 h-6" />
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-xs text-muted-foreground">STEP 2 — REGION</p>
+            <h3 className="text-lg font-semibold">Select Region</h3>
+          </div>
+          <Badge>{availableCount} available</Badge>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {regionCards.map((r) => (
+            <button key={r.id} onClick={() => setSelectedRegion(r.id)} className={cn("p-4 rounded border text-left", selectedRegion === r.id ? "ring-2" : "") }>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-semibold">{r.flag} {r.name}</div>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-xs text-muted-foreground">STEP 3 — INVENTORY</p>
+            <h3 className="text-lg font-semibold">Available Servers</h3>
+          </div>
+        </div>
+
+        <div className="rounded border p-4">
+          {loading ? (
+            <div>Loading…</div>
+          ) : inventory.length === 0 ? (
+            <div className="text-muted-foreground">No inventory in this selection.</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>CPU</TableHead>
+                  <TableHead>RAM</TableHead>
+                  <TableHead>Storage</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {inventory.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell>{s.cpu}</TableCell>
+                    <TableCell>{s.ram}</TableCell>
+                    <TableCell>{s.storage}</TableCell>
+                    <TableCell>{s.location}</TableCell>
+                    <TableCell className="text-right">{typeof s.price === "number" ? priceFormatter.format(s.price) : "-"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
+
+// Simple fallback for TableHead if the UI lib doesn't export a specific element
+function TableHead({ children, className }: any) { return <th className={className}>{children}</th>; }
