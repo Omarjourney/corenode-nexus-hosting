@@ -22,9 +22,12 @@ cd corenode-nexus-hosting
 # Step 2: Install dependencies  
 npm install  
 # Step 3: Start the development server with hot reloading  
-npm run dev  
-```  
-You’ll need Node.js and npm installed (we recommend using [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to manage Node versions).  
+npm run dev
+```
+You’ll need Node.js and npm installed (we recommend using [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to manage Node versions).
+
+## Troubleshooting
+- Seeing the default “Congratulations! You’ve successfully started the Nginx Proxy Manager” page? The request is stopping at Nginx Proxy Manager instead of this app. Follow the deep dive in [`docs/nginx-proxy-manager-troubleshooting.md`](docs/nginx-proxy-manager-troubleshooting.md) to point traffic at the frontend and API.
 ## Contributing  
 We welcome contributions! Here’s how to get started:  
 - Fork the repository and create a new branch from `main`.  
