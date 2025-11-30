@@ -1,0 +1,22 @@
+{
+  "brand": "CoreNodeX",
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "docs": "Docs",
+    "contact": "Contact"
+  },
+  "actions": {
+    "launch": "Launch Console",
+    "explore": "Explore"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "language": {
+    "label": "Language",
+    "description": "Choose your command language"
+  }
+}
