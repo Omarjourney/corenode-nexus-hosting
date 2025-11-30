@@ -7,6 +7,7 @@ import Navigation from "@/components/Navigation";
 import SEO from "@/components/SEO";
 import LiveStatsBar from "@/components/LiveStatsBar";
 import PricingGlowCards from "@/components/PricingGlowCards";
+import webHostingHero from "@/assets/web-hosting-hero.png";
 import {
   Activity,
   ArrowRight,
@@ -678,13 +679,13 @@ const HomePage = () => {
             }}
           >
             <img
-              src="https://illustrations.popsy.co/amber/web-development.svg"
+              src={webHostingHero}
               alt="Web Hosting"
               loading="lazy"
               style={{
                 width: '100%',
                 height: '200px',
-                objectFit: 'contain',
+                objectFit: 'cover',
               }}
             />
             <div style={{ padding: '16px' }}>
