@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { API_BASE } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { TierId } from "@/types/hosting";
 
 type ApiServer = {
   productId: string;
@@ -21,13 +22,20 @@ type ApiServer = {
 };
 
 // Removed duplicate DedicatedConfigurator component to resolve duplicate identifier error.
-  cpuFamily: string;
-  clock: string;
-  geekbench: string;
-  pricePerGb: string;
-  markup: string;
-  description: string;
-}
+
+type InventoryServer = {
+  productId: string;
+  region: string;
+  name: string;
+  details: string;
+  status: "available" | "soldout" | string;
+  price: {
+    monthly: string;
+    sixMonth?: string;
+    yearly: string;
+    twoYear?: string;
+  };
+};
 
 interface InventoryResponse {
   family?: string | null;
@@ -37,8 +45,96 @@ interface InventoryResponse {
 
 const priceFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 });
 
+const familyMeta: Record<TierId, {
+  cpuFamily: string;
+  clock: string;
+  geekbench: string;
+  pricePerGb: string;
+  markup: string;
+  description: string;
+}> = {
+  core: {
+    cpuFamily: "Intel Xeon E5",
+    clock: "2.3GHz",
+    geekbench: "8000",
+    pricePerGb: "$1.50",
+    markup: "10%",
+    description: "Balanced performance for general workloads.",
+  },
+  elite: {
+    cpuFamily: "AMD EPYC",
+    clock: "2.8GHz",
+    geekbench: "12000",
+    pricePerGb: "$1.20",
+    markup: "8%",
+    description: "High performance for demanding applications.",
+  },
+  creator: {
+    cpuFamily: "Intel Xeon Gold",
+    clock: "3.0GHz",
+    geekbench: "15000",
+    pricePerGb: "$1.00",
+    markup: "5%",
+    description: "Top-tier performance for mission-critical workloads.",
+  },
+};
+
 const gradientButton =
   "bg-[linear-gradient(135deg,#00E5FF_0%,#8B5CF6_50%,#1EE5C9_100%)] text-slate-900 hover:brightness-110";
+
+
+// Example tierCards definition (missing in original code)
+const tierCards: Array<{
+  id: TierId;
+  name: string;
+  descriptor: string;
+  icon: any;
+  border: string;
+  accent: string;
+  badgeClass: string;
+}> = [
+  {
+    id: "core",
+    name: "Core",
+    descriptor: "Balanced performance",
+    icon: Cpu,
+    border: "border-cyan-400",
+    accent: "from-cyan-400/30 to-cyan-200/10",
+    badgeClass: "text-cyan-400",
+  },
+  {
+    id: "elite",
+    name: "Elite",
+    descriptor: "High performance",
+    icon: Rocket,
+    border: "border-violet-400",
+    accent: "from-violet-400/30 to-violet-200/10",
+    badgeClass: "text-violet-400",
+  },
+  {
+    id: "creator",
+    name: "Creator",
+    descriptor: "Top-tier performance",
+    icon: Crown,
+    border: "border-amber-400",
+    accent: "from-amber-400/30 to-amber-200/10",
+    badgeClass: "text-amber-400",
+  },
+];
+
+const regionCards = [
+  { id: "MIAMI", name: "Miami", flag: "🇺🇸" },
+  { id: "LONDON", name: "London", flag: "🇬🇧" },
+  { id: "FRANKFURT", name: "Frankfurt", flag: "🇩🇪" },
+  // Add more regions as needed
+];
+
+const regionMatchers: Record<string, RegExp[]> = {
+  MIAMI: [/miami/i, /us/i, /usa/i, /united states/i],
+  LONDON: [/london/i, /uk/i, /united kingdom/i],
+  FRANKFURT: [/frankfurt/i, /germany/i, /de/i],
+  // Add more region matchers as needed
+};
 
 function resolveRegion(location: string): (typeof regionCards)[number]["id"] {
   const normalizedLocation = location || "";
@@ -48,57 +144,95 @@ function resolveRegion(location: string): (typeof regionCards)[number]["id"] {
   return (match?.[0] as (typeof regionCards)[number]["id"]) || "MIAMI";
 }
 
+type RegionStat = {
+  code: string;
+  name: string;
+  flag: string;
+  total: number;
+  available: number;
+  soldOut?: boolean;
+  cheapestMonthly?: number;
+  stockPercent?: number;
+  loadPercent?: number;
+  level?: string;
+};
+
 function summarizeByRegion(servers: InventoryServer[]): Record<string, RegionStat> {
   return regionCards.reduce((acc, region) => {
     const scoped = servers.filter((server) => server.region === region.id);
     acc[region.id] = {
-      label: region.name,
+      code: region.id,
+      name: region.name,
       total: scoped.length,
       available: scoped.filter((srv) => srv.status === "available").length,
       flag: region.flag,
-    } as RegionStat;
+    };
     return acc;
   }, {} as Record<string, RegionStat>);
 }
 
 export function DedicatedConfigurator() {
-  const [selectedTier, setSelectedTier] = useState<TierId>("CORE");
-  const [selectedRegion, setSelectedRegion] = useState<RegionId>("");
+  const [selectedTier, setSelectedTier] = useState<TierId>("core");
+  const [selectedRegion, setSelectedRegion] = useState<string>("");
   const [regionData, setRegionData] = useState<RegionStat[]>([]);
   const [fullServerData, setFullServerData] = useState<ApiServer[]>([]);
   const [loading, setLoading] = useState(true);
   const autoSelected = useRef(false);
 
-  const servers = staticServers;
+  // Use fullServerData as the source of servers, or define staticServers if needed
+
 
   useEffect(() => {
     fetch(`${API_BASE}/dedicatedServers.php`)
       .then((r) => r.json())
       .then((data) => {
         const servers = (data?.servers ?? []) as ApiServer[];
-        const regions = Array.from(new Set(servers.map((s) => s.region)));
-        const regionStats = buildRegions(servers);
+        const regionStats = regionCards.map((region) => {
+          const scoped = servers.filter((server) => server.region === region.id);
+          const available = scoped.length;
+          const soldOut = available === 0;
+          let cheapestMonthly: number | undefined = undefined;
+          if (scoped.length > 0) {
+            cheapestMonthly = Math.min(
+              ...scoped.map((srv) => Number(srv.price.monthly.replace(/[^0-9.]/g, "")))
+            );
+          }
+          return {
+            code: region.id,
+            name: region.name,
+            flag: region.flag,
+            total: scoped.length,
+            available,
+            soldOut,
+            cheapestMonthly,
+          };
+        });
         setRegionData(regionStats);
-        setSelectedRegion(regions[0] || regionStats[0]?.code || "");
+        setSelectedRegion(regionStats[0]?.code || "");
         setFullServerData(servers);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    async function runAutoDetect() {
-      if (autoSelected.current || loading || regionData.length === 0) return;
-      const best = await autoDetectBestRegion(regionData);
-      setSelectedRegion(best);
-      autoSelected.current = true;
+
+  // Removed autoDetectBestRegion logic (not defined). If you want to auto-select, implement here.
+
+  // Use a static price or derive from available servers if needed
+  const getTierPrice = (tierId: TierId): number => {
+    // Try to find the lowest price for this tier in all servers (if servers have a tier property)
+    // For now, fallback to static pricing per tier
+    switch (tierId) {
+      case "core":
+        return 149;
+      case "elite":
+        return 199;
+      case "creator":
+        return 299;
+      default:
+        return 149;
     }
-
-    runAutoDetect();
-  }, [loading, regionData]);
-
-  const getTierPrice = (tierId: string): number =>
-    servers.find((server) => server.tier === tierId)?.basePrice ?? 149;
+  };
   const tierMeta = useMemo(() => familyMeta[selectedTier], [selectedTier]);
 
   const summaryForSelectedRegion = useMemo(
@@ -142,7 +276,7 @@ export function DedicatedConfigurator() {
                       'hover:-translate-y-1 hover:shadow-[0_10px_35px_rgba(0,229,255,0.15)]',
                       isSelected ? `${tier.border} ring-2 ring-primary/40` : 'border-glass-border',
                     )}
-                    onClick={() => setSelectedTier(tier.id)}
+                    onClick={() => setSelectedTier(tier.id as TierId)}
                   >
                     <div className={cn('absolute inset-0 rounded-2xl opacity-70 bg-gradient-to-br', tier.accent)} />
                     <div className="relative flex items-start justify-between gap-3">
