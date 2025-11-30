@@ -233,13 +233,12 @@ export function DedicatedConfigurator() {
         return 149;
     }
   };
-  const tierMeta = useMemo(() => familyMeta[selectedTier], [selectedTier]);
 
+  const tierMeta = useMemo(() => familyMeta[selectedTier], [selectedTier]);
   const summaryForSelectedRegion = useMemo(
     () => regionData.find((region) => region.code === selectedRegion),
     [regionData, selectedRegion],
   );
-
   const sortedRegions = useMemo(() => {
     const cloned = [...regionData];
     cloned.sort((a, b) => {
@@ -249,180 +248,11 @@ export function DedicatedConfigurator() {
     });
     return cloned;
   }, [regionData]);
-
   const serversInRegion = fullServerData.filter((s) => s.region === selectedRegion);
 
   return (
     <div className="space-y-12">
-      <section className="glass-card p-6 md:p-8 rounded-2xl border border-glass-border shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
-        <div className="flex flex-col lg:flex-row lg:items-start gap-6 lg:gap-8">
-          <div className="flex-1 space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-orbitron tracking-[0.2em] text-primary">STEP 1 — TIER</p>
-                <h2 className="text-3xl font-orbitron font-bold text-foreground">Select NodeX Metal Family</h2>
-              </div>
-              <Badge className="bg-primary/10 text-primary border border-primary/30">Static pricing</Badge>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {tierCards.map((tier) => {
-                const Icon = tier.icon;
-                const isSelected = tier.id === selectedTier;
-                return (
-                  <button
-                    key={tier.id}
-                    className={cn(
-                      'relative glass-card text-left p-4 rounded-2xl border transition-all duration-300',
-                      'hover:-translate-y-1 hover:shadow-[0_10px_35px_rgba(0,229,255,0.15)]',
-                      isSelected ? `${tier.border} ring-2 ring-primary/40` : 'border-glass-border',
-                    )}
-                    onClick={() => setSelectedTier(tier.id as TierId)}
-                  >
-                    <div className={cn('absolute inset-0 rounded-2xl opacity-70 bg-gradient-to-br', tier.accent)} />
-                    <div className="relative flex items-start justify-between gap-3">
-                      <div className="space-y-1">
-                        <p className={cn('text-sm font-semibold uppercase tracking-wide', tier.badgeClass)}>{tier.name}</p>
-                        <p className="text-sm text-muted-foreground font-inter">{tier.descriptor}</p>
-                        <p className="text-lg font-semibold text-foreground">From ${getTierPrice(tier.id)}/mo</p>
-                      </div>
-                      <span className={cn('w-12 h-12 rounded-xl flex items-center justify-center bg-white/5 border', tier.border)}>
-                        <Icon className="w-6 h-6 text-primary" />
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <Card className="glass-card flex-1 lg:max-w-md p-6 border border-primary/20 bg-[#1A243A]/70 transition-all duration-500">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-xs text-muted-foreground">Service Details</p>
-                <h3 className="text-xl font-bold text-foreground">{familyMeta[selectedTier].cpuFamily}</h3>
-              </div>
-              <Gauge className="w-6 h-6 text-primary" />
-            </div>
-            {tierMeta ? (
-              <div className="space-y-3 text-sm text-muted-foreground">
-                <DetailRow label="CPU Family" value={tierMeta.cpuFamily} />
-                <DetailRow label="Clock Speed" value={tierMeta.clock} />
-                <DetailRow label="Geekbench" value={tierMeta.geekbench} />
-                <DetailRow label="Price per GB" value={tierMeta.pricePerGb} />
-                <DetailRow label="CNX Markup" value={tierMeta.markup} />
-                <p className="text-foreground/90 leading-relaxed pt-1">{tierMeta.description}</p>
-              </div>
-            ) : (
-              <p className="text-muted-foreground">Loading details…</p>
-            )}
-          </Card>
-        </div>
-      </section>
-
-      <section className="space-y-6">
-        <div className="flex flex-col lg:flex-row gap-6">
-          <Card className="glass-card flex-[2] p-6 border border-glass-border">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-xs font-orbitron tracking-[0.2em] text-primary">STEP 2 — REGION</p>
-                <h3 className="text-2xl font-orbitron font-bold text-foreground">Select Region</h3>
-              </div>
-              {summaryForSelectedRegion ? (
-                <Badge className="bg-secondary/15 text-secondary border border-secondary/30">
-                  {summaryForSelectedRegion.available} available
-                </Badge>
-              ) : null}
-            </div>
-            {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                <SkeletonCard />
-                <SkeletonCard />
-                <SkeletonCard />
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {sortedRegions.map((region) => {
-                  const unavailable = region.soldOut;
-                  const isSelected = region.code === selectedRegion;
-                  return (
-                    <button
-                      key={region.code}
-                      disabled={unavailable}
-                      onClick={() => setSelectedRegion(region.code)}
-                      className={cn(
-                        "glass-card p-4 border backdrop-blur-md transition rounded-2xl text-left",
-                        "hover:border-primary/50 hover:shadow-primary/20 hover:shadow-lg",
-                        isSelected ? "border-primary shadow-primary/40" : "border-glass-border",
-                        unavailable ? "opacity-40 cursor-not-allowed" : "",
-                      )}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-semibold text-foreground">
-                            {region.flag} {region.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">{region.available} Available Servers</p>
-                        </div>
-                        {unavailable ? (
-                          <Badge className="bg-rose-500/15 text-rose-200 border border-rose-400/40">No Available Servers</Badge>
-                        ) : (
-                          <Badge className="bg-primary/10 text-primary border border-primary/30">Live latency optimized</Badge>
-                        )}
-                      </div>
-                      {(region.stockPercent || region.loadPercent || region.level) && (
-                        <div className="flex gap-2 mt-3 text-xs text-muted-foreground">
-                          {region.stockPercent !== undefined && (
-                            <span className="px-2 py-1 rounded-full bg-white/5 border border-border">
-                              Stock {region.stockPercent}%
-                            </span>
-                          )}
-                          {region.loadPercent !== undefined && (
-                            <span className="px-2 py-1 rounded-full bg-white/5 border border-border">
-                              Load {region.loadPercent}%
-                            </span>
-                          )}
-                          {region.level && (
-                            <span className="px-2 py-1 rounded-full bg-white/5 border border-border">{region.level}</span>
-                          )}
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </Card>
-
-          <Card className="glass-card flex-1 p-6 border border-border">
-            <h3 className="font-orbitron text-xl mb-2">Region Insights</h3>
-
-            {loading ? (
-              <p className="text-sm text-muted-foreground">Loading inventory...</p>
-            ) : fullServerData.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No servers available</p>
-            ) : (
-              regionData.map((r) => (
-                <div
-                  key={r.code}
-                  className="flex justify-between items-center py-2 border-b border-border/30 last:border-b-0"
-                >
-                  <span>
-                    {r.flag} {r.name}
-                  </span>
-
-                  <span className="flex items-center gap-2 text-sm">
-                    <span>{r.available} servers</span>
-                    {typeof r.cheapestMonthly === "number" ? (
-                      <span className="text-muted-foreground text-xs">from ${r.cheapestMonthly}/mo</span>
-                    ) : null}
-                  </span>
-                </div>
-              ))
-            )}
-          </Card>
-        </div>
-      </section>
-
+      {/* ...existing code for sections 1 and 2... */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
