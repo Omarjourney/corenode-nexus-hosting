@@ -192,7 +192,7 @@ export function DedicatedConfigurator() {
 
   const selectedTierCard = useMemo(() => tierCards.find((card) => card.id === selectedTier), [selectedTier]);
 
-  const apiBase = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '');
+  const apiBase = (import.meta.env.VITE_API_BASE || 'https://api.corenodex.com/api').replace(/\/$/, '');
 
   const hydrateServers = useCallback(
     (payload: InventoryResponse, family: string): InventoryServer[] =>
