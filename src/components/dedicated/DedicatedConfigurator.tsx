@@ -88,11 +88,74 @@ interface DedicatedServer {
   cpu: string;
   ram: string;
   storage: string;
-  price: number;
-  location: string[];
-  available: boolean;
+  basePrice: number;
+  locations: string[];
+  availability: number;
   bandwidth?: string;
 }
+
+const staticServers: DedicatedServer[] = [
+  {
+    id: "basic",
+    name: "NodeX Metal Basic™",
+    tier: "BASIC",
+    cpu: "AMD Ryzen 5600X (6C/12T)",
+    ram: "32GB DDR4",
+    storage: "2x1TB NVMe RAID1",
+    basePrice: 109,
+    locations: ["Miami, FL", "Los Angeles, CA"],
+    availability: 12,
+    bandwidth: "25TB @ 10Gbps",
+  },
+  {
+    id: "core",
+    name: "NodeX Metal Core™",
+    tier: "CORE",
+    cpu: "AMD Ryzen 7600 (6C/12T)",
+    ram: "64GB DDR5",
+    storage: "2x1TB NVMe RAID1",
+    basePrice: 149,
+    locations: ["Miami, FL", "Los Angeles, CA", "Nuremberg, DE"],
+    availability: 8,
+    bandwidth: "25TB @ 10Gbps",
+  },
+  {
+    id: "ultra",
+    name: "NodeX Metal Ultra™",
+    tier: "ULTRA",
+    cpu: "AMD Ryzen 7950X (16C/32T)",
+    ram: "128GB DDR5",
+    storage: "2x2TB NVMe RAID1",
+    basePrice: 199,
+    locations: ["Los Angeles, CA", "Nuremberg, DE"],
+    availability: 6,
+    bandwidth: "25TB @ 10Gbps",
+  },
+  {
+    id: "titan",
+    name: "NodeX Metal Titan™",
+    tier: "TITAN",
+    cpu: "Threadripper Pro 5955WX (16C/32T)",
+    ram: "256GB DDR4 ECC",
+    storage: "4x4TB NVMe RAID10",
+    basePrice: 399,
+    locations: ["Los Angeles, CA"],
+    availability: 3,
+    bandwidth: "25TB @ 10Gbps",
+  },
+  {
+    id: "velocity",
+    name: "NodeX Metal Velocity™",
+    tier: "VELOCITY",
+    cpu: "Dual EPYC 7543P (64C/128T)",
+    ram: "512GB DDR4 ECC",
+    storage: "8x3.84TB NVMe RAID10",
+    basePrice: 599,
+    locations: ["Los Angeles, CA", "Johor, MY"],
+    availability: 2,
+    bandwidth: "25TB @ 10Gbps",
+  },
+];
 
 const familyMeta: Record<TierId, TierMeta> = {
   BASIC: {
@@ -147,14 +210,6 @@ const priceFormatter = new Intl.NumberFormat("en-US", { style: "currency", curre
 const gradientButton =
   "bg-[linear-gradient(135deg,#00E5FF_0%,#8B5CF6_50%,#1EE5C9_100%)] text-slate-900 hover:brightness-110";
 
-const regionKeyMap: Record<RegionId, string> = {
-  MIAMI: "miami",
-  LOSANGELES: "los-angeles",
-  NUREMBERG: "nuremberg",
-  JOHOR: "johor",
-  KANSASCITY: "kansas-city",
-};
-
 const regionNameMap: Record<RegionId, string> = regionCards.reduce(
   (acc, region) => ({ ...acc, [region.id]: region.name }),
   {} as Record<RegionId, string>,
@@ -164,95 +219,19 @@ export function DedicatedConfigurator() {
   const [selectedTier, setSelectedTier] = useState<TierId>("CORE");
   const [selectedRegion, setSelectedRegion] = useState<RegionId>("MIAMI");
 
-  // Static server inventory - no API calls needed
-  const [servers] = useState<DedicatedServer[]>([
-    {
-      id: "ryzen-5600x",
-      name: "Ryzen 5600X Metal",
-      tier: "BASIC",
-      cpu: "AMD Ryzen 5600X (6C/12T)",
-      ram: "32GB DDR4",
-      storage: "2x1TB NVMe RAID1",
-      price: 109,
-      location: ["Miami, FL", "Los Angeles, CA"],
-      available: true,
-      bandwidth: "25TB @ 10Gbps",
-    },
-    {
-      id: "ryzen-7600",
-      name: "NodeX Metal Core™",
-      tier: "CORE",
-      cpu: "AMD Ryzen 7600 (6C/12T)",
-      ram: "64GB DDR5",
-      storage: "2x1TB NVMe RAID1",
-      price: 149,
-      location: ["Miami, FL", "Los Angeles, CA", "Nuremberg, DE"],
-      available: true,
-      bandwidth: "25TB @ 10Gbps",
-    },
-    {
-      id: "ryzen-7950x",
-      name: "NodeX Metal Ultra™",
-      tier: "ULTRA",
-      cpu: "AMD Ryzen 7950X (16C/32T)",
-      ram: "128GB DDR5",
-      storage: "2x2TB NVMe RAID1",
-      price: 199,
-      location: ["Los Angeles, CA", "Nuremberg, DE"],
-      available: true,
-      bandwidth: "25TB @ 10Gbps",
-    },
-    {
-      id: "threadripper",
-      name: "NodeX Metal Titan™",
-      tier: "TITAN",
-      cpu: "Threadripper Pro 5955WX (16C/32T)",
-      ram: "256GB DDR4 ECC",
-      storage: "4x4TB NVMe RAID10",
-      price: 399,
-      location: ["Los Angeles, CA"],
-      available: true,
-      bandwidth: "25TB @ 10Gbps",
-    },
-    {
-      id: "epyc",
-      name: "NodeX Metal Velocity™",
-      tier: "VELOCITY",
-      cpu: "Dual EPYC 7543P (64C/128T)",
-      ram: "512GB DDR4 ECC",
-      storage: "8x3.84TB NVMe RAID10",
-      price: 599,
-      location: ["Los Angeles, CA", "Johor, MY"],
-      available: true,
-      bandwidth: "25TB @ 10Gbps",
-    },
-  ]);
+  const servers = staticServers;
 
-  const [loading] = useState(false); // Changed to false
+  const loading = false;
 
-  const getTierPrice = (tierId: string): number => {
-    const normalizedTier = tierId.toLowerCase();
-    const tierPrices: Record<string, number> = {
-      basic: 109,
-      core: 149,
-      ultra: 199,
-      titan: 399,
-      velocity: 599,
-    };
-    return tierPrices[normalizedTier] || 149;
-  };
+  const getTierPrice = (tierId: string): number =>
+    servers.find((server) => server.tier === tierId)?.basePrice ?? 149;
 
-  const getRegionAvailability = (regionId: string): number => {
-    const availability: Record<string, number> = {
-      miami: 12,
-      "los-angeles": 8,
-      nuremberg: 6,
-      johor: 4,
-      "kansas-city": 10,
-    };
-    const normalizedRegion = regionId.toLowerCase().replace(/_/g, "-").replace(/\s+/g, "-");
-    const mappedRegion = (regionKeyMap as Record<string, string>)[regionId] || normalizedRegion;
-    return availability[mappedRegion] || 5;
+  const getRegionAvailability = (regionId: RegionId): number => {
+    const tierServer = servers.find((server) => server.tier === selectedTier);
+    if (!tierServer) return 0;
+
+    const regionName = regionNameMap[regionId];
+    return tierServer.locations.includes(regionName) ? tierServer.availability : 0;
   };
 
   const tierMeta = useMemo(() => familyMeta[selectedTier], [selectedTier]);
@@ -260,16 +239,16 @@ export function DedicatedConfigurator() {
   const regionSummary = useMemo(
     () =>
       regionCards.reduce((acc, region) => {
-        const available = getRegionAvailability(regionKeyMap[region.id]);
+        const available = getRegionAvailability(region.id);
         acc[region.id] = { label: region.name, total: available, available, flag: region.flag } as RegionStat;
         return acc;
       }, {} as Record<RegionId, RegionStat>),
-    [],
+    [selectedTier],
   );
 
   const inventory = useMemo(() => {
     const regionName = regionNameMap[selectedRegion];
-    return servers.filter((server) => server.tier === selectedTier && server.location.includes(regionName));
+    return servers.filter((server) => server.tier === selectedTier && server.locations.includes(regionName));
   }, [selectedRegion, selectedTier, servers]);
 
   const summaryForSelectedRegion = useMemo(() => regionSummary[selectedRegion], [regionSummary, selectedRegion]);
@@ -378,7 +357,7 @@ export function DedicatedConfigurator() {
                           {region.flag} {region.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {getRegionAvailability(regionKeyMap[region.id])} Available Servers
+                          {getRegionAvailability(region.id)} Available Servers
                         </p>
                       </div>
                       {unavailable ? (
@@ -455,8 +434,8 @@ export function DedicatedConfigurator() {
                 </TableHeader>
                 <TableBody>
                   {inventory.map((server) => {
-                    const isSoldOut = !server.available;
-                    const selectedLocation = server.location.find((loc) => loc === regionNameMap[selectedRegion]) || server.location[0];
+                    const isSoldOut = server.availability <= 0;
+                    const selectedLocation = server.locations.find((loc) => loc === regionNameMap[selectedRegion]) || server.locations[0];
                     return (
                       <TableRow
                         key={server.id}
@@ -471,12 +450,14 @@ export function DedicatedConfigurator() {
                         <TableCell className="text-muted-foreground">{server.storage}</TableCell>
                         <TableCell className="text-muted-foreground">{server.bandwidth || '10Gbps blend'}</TableCell>
                         <TableCell className="text-muted-foreground">{selectedLocation}</TableCell>
-                        <TableCell className="font-semibold text-primary">{priceFormatter.format(server.price)}</TableCell>
+                        <TableCell className="font-semibold text-primary">{priceFormatter.format(server.basePrice)}</TableCell>
                         <TableCell>
                           {isSoldOut ? (
                             <Badge className="bg-rose-500/15 text-rose-200 border border-rose-400/40">Out of Stock</Badge>
                           ) : (
-                            <Badge className="bg-emerald-500/15 text-emerald-200 border border-emerald-400/40">Available</Badge>
+                            <Badge className="bg-emerald-500/15 text-emerald-200 border border-emerald-400/40">
+                              {server.availability} Available
+                            </Badge>
                           )}
                         </TableCell>
                         <TableCell className="text-right">
