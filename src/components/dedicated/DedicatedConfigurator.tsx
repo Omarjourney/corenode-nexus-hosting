@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -200,13 +201,21 @@ function getRegionHealthLabel(inventory: UiServer[], region: string) {
   return "Full";
 }
 
+function formatRegionName(region: string) {
+  return region
+    .split(/[-_\s]/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 export function DedicatedConfigurator() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [uiInventory, setUiInventory] = useState<UiServer[]>([]);
   const [selectedTier, setSelectedTier] = useState<TierId>("CORE");
   const [currentRegion, setCurrentRegion] = useState<string>("");
   const [showSoldOut, setShowSoldOut] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   const loadInventory = useCallback(async () => {
     try {
@@ -220,15 +229,13 @@ export function DedicatedConfigurator() {
       }
       const json = await response.json();
       const mapped = mapReliableToUi(json);
-      if (!mapped.length) {
-        throw new Error("No inventory returned from live feed");
-      }
       setUiInventory(mapped);
+      setError(null);
+      setIsLoading(false);
     } catch (err) {
       console.error("Unable to load reliable site inventory", err);
-      setError("Live inventory unavailable — showing static capacity.");
-    } finally {
       setIsLoading(false);
+      setError(err instanceof Error ? err.message : "Live inventory sync issue");
     }
   }, []);
 
@@ -236,12 +243,9 @@ export function DedicatedConfigurator() {
     loadInventory();
   }, [loadInventory]);
 
-  const inventoryToUse = useMemo(() => {
-    return uiInventory.length ? uiInventory : STATIC_INVENTORY;
-  }, [uiInventory]);
+  const inventoryToUse: UiServer[] = uiInventory.length > 0 ? uiInventory : STATIC_INVENTORY;
 
-  const isUsingFallbackInventory = !uiInventory.length && inventoryToUse.length > 0 && !isLoading;
-  const inventorySourcesEmpty = !inventoryToUse.length;
+  const showStaticCapacityBanner = !!error && uiInventory.length === 0;
 
   const regions = useMemo(() => {
     return Array.from(new Set(inventoryToUse.map((i) => i.region).filter(Boolean)));
@@ -283,8 +287,7 @@ export function DedicatedConfigurator() {
               {tierCards.map((tier) => {
                 const Icon = tier.icon;
                 const isSelected = tier.id === selectedTier;
-                const fallbackPrice = getMinPriceForFamily(tier.id, STATIC_INVENTORY);
-                const price = tierPrices[tier.id] ?? fallbackPrice;
+                const price = tierPrices[tier.id];
                 const priceLabel = isLoading
                   ? "Loading…"
                   : price !== null
@@ -344,6 +347,12 @@ export function DedicatedConfigurator() {
       </section>
 
       <section className="space-y-6">
+        {showStaticCapacityBanner && (
+          <Alert variant="warning" className="border border-amber-400/40 bg-amber-500/10 text-amber-50">
+            <AlertTitle>Live inventory sync issue — showing static fallback.</AlertTitle>
+            <AlertDescription>We could not reach the live feed; static capacity is displayed.</AlertDescription>
+          </Alert>
+        )}
         <div className="flex flex-col lg:flex-row gap-6">
           <Card className="glass-card flex-[2] p-6 border border-glass-border">
             <div className="flex items-center justify-between mb-4">
@@ -353,38 +362,34 @@ export function DedicatedConfigurator() {
               </div>
               <Badge className="bg-secondary/15 text-secondary border border-secondary/30">{regions.length} Regions</Badge>
             </div>
-            {isUsingFallbackInventory && (
-              <div className="text-yellow-400 text-sm mb-3">
-                Live inventory sync delayed — showing cached or static capacity.
-              </div>
-            )}
-            {inventorySourcesEmpty && (
-              <div className="text-rose-200 text-sm mb-3">Inventory sources are temporarily unavailable.</div>
-            )}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {regions.map((region) => {
-                const isSelected = region === selectedRegion;
-                const availabilityLabel = getRegionHealthLabel(inventoryToUse, region);
-                return (
-                  <button
-                    key={region}
-                    onClick={() => setCurrentRegion(region)}
-                    className={cn(
-                      "glass-card p-4 rounded-2xl border text-left transition-all duration-300",
-                      "hover:-translate-y-1 hover:shadow-[0_10px_35px_rgba(138,92,255,0.15)]",
-                      isSelected ? "border-secondary ring-2 ring-secondary/30" : "border-glass-border",
-                    )}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-semibold text-foreground capitalize">{region}</p>
-                        <p className="text-xs text-muted-foreground">{availabilityLabel} availability</p>
+              {regions.length === 0 && inventoryToUse.length > 0 ? (
+                <div className="text-muted-foreground text-sm">No regions available yet.</div>
+              ) : (
+                regions.map((region) => {
+                  const isSelected = region === selectedRegion;
+                  const availabilityLabel = getRegionHealthLabel(inventoryToUse, region);
+                  return (
+                    <button
+                      key={region}
+                      onClick={() => setCurrentRegion(region)}
+                      className={cn(
+                        "glass-card p-4 rounded-2xl border text-left transition-all duration-300",
+                        "hover:-translate-y-1 hover:shadow-[0_10px_35px_rgba(138,92,255,0.15)]",
+                        isSelected ? "border-secondary ring-2 ring-secondary/30" : "border-glass-border",
+                      )}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-foreground capitalize">{formatRegionName(region)}</p>
+                          <p className="text-xs text-muted-foreground">High-density metro location.</p>
+                        </div>
+                        <Badge className="bg-primary/10 text-primary border border-primary/30">{availabilityLabel}</Badge>
                       </div>
-                      <Badge className="bg-primary/10 text-primary border border-primary/30">{availabilityLabel}</Badge>
-                    </div>
-                  </button>
-                );
-              })}
+                    </button>
+                  );
+                })
+              )}
             </div>
           </Card>
 
@@ -422,7 +427,7 @@ export function DedicatedConfigurator() {
           <div>
             <p className="text-xs font-orbitron tracking-[0.2em] text-primary">STEP 3 — LIVE INVENTORY</p>
             <h3 className="text-2xl font-orbitron font-bold text-foreground">
-              Available servers in {selectedRegion || "region"}
+              Available servers in {selectedRegion ? formatRegionName(selectedRegion) : "region"}
             </h3>
           </div>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -446,12 +451,9 @@ export function DedicatedConfigurator() {
           {isLoading && (
             <div className="py-2 text-xs text-muted-foreground">Syncing live inventory…</div>
           )}
-          {error && (
-            <div className="py-2 text-xs text-rose-200">{error}</div>
-          )}
           {!inventoryToUse.length ? (
             <div className="py-6 text-sm text-center text-muted-foreground">Inventory sources are temporarily unavailable.</div>
-          ) : !filteredServers.length ? (
+          ) : filteredServers.length === 0 && inventoryToUse.length > 0 ? (
             <EmptyState message="No servers match this tier/region yet—try another region or tier." />
           ) : (
             <div className="overflow-hidden">
