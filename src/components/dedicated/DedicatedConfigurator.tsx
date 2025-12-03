@@ -8,15 +8,16 @@ import { Crown, Cpu, Gauge, MapPin, Rocket, ShieldCheck, Zap } from "lucide-reac
 
 type TierId = "CORE" | "ELITE" | "CREATOR";
 
-type UiInventory = {
+type UiServer = {
   id: string;
-  family: string;
+  family: "CORE" | "ELITE" | "CREATOR";
   region: string;
   cpu: string;
   ramGb: number;
   storage: string;
+  bandwidth: string;
   priceMonthly: number;
-  status: "available" | "sold-out";
+  available: boolean;
 };
 
 type TierMeta = {
@@ -74,7 +75,7 @@ const tierCards: Array<{
   { id: "CREATOR", name: "CREATOR", descriptor: "Top-tier performance", icon: Crown, border: "border-amber-400", accent: "from-amber-400/30 to-amber-200/10", badgeClass: "text-amber-400" },
 ];
 
-const STATIC_INVENTORY: UiInventory[] = [
+const STATIC_INVENTORY: UiServer[] = [
   {
     id: "static-1",
     family: "CORE",
@@ -82,8 +83,9 @@ const STATIC_INVENTORY: UiInventory[] = [
     cpu: "Ryzen 5600X",
     ramGb: 32,
     storage: "1TB NVMe",
+    bandwidth: "20TB",
     priceMonthly: 69,
-    status: "available",
+    available: true,
   },
   {
     id: "static-2",
@@ -92,91 +94,135 @@ const STATIC_INVENTORY: UiInventory[] = [
     cpu: "Ryzen 7950X",
     ramGb: 64,
     storage: "2TB NVMe",
+    bandwidth: "30TB",
     priceMonthly: 139,
-    status: "available",
+    available: true,
+  },
+  {
+    id: "static-3",
+    family: "CREATOR",
+    region: "dallas",
+    cpu: "Xeon Gold 6338",
+    ramGb: 128,
+    storage: "2x1.92TB NVMe",
+    bandwidth: "40TB",
+    priceMonthly: 229,
+    available: true,
   },
 ];
 
-const CACHE_KEY = "dedicated_inventory_cache";
+function normalizeFamily(familyInput: any): UiServer["family"] {
+  const value = (familyInput || "").toString().toUpperCase();
+  if (value.includes("ELITE")) return "ELITE";
+  if (value.includes("CREATOR") || value.includes("TITAN")) return "CREATOR";
+  if (value.includes("CORE") || value.includes("BASIC") || value.includes("ULTRA")) return "CORE";
+  return "CORE";
+}
+
+function normalizeRegion(regionInput: any): string {
+  const raw = (regionInput || "").toString().trim();
+  if (!raw) return "miami";
+  return raw
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function parseNumber(value: any): number | null {
+  const asNumber = Number(value);
+  if (Number.isFinite(asNumber)) return asNumber;
+  const match = (value || "").toString().match(/([0-9]+(\.[0-9]+)?)/);
+  return match ? Number(match[1]) : null;
+}
+
+function parseRam(value: any): number {
+  return parseNumber(value) ?? 0;
+}
+
+function mapReliableToUi(data: any[]): UiServer[] {
+  return data
+    .map((item: any) => {
+      const qty = parseNumber(item.qty ?? item.quantity ?? item.stock);
+      const availabilityText = (item.availability || item.status || "available").toString().toLowerCase();
+      const available = (qty === null || qty > 0) && !availabilityText.includes("sold") && !availabilityText.includes("out");
+
+      const priceMonthly =
+        parseNumber(item.cnx_price) ?? parseNumber(item.price) ?? parseNumber(item.base_price) ?? parseNumber(item.price_usd);
+
+      const ramGb = parseRam(item.ram_gb ?? item.memory_gb ?? item.ram ?? item.memory);
+
+      const bandwidthValue = item.bandwidth || item.bandwidth_tb || item.bandwidth_gb;
+      const bandwidth = bandwidthValue
+        ? typeof bandwidthValue === "number"
+          ? `${bandwidthValue}${item.bandwidth_tb ? "TB" : "GB"}`
+          : bandwidthValue
+        : "Unmetered";
+
+      return {
+        id: item.id || item.rs_id || item.inventory_id || item.InventoryID || `${item.cpu}-${item.location}`,
+        family: normalizeFamily(item.family || item.server_type || item.tier),
+        region: normalizeRegion(item.region || item.location || item.metro || item.datacenter),
+        cpu: item.cpu || item.processor || item.model || "Unknown CPU",
+        ramGb,
+        storage: item.storage || item.drives || item.disks || "—",
+        bandwidth,
+        priceMonthly: priceMonthly ?? 0,
+        available,
+      } as UiServer;
+    })
+    .filter((server) => server.id && server.region && server.cpu);
+}
+
+function getMinPriceForFamily(family: UiServer["family"], inventory: UiServer[]) {
+  const prices = inventory.filter((s) => s.family === family && s.available).map((s) => s.priceMonthly);
+  if (!prices.length) return null;
+  return Math.min(...prices);
+}
+
+function getRegionHealthLabel(inventory: UiServer[], region: string) {
+  const availableCount = inventory.filter((s) => s.region === region && s.available).length;
+  if (availableCount >= 5) return "Good";
+  if (availableCount >= 1) return "Limited";
+  return "Full";
+}
 
 export function DedicatedConfigurator() {
-  const [inventory, setInventory] = useState<UiInventory[]>([]);
+  const [uiInventory, setUiInventory] = useState<UiServer[]>([]);
   const [selectedTier, setSelectedTier] = useState<TierId>("CORE");
   const [currentRegion, setCurrentRegion] = useState<string>("miami");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  function mapReliableToUi(data: any[]): UiInventory[] {
-    return data.map((item: any) => ({
-      id: item.id,
-      family: item.family || item.server_type || "CORE",
-      region: item.location || item.region || "miami",
-      cpu: item.cpu || item.processor,
-      ramGb: item.memory_gb || item.ram_gb,
-      storage: item.storage || item.drives,
-      priceMonthly: item.price || item.price_usd,
-      status: item.available ? "available" : "sold-out",
-    }));
-  }
-
   const loadInventory = useCallback(async () => {
-    const cachedInventory: UiInventory[] = (() => {
-      try {
-        const raw = localStorage.getItem(CACHE_KEY);
-        return raw ? (JSON.parse(raw) as UiInventory[]) : [];
-      } catch (err) {
-        console.error("Failed to parse cached inventory", err);
-        return [];
-      }
-    })();
-
     try {
       setIsLoading(true);
       setError(null);
       const response = await fetch("https://api.corenodex.com/api/servers.php", {
         headers: { Accept: "application/json" },
       });
-      console.log("📡 Raw dedicated response:", response.status, response.headers);
       const json = await response.json();
-      console.log("📦 Parsed dedicated JSON:", json);
-      const mapped = Array.isArray(json)
-        ? mapReliableToUi(json)
-        : mapReliableToUi(json.data || json.inventory || []);
-      setInventory(mapped);
-      if (mapped.length) {
-        localStorage.setItem(CACHE_KEY, JSON.stringify(mapped));
-      }
-    } catch (error) {
-      console.error("🔥 Inventory fetch error:", error);
-      console.log("🗄 Cached inventory:", cachedInventory);
-      setInventory(cachedInventory.length ? cachedInventory : STATIC_INVENTORY);
-      setError("Unable to load inventory right now.");
+      const rawInventory = Array.isArray(json)
+        ? json
+        : json?.data || json?.inventory || json?.servers || json?.items || [];
+      const mapped = mapReliableToUi(rawInventory);
+      setUiInventory(mapped);
+    } catch (err) {
+      console.error("Unable to load reliable site inventory", err);
+      setError("Live inventory unavailable — showing static capacity.");
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    const cachedInventory: UiInventory[] = (() => {
-      try {
-        const raw = localStorage.getItem(CACHE_KEY);
-        return raw ? (JSON.parse(raw) as UiInventory[]) : [];
-      } catch {
-        return [];
-      }
-    })();
-
-    if (cachedInventory.length) {
-      setInventory(cachedInventory);
-    }
     loadInventory();
   }, [loadInventory]);
 
   const inventoryToUse = useMemo(() => {
-    return inventory.length ? inventory : STATIC_INVENTORY;
-  }, [inventory]);
+    return uiInventory.length ? uiInventory : STATIC_INVENTORY;
+  }, [uiInventory]);
 
-  const isUsingFallbackInventory = !inventory.length && inventoryToUse.length > 0;
+  const isUsingFallbackInventory = !uiInventory.length && inventoryToUse.length > 0;
   const inventorySourcesEmpty = !inventoryToUse.length;
 
   const regions = useMemo(() => {
@@ -189,33 +235,18 @@ export function DedicatedConfigurator() {
   }, [currentRegion, regions]);
 
   const tierPrices = useMemo(() => {
-    const result: Record<TierId, number> = { CORE: Infinity, ELITE: Infinity, CREATOR: Infinity };
-    tierCards.forEach((tier) => {
-      const tierMinPrice = inventoryToUse
-        .filter((item) => item.family === tier.id)
-        .reduce((min, s) => Math.min(min, s.priceMonthly), Infinity);
-      if (tierMinPrice !== Infinity) {
-        result[tier.id] = tierMinPrice;
-      } else {
-        const fallback = STATIC_INVENTORY.filter((i) => i.family === tier.id).reduce(
-          (min, s) => Math.min(min, s.priceMonthly),
-          Infinity,
-        );
-        result[tier.id] = fallback === Infinity ? 69 : fallback;
-      }
-    });
-    return result;
+    return {
+      CORE: getMinPriceForFamily("CORE", inventoryToUse),
+      ELITE: getMinPriceForFamily("ELITE", inventoryToUse),
+      CREATOR: getMinPriceForFamily("CREATOR", inventoryToUse),
+    } as Record<TierId, number | null>;
   }, [inventoryToUse]);
 
-  const serversInRegion = useMemo(() => {
-    return inventoryToUse.filter((server) => server.region === selectedRegion);
-  }, [inventoryToUse, selectedRegion]);
-
   const filteredServers = useMemo(() => {
-    return serversInRegion.filter((server) => server.family === selectedTier);
-  }, [selectedTier, serversInRegion]);
-
-  const tableServers = filteredServers.length ? filteredServers : serversInRegion;
+    return inventoryToUse.filter(
+      (server) => server.family === selectedTier && server.region === selectedRegion && server.available,
+    );
+  }, [inventoryToUse, selectedRegion, selectedTier]);
 
   return (
     <div className="space-y-12">
@@ -233,8 +264,13 @@ export function DedicatedConfigurator() {
               {tierCards.map((tier) => {
                 const Icon = tier.icon;
                 const isSelected = tier.id === selectedTier;
-                const price = tierPrices[tier.id];
-                const priceLabel = price === Infinity ? "Starting at $69/mo" : `${priceFormatter.format(price)}/mo`;
+                const fallbackPrice = getMinPriceForFamily(tier.id, STATIC_INVENTORY);
+                const price = tierPrices[tier.id] ?? fallbackPrice;
+                const priceLabel = isLoading
+                  ? "Loading…"
+                  : price !== null
+                    ? `${priceFormatter.format(price)}`
+                    : "Pricing unavailable";
                 return (
                   <button
                     key={tier.id}
@@ -309,6 +345,7 @@ export function DedicatedConfigurator() {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {regions.map((region) => {
                 const isSelected = region === selectedRegion;
+                const availabilityLabel = getRegionHealthLabel(inventoryToUse, region);
                 return (
                   <button
                     key={region}
@@ -322,9 +359,9 @@ export function DedicatedConfigurator() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-semibold text-foreground capitalize">{region}</p>
-                        <p className="text-xs text-muted-foreground">Low latency</p>
+                        <p className="text-xs text-muted-foreground">{availabilityLabel} availability</p>
                       </div>
-                      <Badge className="bg-primary/10 text-primary border border-primary/30">Active</Badge>
+                      <Badge className="bg-primary/10 text-primary border border-primary/30">{availabilityLabel}</Badge>
                     </div>
                   </button>
                 );
@@ -385,12 +422,10 @@ export function DedicatedConfigurator() {
           {error && (
             <div className="py-2 text-xs text-rose-200">{error}</div>
           )}
-          {!tableServers.length ? (
-            inventorySourcesEmpty ? (
-              <div className="py-6 text-sm text-center text-muted-foreground">Inventory sources are temporarily unavailable.</div>
-            ) : (
-              <EmptyState message="No servers found for this region." />
-            )
+          {!inventoryToUse.length ? (
+            <div className="py-6 text-sm text-center text-muted-foreground">Inventory sources are temporarily unavailable.</div>
+          ) : !filteredServers.length ? (
+            <EmptyState message="No servers match this tier/region yet—try another region or tier." />
           ) : (
             <div className="overflow-hidden">
               <Table className="text-sm">
@@ -399,46 +434,32 @@ export function DedicatedConfigurator() {
                     <TableHead>CPU Model</TableHead>
                     <TableHead>RAM</TableHead>
                     <TableHead>Storage</TableHead>
-                    <TableHead>Region</TableHead>
+                    <TableHead>Bandwidth</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {tableServers.map((server) => {
-                    const isSoldOut = server.status === "sold-out";
-                    return (
-                      <TableRow
-                        key={server.id}
-                        className={cn("border-b border-glass-border transition-all duration-200", isSoldOut ? "opacity-60" : "")}
-                      >
-                        <TableCell className="font-semibold text-foreground">{server.cpu}</TableCell>
-                        <TableCell className="text-muted-foreground">{server.ramGb} GB</TableCell>
-                        <TableCell className="text-muted-foreground">{server.storage}</TableCell>
-                        <TableCell className="text-muted-foreground capitalize">{server.region}</TableCell>
-                        <TableCell className="font-semibold text-primary">
-                          {typeof server.priceMonthly === "number" ? priceFormatter.format(server.priceMonthly) : "-"}
-                        </TableCell>
-                        <TableCell>
-                          {isSoldOut ? (
-                            <Badge className="bg-rose-500/15 text-rose-200 border border-rose-400/40">Out of Stock</Badge>
-                          ) : (
-                            <Badge className="bg-emerald-500/15 text-emerald-200 border border-emerald-400/40">Available</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {isSoldOut ? (
-                            <Button variant="outline" className="border-rose-400/40 text-rose-200">
-                              Get Notified
-                            </Button>
-                          ) : (
-                            <Button className={gradientButton}>Purchase</Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                  {filteredServers.map((server) => (
+                    <TableRow key={server.id} className="border-b border-glass-border transition-all duration-200">
+                      <TableCell className="font-semibold text-foreground">{server.cpu}</TableCell>
+                      <TableCell className="text-muted-foreground">{server.ramGb}GB</TableCell>
+                      <TableCell className="text-muted-foreground">{server.storage}</TableCell>
+                      <TableCell className="text-muted-foreground">{server.bandwidth}</TableCell>
+                      <TableCell className="font-semibold text-primary">{priceFormatter.format(server.priceMonthly)}</TableCell>
+                      <TableCell>
+                        {server.available ? (
+                          <Badge className="bg-emerald-500/15 text-emerald-200 border border-emerald-400/40">Available</Badge>
+                        ) : (
+                          <Badge className="bg-rose-500/15 text-rose-200 border border-rose-400/40">Sold Out</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button className={gradientButton}>Purchase</Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>
