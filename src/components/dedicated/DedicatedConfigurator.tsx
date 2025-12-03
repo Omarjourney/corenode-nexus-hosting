@@ -149,7 +149,7 @@ export function DedicatedConfigurator() {
     } catch (error) {
       console.error("🔥 Inventory fetch error:", error);
       console.log("🗄 Cached inventory:", cachedInventory);
-      setInventory(cachedInventory);
+      setInventory(cachedInventory.length ? cachedInventory : STATIC_INVENTORY);
       setError("Unable to load inventory right now.");
     } finally {
       setIsLoading(false);
@@ -172,15 +172,17 @@ export function DedicatedConfigurator() {
     loadInventory();
   }, [loadInventory]);
 
-  const effectiveInventory = useMemo(() => {
-    const mapped = inventory;
-    return mapped.length ? mapped : STATIC_INVENTORY;
+  const inventoryToUse = useMemo(() => {
+    return inventory.length ? inventory : STATIC_INVENTORY;
   }, [inventory]);
 
+  const isUsingFallbackInventory = !inventory.length && inventoryToUse.length > 0;
+  const inventorySourcesEmpty = !inventoryToUse.length;
+
   const regions = useMemo(() => {
-    const unique = [...new Set(effectiveInventory.map((i) => i.region))];
+    const unique = [...new Set(inventoryToUse.map((i) => i.region))];
     return unique.length ? unique : ["miami"];
-  }, [effectiveInventory]);
+  }, [inventoryToUse]);
 
   const selectedRegion = useMemo(() => {
     return regions.includes(currentRegion) ? currentRegion : regions[0] || "miami";
@@ -189,7 +191,7 @@ export function DedicatedConfigurator() {
   const tierPrices = useMemo(() => {
     const result: Record<TierId, number> = { CORE: Infinity, ELITE: Infinity, CREATOR: Infinity };
     tierCards.forEach((tier) => {
-      const tierMinPrice = effectiveInventory
+      const tierMinPrice = inventoryToUse
         .filter((item) => item.family === tier.id)
         .reduce((min, s) => Math.min(min, s.priceMonthly), Infinity);
       if (tierMinPrice !== Infinity) {
@@ -203,23 +205,17 @@ export function DedicatedConfigurator() {
       }
     });
     return result;
-  }, [effectiveInventory]);
+  }, [inventoryToUse]);
 
   const serversInRegion = useMemo(() => {
-    return effectiveInventory.filter((server) => server.region === selectedRegion);
-  }, [effectiveInventory, selectedRegion]);
+    return inventoryToUse.filter((server) => server.region === selectedRegion);
+  }, [inventoryToUse, selectedRegion]);
 
   const filteredServers = useMemo(() => {
     return serversInRegion.filter((server) => server.family === selectedTier);
   }, [selectedTier, serversInRegion]);
 
-  if (isLoading && !error && !effectiveInventory.length) {
-    return <SkeletonLoader />;
-  }
-
-  if (error && !effectiveInventory.length) {
-    return <ErrorState retry={loadInventory} />;
-  }
+  const tableServers = filteredServers.length ? filteredServers : serversInRegion;
 
   return (
     <div className="space-y-12">
@@ -302,8 +298,13 @@ export function DedicatedConfigurator() {
               </div>
               <Badge className="bg-secondary/15 text-secondary border border-secondary/30">{regions.length} Regions</Badge>
             </div>
-            {!inventory.length && (
-              <div className="text-yellow-400 text-sm mb-3">Delayed capacity sync—showing last known inventory.</div>
+            {isUsingFallbackInventory && (
+              <div className="text-yellow-400 text-sm mb-3">
+                Live inventory sync delayed — showing cached or static capacity.
+              </div>
+            )}
+            {inventorySourcesEmpty && (
+              <div className="text-rose-200 text-sm mb-3">Inventory sources are temporarily unavailable.</div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {regions.map((region) => {
@@ -378,12 +379,18 @@ export function DedicatedConfigurator() {
           </div>
         </div>
         <div className="glass-card p-4 rounded-2xl border border-glass-border">
-          {isLoading ? (
-            <div className="py-10 text-center text-muted-foreground">Loading inventory…</div>
-          ) : error && !effectiveInventory.length ? (
-            <ErrorState retry={loadInventory} />
-          ) : !serversInRegion.length ? (
-            <EmptyState message="No servers found for this region." />
+          {isLoading && (
+            <div className="py-2 text-xs text-muted-foreground">Syncing live inventory…</div>
+          )}
+          {error && (
+            <div className="py-2 text-xs text-rose-200">{error}</div>
+          )}
+          {!tableServers.length ? (
+            inventorySourcesEmpty ? (
+              <div className="py-6 text-sm text-center text-muted-foreground">Inventory sources are temporarily unavailable.</div>
+            ) : (
+              <EmptyState message="No servers found for this region." />
+            )
           ) : (
             <div className="overflow-hidden">
               <Table className="text-sm">
@@ -399,7 +406,7 @@ export function DedicatedConfigurator() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(filteredServers.length ? filteredServers : serversInRegion).map((server) => {
+                  {tableServers.map((server) => {
                     const isSoldOut = server.status === "sold-out";
                     return (
                       <TableRow
@@ -477,21 +484,6 @@ function DetailRow({ label, value }: { label: string; value: string }) {
     <div className="flex items-center justify-between gap-4">
       <span className="text-xs uppercase tracking-[0.15em] text-muted-foreground">{label}</span>
       <span className="text-sm text-foreground">{value}</span>
-    </div>
-  );
-}
-
-function SkeletonLoader() {
-  return <div className="glass-card p-8 rounded-2xl border border-glass-border">Loading inventory…</div>;
-}
-
-function ErrorState({ retry }: { retry: () => void }) {
-  return (
-    <div className="glass-card p-8 rounded-2xl border border-rose-400/50 text-center space-y-3">
-      <p className="text-rose-200">Unable to load inventory. Please try again.</p>
-      <Button onClick={retry} variant="outline" className="border-rose-400/40 text-rose-200">
-        Retry
-      </Button>
     </div>
   );
 }
