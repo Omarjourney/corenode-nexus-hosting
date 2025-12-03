@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -186,12 +185,11 @@ function formatRegionName(region: string) {
 
 export function DedicatedConfigurator() {
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [uiInventory, setUiInventory] = useState<UiServer[]>([]);
   const [selectedTier, setSelectedTier] = useState<FamilyId>("");
   const [currentRegion, setCurrentRegion] = useState<string>("");
   const [showSoldOut, setShowSoldOut] = useState<boolean>(false);
-  const [fetchSuccess, setFetchSuccess] = useState<boolean | null>(null);
 
   const loadInventory = useCallback(async () => {
     try {
@@ -205,19 +203,16 @@ export function DedicatedConfigurator() {
       if (json.success && Array.isArray(json.servers)) {
         const mapped = (json.servers || []).map(mapDbToUi).filter((server: UiServer) => server.id && server.region);
         setUiInventory(mapped);
-        setFetchSuccess(true);
         setError(null);
       } else {
         setUiInventory([]);
-        setFetchSuccess(false);
         setError(json.error || "Failed to load inventory");
       }
       setIsLoading(false);
     } catch (err) {
       console.error("Unable to load reliable site inventory", err);
       setIsLoading(false);
-      setFetchSuccess(false);
-      setError(err instanceof Error ? err.message : "Live inventory sync issue");
+      setError(err instanceof Error ? err.message : "Failed to load inventory");
     }
   }, []);
 
@@ -240,8 +235,6 @@ export function DedicatedConfigurator() {
       setSelectedTier(families[0]);
     }
   }, [families, selectedTier]);
-
-  const showStaticCapacityBanner = fetchSuccess === false || (!isLoading && uiInventory.length === 0);
 
   const regions = useMemo(() => {
     return Array.from(new Set(inventoryToUse.map((i) => i.region).filter(Boolean)));
@@ -355,12 +348,6 @@ export function DedicatedConfigurator() {
       </section>
 
       <section className="space-y-6">
-        {showStaticCapacityBanner && (
-          <Alert variant="warning" className="border border-amber-400/40 bg-amber-500/10 text-amber-50">
-            <AlertTitle>Live inventory sync issue — showing static fallback.</AlertTitle>
-            <AlertDescription>We could not reach the live feed; static capacity is displayed.</AlertDescription>
-          </Alert>
-        )}
         <div className="flex flex-col lg:flex-row gap-6">
           <Card className="glass-card flex-[2] p-6 border border-glass-border">
             <div className="flex items-center justify-between mb-4">
