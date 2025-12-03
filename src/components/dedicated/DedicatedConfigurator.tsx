@@ -121,7 +121,7 @@ function normalizeFamily(familyInput: any): UiServer["family"] {
 
 function normalizeRegion(regionInput: any): string {
   const raw = (regionInput || "").toString().trim();
-  if (!raw) return "miami";
+  if (!raw) return "";
   return raw
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
@@ -203,7 +203,7 @@ function getRegionHealthLabel(inventory: UiServer[], region: string) {
 export function DedicatedConfigurator() {
   const [uiInventory, setUiInventory] = useState<UiServer[]>([]);
   const [selectedTier, setSelectedTier] = useState<TierId>("CORE");
-  const [currentRegion, setCurrentRegion] = useState<string>("miami");
+  const [currentRegion, setCurrentRegion] = useState<string>("");
   const [showSoldOut, setShowSoldOut] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -244,12 +244,11 @@ export function DedicatedConfigurator() {
   const inventorySourcesEmpty = !inventoryToUse.length;
 
   const regions = useMemo(() => {
-    const unique = [...new Set(inventoryToUse.map((i) => i.region))];
-    return unique.length ? unique : ["miami"];
+    return Array.from(new Set(inventoryToUse.map((i) => i.region).filter(Boolean)));
   }, [inventoryToUse]);
 
   const selectedRegion = useMemo(() => {
-    return regions.includes(currentRegion) ? currentRegion : regions[0] || "miami";
+    return regions.includes(currentRegion) ? currentRegion : regions[0] || "";
   }, [currentRegion, regions]);
 
   const tierPrices = useMemo(() => {
