@@ -7,11 +7,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils";
 import { Crown, Cpu, Gauge, MapPin, Rocket, ShieldCheck, Zap } from "lucide-react";
 
-type TierId = "CORE" | "ELITE" | "CREATOR";
+type FamilyId = string;
 
 type UiServer = {
   id: string;
-  family: "CORE" | "ELITE" | "CREATOR";
+  family: FamilyId;
   region: string;
   cpu: string;
   ramGb: number;
@@ -32,7 +32,16 @@ type TierMeta = {
 
 const priceFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
-const familyMeta: Record<TierId, TierMeta> = {
+const defaultFamilyMeta: TierMeta = {
+  cpuFamily: "Performance optimized",
+  clock: "Up to 4.0GHz",
+  geekbench: "",
+  pricePerGb: "",
+  markup: "",
+  description: "Balanced performance for demanding workloads.",
+};
+
+const familyMeta: Record<FamilyId, TierMeta> = {
   CORE: {
     cpuFamily: "Intel Xeon E5",
     clock: "2.3GHz",
@@ -57,24 +66,52 @@ const familyMeta: Record<TierId, TierMeta> = {
     markup: "5%",
     description: "Top-tier performance for mission-critical workloads.",
   },
+  BASIC: {
+    cpuFamily: "Intel Xeon E-series",
+    clock: "Up to 3.5GHz",
+    geekbench: "",
+    pricePerGb: "",
+    markup: "",
+    description: "Entry-tier nodes for lightweight workloads.",
+  },
+  ULTRA: {
+    cpuFamily: "AMD EPYC Milan",
+    clock: "Up to 3.7GHz",
+    geekbench: "",
+    pricePerGb: "",
+    markup: "",
+    description: "High throughput configurations for heavier loads.",
+  },
+  TITAN: {
+    cpuFamily: "AMD Ryzen 9",
+    clock: "Up to 5.0GHz",
+    geekbench: "",
+    pricePerGb: "",
+    markup: "",
+    description: "Top bin silicon for single-thread sensitive apps.",
+  },
+  VELOCITY: {
+    cpuFamily: "Intel Xeon Platinum",
+    clock: "Up to 3.8GHz",
+    geekbench: "",
+    pricePerGb: "",
+    markup: "",
+    description: "Low latency edge deployments with quick turn-up.",
+  },
 };
 
 const gradientButton =
   "bg-[linear-gradient(135deg,#00E5FF_0%,#8B5CF6_50%,#1EE5C9_100%)] text-slate-900 hover:brightness-110";
 
-const tierCards: Array<{
-  id: TierId;
-  name: string;
-  descriptor: string;
-  icon: any;
-  border?: string;
-  accent?: string;
-  badgeClass?: string;
-}> = [
-  { id: "CORE", name: "CORE", descriptor: "Balanced performance", icon: Cpu, border: "border-cyan-400", accent: "from-cyan-400/30 to-cyan-200/10", badgeClass: "text-cyan-400" },
-  { id: "ELITE", name: "ELITE", descriptor: "High performance", icon: Rocket, border: "border-violet-400", accent: "from-violet-400/30 to-violet-200/10", badgeClass: "text-violet-400" },
-  { id: "CREATOR", name: "CREATOR", descriptor: "Top-tier performance", icon: Crown, border: "border-amber-400", accent: "from-amber-400/30 to-amber-200/10", badgeClass: "text-amber-400" },
-];
+const familyIcons: Record<FamilyId, any> = {
+  CORE: Cpu,
+  ELITE: Rocket,
+  CREATOR: Crown,
+  BASIC: Cpu,
+  ULTRA: Rocket,
+  TITAN: Crown,
+  VELOCITY: Rocket,
+};
 
 const STATIC_INVENTORY: UiServer[] = [
   {
@@ -112,80 +149,18 @@ const STATIC_INVENTORY: UiServer[] = [
   },
 ];
 
-function normalizeFamily(familyInput: any): UiServer["family"] {
-  const value = (familyInput || "").toString().toUpperCase();
-  if (value.includes("ELITE")) return "ELITE";
-  if (value.includes("CREATOR") || value.includes("TITAN")) return "CREATOR";
-  if (value.includes("CORE") || value.includes("BASIC") || value.includes("ULTRA")) return "CORE";
-  return "CORE";
-}
-
-function normalizeRegion(regionInput: any): string {
-  const raw = (regionInput || "").toString().trim();
-  if (!raw) return "";
-  return raw
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function parseNumber(value: any): number | null {
-  const asNumber = Number(value);
-  if (Number.isFinite(asNumber)) return asNumber;
-  const match = (value || "").toString().match(/([0-9]+(\.[0-9]+)?)/);
-  return match ? Number(match[1]) : null;
-}
-
-function parseRam(value: any): number {
-  return parseNumber(value) ?? 0;
-}
-
-function normalizeRawInventory(raw: any): any[] {
-  if (Array.isArray(raw)) return raw;
-  if (Array.isArray(raw?.servers)) return raw.servers;
-  if (Array.isArray(raw?.data)) return raw.data;
-  if (Array.isArray(raw?.inventory)) return raw.inventory;
-  if (Array.isArray(raw?.items)) return raw.items;
-  if (raw && typeof raw === "object") return Object.values(raw);
-  return [];
-}
-
-function mapReliableToUi(raw: any): UiServer[] {
-  return normalizeRawInventory(raw)
-    .map((item: any) => {
-      const qty = parseNumber(item.qty ?? item.quantity ?? item.stock);
-      const availabilityText = (item.availability || item.status || "available").toString().toLowerCase();
-      const available = (qty === null || qty > 0) && !availabilityText.includes("sold") && !availabilityText.includes("out");
-
-      const priceMonthly =
-        parseNumber(item.cnx_price) ??
-        parseNumber(item.price) ??
-        parseNumber(item.base_price) ??
-        parseNumber(item.price_usd) ??
-        parseNumber(item.monthly_price);
-
-      const ramGb = parseRam(item.ram_gb ?? item.memory_gb ?? item.ram ?? item.memory);
-
-      const bandwidthValue = item.bandwidth || item.bandwidth_tb || item.bandwidth_gb;
-      const bandwidth = bandwidthValue
-        ? typeof bandwidthValue === "number"
-          ? `${bandwidthValue}${item.bandwidth_tb ? "TB" : "GB"}`
-          : bandwidthValue
-        : "Unmetered";
-
-      return {
-        id: (item.id || item.rs_id || item.inventory_id || item.InventoryID || `${item.cpu}-${item.location || item.region}`)?.toString(),
-        family: normalizeFamily(item.family || item.server_type || item.tier || item.level),
-        region: normalizeRegion(item.region || item.location || item.metro || item.datacenter || item.city),
-        cpu: item.cpu || item.processor || item.model || "Unknown CPU",
-        ramGb,
-        storage: item.storage || item.drives || item.disks || item.drive_configuration || "—",
-        bandwidth,
-        priceMonthly: priceMonthly ?? 0,
-        available,
-      } as UiServer;
-    })
-    .filter((server) => server.id && server.region && server.cpu);
+function mapDbToUi(server: any): UiServer {
+  return {
+    id: (server.rs_id || server.id || "").toString(),
+    family: (server.family || "").toString().toUpperCase(),
+    region: (server.location || "").toString(),
+    cpu: server.cpu || "Unknown CPU",
+    ramGb: parseInt(server.ram, 10) || 0,
+    storage: server.storage || "—",
+    bandwidth: server.bandwidth || "Unmetered",
+    priceMonthly: Number(server.cnx_price) || 0,
+    available: Number(server.qty) > 0,
+  } as UiServer;
 }
 
 function getMinPriceForFamily(family: UiServer["family"], inventory: UiServer[]) {
@@ -213,28 +188,35 @@ export function DedicatedConfigurator() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [uiInventory, setUiInventory] = useState<UiServer[]>([]);
-  const [selectedTier, setSelectedTier] = useState<TierId>("CORE");
+  const [selectedTier, setSelectedTier] = useState<FamilyId>("");
   const [currentRegion, setCurrentRegion] = useState<string>("");
   const [showSoldOut, setShowSoldOut] = useState<boolean>(false);
+  const [fetchSuccess, setFetchSuccess] = useState<boolean | null>(null);
 
   const loadInventory = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch("https://api.corenodex.com/api/servers.php", {
-        headers: { Accept: "application/json" },
-      });
+      const response = await fetch("/api/servers.php");
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
       const json = await response.json();
-      const mapped = mapReliableToUi(json);
-      setUiInventory(mapped);
-      setError(null);
+      if (json.success && Array.isArray(json.servers)) {
+        const mapped = (json.servers || []).map(mapDbToUi).filter((server: UiServer) => server.id && server.region);
+        setUiInventory(mapped);
+        setFetchSuccess(true);
+        setError(null);
+      } else {
+        setUiInventory([]);
+        setFetchSuccess(false);
+        setError(json.error || "Failed to load inventory");
+      }
       setIsLoading(false);
     } catch (err) {
       console.error("Unable to load reliable site inventory", err);
       setIsLoading(false);
+      setFetchSuccess(false);
       setError(err instanceof Error ? err.message : "Live inventory sync issue");
     }
   }, []);
@@ -245,7 +227,21 @@ export function DedicatedConfigurator() {
 
   const inventoryToUse: UiServer[] = uiInventory.length > 0 ? uiInventory : STATIC_INVENTORY;
 
-  const showStaticCapacityBanner = !!error && uiInventory.length === 0;
+  const families = useMemo(() => {
+    return Array.from(new Set(inventoryToUse.map((i) => i.family).filter(Boolean)));
+  }, [inventoryToUse]);
+
+  useEffect(() => {
+    if (families.length === 0) {
+      setSelectedTier("");
+      return;
+    }
+    if (!selectedTier || !families.includes(selectedTier)) {
+      setSelectedTier(families[0]);
+    }
+  }, [families, selectedTier]);
+
+  const showStaticCapacityBanner = fetchSuccess === false || (!isLoading && uiInventory.length === 0);
 
   const regions = useMemo(() => {
     return Array.from(new Set(inventoryToUse.map((i) => i.region).filter(Boolean)));
@@ -256,20 +252,22 @@ export function DedicatedConfigurator() {
   }, [currentRegion, regions]);
 
   const tierPrices = useMemo(() => {
-    return {
-      CORE: getMinPriceForFamily("CORE", inventoryToUse),
-      ELITE: getMinPriceForFamily("ELITE", inventoryToUse),
-      CREATOR: getMinPriceForFamily("CREATOR", inventoryToUse),
-    } as Record<TierId, number | null>;
-  }, [inventoryToUse]);
+    return families.reduce((acc, family) => {
+      acc[family] = getMinPriceForFamily(family, inventoryToUse);
+      return acc;
+    }, {} as Record<FamilyId, number | null>);
+  }, [families, inventoryToUse]);
 
   const filteredServers = useMemo(() => {
-    return inventoryToUse.filter((server) =>
-      server.family === selectedTier &&
-      server.region === selectedRegion &&
-      (showSoldOut ? true : server.available),
+    return inventoryToUse.filter(
+      (server) =>
+        (!selectedTier || server.family === selectedTier) &&
+        (selectedRegion ? server.region === selectedRegion : true) &&
+        (showSoldOut ? true : server.available),
     );
   }, [inventoryToUse, selectedRegion, selectedTier, showSoldOut]);
+
+  const selectedMeta = familyMeta[selectedTier] ?? defaultFamilyMeta;
 
   return (
     <div className="space-y-12">
@@ -284,41 +282,51 @@ export function DedicatedConfigurator() {
               <Badge className="bg-primary/10 text-primary border border-primary/30">Live pricing</Badge>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {tierCards.map((tier) => {
-                const Icon = tier.icon;
-                const isSelected = tier.id === selectedTier;
-                const price = tierPrices[tier.id];
-                const priceLabel = isLoading
-                  ? "Loading…"
-                  : price !== null
-                    ? `${priceFormatter.format(price)}`
-                    : "Pricing unavailable";
-                return (
-                  <button
-                    key={tier.id}
-                    className={cn(
-                      "relative glass-card text-left p-4 rounded-2xl border transition-all duration-300",
-                      "hover:-translate-y-1 hover:shadow-[0_10px_35px_rgba(0,229,255,0.15)]",
-                      isSelected ? `${tier.border} ring-2 ring-primary/40` : "border-glass-border",
-                    )}
-                    onClick={() => setSelectedTier(tier.id)}
-                  >
-                    <div className={cn("absolute inset-0 rounded-2xl opacity-70 bg-gradient-to-br", tier.accent)} />
-                    <div className="relative flex items-start justify-between gap-3">
-                      <div className="space-y-1">
-                        <p className={cn("text-sm font-semibold uppercase tracking-wide", tier.badgeClass)}>{tier.name}</p>
-                        <p className="text-sm text-muted-foreground font-inter">{tier.descriptor}</p>
-                        <p className="text-lg font-semibold text-foreground">
-                          From {priceLabel} <span className="text-xs text-muted-foreground ml-2">/mo</span>
-                        </p>
+              {families.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No families available.</div>
+              ) : (
+                families.map((family) => {
+                  const Icon = familyIcons[family] ?? Cpu;
+                  const isSelected = family === selectedTier;
+                  const price = tierPrices[family];
+                  const priceLabel = isLoading
+                    ? "Loading…"
+                    : price !== null
+                      ? `${priceFormatter.format(price)}`
+                      : "Pricing unavailable";
+                  const meta = familyMeta[family] ?? defaultFamilyMeta;
+                  return (
+                    <button
+                      key={family}
+                      className={cn(
+                        "relative glass-card text-left p-4 rounded-2xl border transition-all duration-300",
+                        "hover:-translate-y-1 hover:shadow-[0_10px_35px_rgba(0,229,255,0.15)]",
+                        isSelected ? "border-primary ring-2 ring-primary/40" : "border-glass-border",
+                      )}
+                      onClick={() => setSelectedTier(family)}
+                    >
+                      <div className="absolute inset-0 rounded-2xl opacity-70 bg-gradient-to-br from-primary/10 to-secondary/10" />
+                      <div className="relative flex items-start justify-between gap-3">
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold uppercase tracking-wide text-primary">{family}</p>
+                          <p className="text-sm text-muted-foreground font-inter">{meta.description}</p>
+                          <p className="text-lg font-semibold text-foreground">
+                            From {priceLabel} <span className="text-xs text-muted-foreground ml-2">/mo</span>
+                          </p>
+                        </div>
+                        <span
+                          className={cn(
+                            "w-12 h-12 rounded-xl flex items-center justify-center bg-white/5 border",
+                            isSelected ? "border-primary" : "border-glass-border",
+                          )}
+                        >
+                          <Icon className="w-6 h-6 text-primary" />
+                        </span>
                       </div>
-                      <span className={cn("w-12 h-12 rounded-xl flex items-center justify-center bg-white/5 border", tier.border)}>
-                        <Icon className="w-6 h-6 text-primary" />
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
+                    </button>
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -326,18 +334,18 @@ export function DedicatedConfigurator() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-xs text-muted-foreground">Service Details</p>
-                <h3 className="text-xl font-bold text-foreground">{familyMeta[selectedTier]?.cpuFamily || "—"}</h3>
+                <h3 className="text-xl font-bold text-foreground">{selectedMeta?.cpuFamily || "—"}</h3>
               </div>
               <Gauge className="w-6 h-6 text-primary" />
             </div>
-            {familyMeta[selectedTier] ? (
+            {selectedMeta ? (
               <div className="space-y-3 text-sm text-muted-foreground">
-                <DetailRow label="CPU Family" value={familyMeta[selectedTier].cpuFamily} />
-                <DetailRow label="Clock Speed" value={familyMeta[selectedTier].clock} />
-                <DetailRow label="Geekbench" value={familyMeta[selectedTier].geekbench} />
-                <DetailRow label="Price per GB" value={familyMeta[selectedTier].pricePerGb} />
-                <DetailRow label="CNX Markup" value={familyMeta[selectedTier].markup} />
-                <p className="text-foreground/90 leading-relaxed pt-1">{familyMeta[selectedTier].description}</p>
+                <DetailRow label="CPU Family" value={selectedMeta.cpuFamily} />
+                <DetailRow label="Clock Speed" value={selectedMeta.clock} />
+                <DetailRow label="Geekbench" value={selectedMeta.geekbench} />
+                <DetailRow label="Price per GB" value={selectedMeta.pricePerGb} />
+                <DetailRow label="CNX Markup" value={selectedMeta.markup} />
+                <p className="text-foreground/90 leading-relaxed pt-1">{selectedMeta.description}</p>
               </div>
             ) : (
               <p className="text-muted-foreground">Loading details…</p>
