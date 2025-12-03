@@ -139,15 +139,29 @@ function parseRam(value: any): number {
   return parseNumber(value) ?? 0;
 }
 
-function mapReliableToUi(data: any[]): UiServer[] {
-  return data
+function normalizeRawInventory(raw: any): any[] {
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw?.servers)) return raw.servers;
+  if (Array.isArray(raw?.data)) return raw.data;
+  if (Array.isArray(raw?.inventory)) return raw.inventory;
+  if (Array.isArray(raw?.items)) return raw.items;
+  if (raw && typeof raw === "object") return Object.values(raw);
+  return [];
+}
+
+function mapReliableToUi(raw: any): UiServer[] {
+  return normalizeRawInventory(raw)
     .map((item: any) => {
       const qty = parseNumber(item.qty ?? item.quantity ?? item.stock);
       const availabilityText = (item.availability || item.status || "available").toString().toLowerCase();
       const available = (qty === null || qty > 0) && !availabilityText.includes("sold") && !availabilityText.includes("out");
 
       const priceMonthly =
-        parseNumber(item.cnx_price) ?? parseNumber(item.price) ?? parseNumber(item.base_price) ?? parseNumber(item.price_usd);
+        parseNumber(item.cnx_price) ??
+        parseNumber(item.price) ??
+        parseNumber(item.base_price) ??
+        parseNumber(item.price_usd) ??
+        parseNumber(item.monthly_price);
 
       const ramGb = parseRam(item.ram_gb ?? item.memory_gb ?? item.ram ?? item.memory);
 
@@ -159,12 +173,12 @@ function mapReliableToUi(data: any[]): UiServer[] {
         : "Unmetered";
 
       return {
-        id: item.id || item.rs_id || item.inventory_id || item.InventoryID || `${item.cpu}-${item.location}`,
-        family: normalizeFamily(item.family || item.server_type || item.tier),
-        region: normalizeRegion(item.region || item.location || item.metro || item.datacenter),
+        id: (item.id || item.rs_id || item.inventory_id || item.InventoryID || `${item.cpu}-${item.location || item.region}`)?.toString(),
+        family: normalizeFamily(item.family || item.server_type || item.tier || item.level),
+        region: normalizeRegion(item.region || item.location || item.metro || item.datacenter || item.city),
         cpu: item.cpu || item.processor || item.model || "Unknown CPU",
         ramGb,
-        storage: item.storage || item.drives || item.disks || "—",
+        storage: item.storage || item.drives || item.disks || item.drive_configuration || "—",
         bandwidth,
         priceMonthly: priceMonthly ?? 0,
         available,
@@ -190,6 +204,7 @@ export function DedicatedConfigurator() {
   const [uiInventory, setUiInventory] = useState<UiServer[]>([]);
   const [selectedTier, setSelectedTier] = useState<TierId>("CORE");
   const [currentRegion, setCurrentRegion] = useState<string>("miami");
+  const [showSoldOut, setShowSoldOut] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -200,11 +215,14 @@ export function DedicatedConfigurator() {
       const response = await fetch("https://api.corenodex.com/api/servers.php", {
         headers: { Accept: "application/json" },
       });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
       const json = await response.json();
-      const rawInventory = Array.isArray(json)
-        ? json
-        : json?.data || json?.inventory || json?.servers || json?.items || [];
-      const mapped = mapReliableToUi(rawInventory);
+      const mapped = mapReliableToUi(json);
+      if (!mapped.length) {
+        throw new Error("No inventory returned from live feed");
+      }
       setUiInventory(mapped);
     } catch (err) {
       console.error("Unable to load reliable site inventory", err);
@@ -222,7 +240,7 @@ export function DedicatedConfigurator() {
     return uiInventory.length ? uiInventory : STATIC_INVENTORY;
   }, [uiInventory]);
 
-  const isUsingFallbackInventory = !uiInventory.length && inventoryToUse.length > 0;
+  const isUsingFallbackInventory = !uiInventory.length && inventoryToUse.length > 0 && !isLoading;
   const inventorySourcesEmpty = !inventoryToUse.length;
 
   const regions = useMemo(() => {
@@ -243,10 +261,12 @@ export function DedicatedConfigurator() {
   }, [inventoryToUse]);
 
   const filteredServers = useMemo(() => {
-    return inventoryToUse.filter(
-      (server) => server.family === selectedTier && server.region === selectedRegion && server.available,
+    return inventoryToUse.filter((server) =>
+      server.family === selectedTier &&
+      server.region === selectedRegion &&
+      (showSoldOut ? true : server.available),
     );
-  }, [inventoryToUse, selectedRegion, selectedTier]);
+  }, [inventoryToUse, selectedRegion, selectedTier, showSoldOut]);
 
   return (
     <div className="space-y-12">
@@ -413,6 +433,14 @@ export function DedicatedConfigurator() {
             <div className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-rose-400" /> Sold Out
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-primary/30 text-primary"
+              onClick={() => setShowSoldOut((prev) => !prev)}
+            >
+              {showSoldOut ? "Hide sold out" : "Show sold out"}
+            </Button>
           </div>
         </div>
         <div className="glass-card p-4 rounded-2xl border border-glass-border">
@@ -447,7 +475,7 @@ export function DedicatedConfigurator() {
                       <TableCell className="text-muted-foreground">{server.ramGb}GB</TableCell>
                       <TableCell className="text-muted-foreground">{server.storage}</TableCell>
                       <TableCell className="text-muted-foreground">{server.bandwidth}</TableCell>
-                      <TableCell className="font-semibold text-primary">{priceFormatter.format(server.priceMonthly)}</TableCell>
+                      <TableCell className="font-semibold text-primary">${server.priceMonthly.toFixed(2)}</TableCell>
                       <TableCell>
                         {server.available ? (
                           <Badge className="bg-emerald-500/15 text-emerald-200 border border-emerald-400/40">Available</Badge>
