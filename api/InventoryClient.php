@@ -13,40 +13,48 @@ class ReliableSiteInventory
         }
         $this->apiKey = $apiKey;
     }
+
     public function listServers(): array
     {
         try {
-            $client = new SoapClient($this->wsdl, [
-                'trace' => true,
+            $client = new \SoapClient($this->wsdl, [
+                'trace'      => true,
                 'exceptions' => true,
             ]);
-                return [
-                    'error' => 'Invalid SOAP response: expected property ServersListResult. Received: ' . print_r($response, true)
-                ];
+
             $params = [
-                'ApiKey' => $this->apiKey
+                'ApiKey' => $this->apiKey,
             ];
 
             $response = $client->ServersList($params);
 
             if (!$response || !isset($response->ServersListResult)) {
-                return ['error' => 'Invalid SOAP response'];
+                return [
+                    'success' => false,
+                    'error'   => 'Invalid SOAP response: missing ServersListResult',
+                ];
             }
 
-            $result = $response->ServersListResult;
-                "servers" => $this->objectToArray($servers)
-            ];
+            $servers = $response->ServersListResult;
+            $serversArray = $this->objectToArray($servers);
 
-        } catch (Exception $e) {
-            return ["error" => $e->getMessage()];
+            if (!is_array($serversArray) || (isset($serversArray['Id']) && !isset($serversArray[0]))) {
+                $serversArray = [$serversArray];
+            }
+
+            return [
+                'success' => true,
+                'count'   => count($serversArray),
+                'servers' => $serversArray,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error'   => $e->getMessage(),
+            ];
         }
     }
-    /**
-     * Recursively convert objects to arrays.
-     *
-     * @param mixed $data
-     * @return mixed
-     */
+
     private function objectToArray($data)
     {
         if (is_object($data)) {
@@ -56,15 +64,5 @@ class ReliableSiteInventory
             return array_map([$this, 'objectToArray'], $data);
         }
         return $data;
-    }
-            return [
-                "success" => true,
-                "count" => is_array($servers) ? count($servers) : 1,
-                "servers" => json_decode(json_encode($servers), true)
-            ];
-
-        } catch (Exception $e) {
-            return ["error" => $e->getMessage()];
-        }
     }
 }
