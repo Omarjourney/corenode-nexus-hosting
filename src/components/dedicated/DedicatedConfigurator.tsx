@@ -54,6 +54,36 @@ const defaultFamilyMeta = {
   description: "Balanced performance for demanding workloads.",
 };
 
+function normalizeAvailability(value: unknown): boolean | null {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value > 0;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (["available", "in stock", "instock", "true", "yes", "y"].includes(normalized)) return true;
+    if (["sold out", "unavailable", "out of stock", "out-of-stock", "false", "no", "n", "0"].includes(normalized))
+      return false;
+  }
+  return null;
+}
+
+function normalizeInventory(data: InventoryResponse): InventoryResponse {
+  return {
+    regions: (data.regions || []).map((region) => ({
+      ...region,
+      families: (region.families || []).map((family) => ({
+        ...family,
+        models: (family.models || []).map((model) => {
+          const normalizedAvailability = normalizeAvailability((model as any).available ?? (model as any).qty);
+          return {
+            ...model,
+            available: normalizedAvailability ?? false,
+          };
+        }),
+      })),
+    })),
+  };
+}
+
 async function fetchInventory(url: string): Promise<InventoryResponse> {
   const response = await fetch(url);
   if (!response.ok) {
@@ -61,7 +91,7 @@ async function fetchInventory(url: string): Promise<InventoryResponse> {
   }
   const data = (await response.json()) as InventoryResponse;
   const regions = Array.isArray(data.regions) ? data.regions : [];
-  return { regions };
+  return normalizeInventory({ regions });
 }
 
 function formatRegionName(region: string) {
