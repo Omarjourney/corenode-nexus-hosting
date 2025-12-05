@@ -8,6 +8,12 @@ import SEO from "@/components/SEO";
 import LiveStatsBar from "@/components/LiveStatsBar";
 import PricingGlowCards from "@/components/PricingGlowCards";
 import webHostingHero from "@/assets/web-hosting-hero.png";
+import featureNvme from "@/assets/feature-nvme.png";
+import featureGlobal from "@/assets/feature-global.png";
+import featureBoot from "@/assets/feature-boot.png";
+import featureAi from "@/assets/feature-ai.png";
+import featureMods from "@/assets/feature-mods.png";
+import featureDdos from "@/assets/feature-ddos.png";
 import {
   Activity,
   ArrowRight,
@@ -345,7 +351,7 @@ const HomePage = () => {
               }}
             >
               <img
-                src="https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&auto=format&fm=webp"
+                src={featureNvme}
                 alt="NVMe SSD Storage"
                 loading="lazy"
                 width="80"
@@ -393,7 +399,7 @@ const HomePage = () => {
               }}
             >
               <img
-                src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&auto=format&fm=webp"
+                src={featureGlobal}
                 alt="Global Network"
                 loading="lazy"
                 width="80"
@@ -434,7 +440,7 @@ const HomePage = () => {
               }}
             >
               <img
-                src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&auto=format&fm=webp"
+                src={featureBoot}
                 alt="Fast Deployment"
                 loading="lazy"
                 width="80"
@@ -475,7 +481,7 @@ const HomePage = () => {
               }}
             >
               <img
-                src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&auto=format&fm=webp"
+                src={featureAi}
                 alt="AI Monitoring"
                 loading="lazy"
                 width="80"
@@ -484,7 +490,7 @@ const HomePage = () => {
                   width: '80px',
                   height: '80px',
                   objectFit: 'cover',
-                  borderRadius: '50%',
+                  borderRadius: '12px',
                   margin: '0 auto 12px',
                   display: 'block',
                 }}
@@ -516,7 +522,7 @@ const HomePage = () => {
               }}
             >
               <img
-                src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&auto=format&fm=webp"
+                src={featureMods}
                 alt="1-Click Mods"
                 loading="lazy"
                 width="80"
@@ -557,7 +563,7 @@ const HomePage = () => {
               }}
             >
               <img
-                src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=400&auto=format&fm=webp"
+                src={featureDdos}
                 alt="Advanced DDoS"
                 loading="lazy"
                 width="80"
