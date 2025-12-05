@@ -1,144 +1,67 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { Crown, Cpu, Gauge, MapPin, Rocket, ShieldCheck, Zap } from "lucide-react";
+import { Cpu, Gauge, MapPin, ShieldCheck, Zap } from "lucide-react";
 
-type FamilyId = string;
-
-type UiServer = {
+type InventoryModel = {
   id: string;
-  family: FamilyId;
-  region: string;
   cpu: string;
-  ramGb: number;
-  storage: string;
+  clock: string;
+  ram: string;
   bandwidth: string;
-  priceMonthly: number;
+  price: number;
   available: boolean;
 };
 
-type TierMeta = {
-  cpuFamily: string;
-  clock: string;
-  geekbench: string;
-  pricePerGb: string;
-  markup: string;
-  description: string;
+type InventoryFamily = {
+  id: string;
+  label: string;
+  models: InventoryModel[];
+};
+
+type InventoryRegion = {
+  id: string;
+  name: string;
+  families: InventoryFamily[];
+};
+
+type InventoryResponse = {
+  regions: InventoryRegion[];
+};
+
+type FlattenedModel = InventoryModel & {
+  regionId: string;
+  regionName: string;
+  familyId: string;
+  familyLabel: string;
 };
 
 const priceFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 
-const defaultFamilyMeta: TierMeta = {
-  cpuFamily: "Performance optimized",
-  clock: "Up to 4.0GHz",
-  geekbench: "",
-  pricePerGb: "",
-  markup: "",
-  description: "Balanced performance for demanding workloads.",
-};
-
-const familyMeta: Record<FamilyId, TierMeta> = {
-  CORE: {
-    cpuFamily: "Intel Xeon E5",
-    clock: "2.3GHz",
-    geekbench: "8000",
-    pricePerGb: "",
-    markup: "",
-    description: "Balanced performance for general workloads.",
-  },
-  ELITE: {
-    cpuFamily: "AMD EPYC",
-    clock: "2.8GHz",
-    geekbench: "12000",
-    pricePerGb: "",
-    markup: "",
-    description: "High performance for demanding applications.",
-  },
-  CREATOR: {
-    cpuFamily: "Intel Xeon Gold",
-    clock: "3.0GHz",
-    geekbench: "15000",
-    pricePerGb: "",
-    markup: "",
-    description: "Top-tier performance for mission-critical workloads.",
-  },
-  BASIC: {
-    cpuFamily: "Intel Xeon E-series",
-    clock: "Up to 3.5GHz",
-    geekbench: "",
-    pricePerGb: "",
-    markup: "",
-    description: "Entry-tier nodes for lightweight workloads.",
-  },
-  ULTRA: {
-    cpuFamily: "AMD EPYC Milan",
-    clock: "Up to 3.7GHz",
-    geekbench: "",
-    pricePerGb: "",
-    markup: "",
-    description: "High throughput configurations for heavier loads.",
-  },
-  TITAN: {
-    cpuFamily: "AMD Ryzen 9",
-    clock: "Up to 5.0GHz",
-    geekbench: "",
-    pricePerGb: "",
-    markup: "",
-    description: "Top bin silicon for single-thread sensitive apps.",
-  },
-  VELOCITY: {
-    cpuFamily: "Intel Xeon Platinum",
-    clock: "Up to 3.8GHz",
-    geekbench: "",
-    pricePerGb: "",
-    markup: "",
-    description: "Low latency edge deployments with quick turn-up.",
-  },
-};
-
 const gradientButton =
   "bg-[linear-gradient(135deg,#00E5FF_0%,#8B5CF6_50%,#1EE5C9_100%)] text-slate-900 hover:brightness-110";
 
-const familyIcons: Record<FamilyId, any> = {
-  CORE: Cpu,
-  ELITE: Rocket,
-  CREATOR: Crown,
-  BASIC: Cpu,
-  ULTRA: Rocket,
-  TITAN: Crown,
-  VELOCITY: Rocket,
+const familyIcons: Record<string, any> = {
+  default: Cpu,
 };
 
-const STATIC_INVENTORY: UiServer[] = [];
+const defaultFamilyMeta = {
+  cpuFamily: "Performance optimized",
+  clock: "Up to 4.0GHz",
+  description: "Balanced performance for demanding workloads.",
+};
 
-function mapDbToUi(server: any): UiServer {
-  return {
-    id: (server.rs_id || server.id || "").toString(),
-    family: (server.family || "").toString().toUpperCase(),
-    region: (server.location || "").toString(),
-    cpu: server.cpu || "Unknown CPU",
-    ramGb: parseInt(server.ram, 10) || 0,
-    storage: server.storage || "—",
-    bandwidth: server.bandwidth || "Unmetered",
-    priceMonthly: Number(server.cnx_price) || 0,
-    available: Number(server.qty) > 0,
-  } as UiServer;
-}
-
-function getMinPriceForFamily(family: UiServer["family"], inventory: UiServer[]) {
-  const prices = inventory.filter((s) => s.family === family && s.available).map((s) => s.priceMonthly);
-  if (!prices.length) return null;
-  return Math.min(...prices);
-}
-
-function getRegionHealthLabel(inventory: UiServer[], region: string) {
-  const availableCount = inventory.filter((s) => s.region === region && s.available).length;
-  if (availableCount >= 5) return "Good";
-  if (availableCount >= 1) return "Limited";
-  return "Full";
+async function fetchInventory(url: string): Promise<InventoryResponse> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  const data = (await response.json()) as InventoryResponse;
+  const regions = Array.isArray(data.regions) ? data.regions : [];
+  return { regions };
 }
 
 function formatRegionName(region: string) {
@@ -150,83 +73,137 @@ function formatRegionName(region: string) {
 }
 
 export function DedicatedConfigurator() {
+  const [inventory, setInventory] = useState<InventoryResponse>({ regions: [] });
   const [isLoading, setIsLoading] = useState(true);
-  const [, setError] = useState<string | null>(null);
-  const [uiInventory, setUiInventory] = useState<UiServer[]>([]);
-  const [selectedTier, setSelectedTier] = useState<FamilyId>("");
-  const [currentRegion, setCurrentRegion] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+  const [selectedFamily, setSelectedFamily] = useState<string>("");
+  const [selectedRegion, setSelectedRegion] = useState<string>("");
   const [showSoldOut, setShowSoldOut] = useState<boolean>(false);
 
-  const loadInventory = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await fetch("/api/servers.php");
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      const json = await response.json();
-      if (json.success && Array.isArray(json.servers)) {
-        const mapped = (json.servers || []).map(mapDbToUi).filter((server: UiServer) => server.id && server.region);
-        setUiInventory(mapped);
+  useEffect(() => {
+    let isMounted = true;
+
+    const load = async () => {
+      try {
+        setIsLoading(true);
         setError(null);
-      } else {
-        setUiInventory([]);
-        setError(json.error || "Failed to load inventory");
+        const live = await fetchInventory("/api/dedicated/inventory");
+        if (isMounted) {
+          setInventory(live);
+        }
+      } catch (primaryError) {
+        console.error("Failed to load live inventory, using static fallback", primaryError);
+        try {
+          const fallback = await fetchInventory("/data/static-inventory.json");
+          if (isMounted) {
+            setInventory(fallback);
+            setError((primaryError as Error).message);
+          }
+        } catch (fallbackError) {
+          console.error("Unable to load fallback inventory", fallbackError);
+          if (isMounted) {
+            setInventory({ regions: [] });
+            setError((fallbackError as Error).message);
+          }
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
-      setIsLoading(false);
-    } catch (err) {
-      console.error("Unable to load reliable site inventory", err);
-      setIsLoading(false);
-      setError(err instanceof Error ? err.message : "Failed to load inventory");
-    }
+    };
+
+    load();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  useEffect(() => {
-    loadInventory();
-  }, [loadInventory]);
-
-  const inventoryToUse: UiServer[] = uiInventory.length > 0 ? uiInventory : STATIC_INVENTORY;
-
-  const families = useMemo(() => {
-    return Array.from(new Set(inventoryToUse.map((i) => i.family).filter(Boolean)));
-  }, [inventoryToUse]);
+  const regions = useMemo(() => inventory.regions.filter(Boolean), [inventory.regions]);
 
   useEffect(() => {
-    if (families.length === 0) {
-      setSelectedTier("");
+    if (!regions.length) {
+      setSelectedRegion("");
       return;
     }
-    if (!selectedTier || !families.includes(selectedTier)) {
-      setSelectedTier(families[0]);
+    const existing = regions.find((region) => region.id === selectedRegion);
+    if (!existing) {
+      setSelectedRegion(regions[0].id);
     }
-  }, [families, selectedTier]);
+  }, [regions, selectedRegion]);
 
-  const regions = useMemo(() => {
-    return Array.from(new Set(inventoryToUse.map((i) => i.region).filter(Boolean)));
-  }, [inventoryToUse]);
+  const selectedRegionData = useMemo(
+    () => regions.find((region) => region.id === selectedRegion) ?? regions[0] ?? null,
+    [regions, selectedRegion],
+  );
 
-  const selectedRegion = useMemo(() => {
-    return regions.includes(currentRegion) ? currentRegion : regions[0] || "";
-  }, [currentRegion, regions]);
+  const families = useMemo(() => {
+    const familyMap = new Map<string, { id: string; label: string }>();
+    regions.forEach((region) => {
+      region.families?.forEach((family) => {
+        if (!familyMap.has(family.id)) {
+          familyMap.set(family.id, { id: family.id, label: family.label });
+        }
+      });
+    });
+    return Array.from(familyMap.values());
+  }, [regions]);
+
+  const familiesForRegion = useMemo(() => selectedRegionData?.families ?? [], [selectedRegionData]);
+
+  useEffect(() => {
+    if (!familiesForRegion.length) {
+      setSelectedFamily("");
+      return;
+    }
+    const exists = familiesForRegion.find((family) => family.id === selectedFamily);
+    if (!exists) {
+      setSelectedFamily(familiesForRegion[0].id);
+    }
+  }, [familiesForRegion, selectedFamily]);
 
   const tierPrices = useMemo(() => {
     return families.reduce((acc, family) => {
-      acc[family] = getMinPriceForFamily(family, inventoryToUse);
+      const prices: number[] = [];
+      regions.forEach((region) => {
+        region.families
+          ?.filter((f) => f.id === family.id)
+          .forEach((fam) => fam.models?.forEach((model) => prices.push(model.price)));
+      });
+      acc[family.id] = prices.length ? Math.min(...prices) : null;
       return acc;
-    }, {} as Record<FamilyId, number | null>);
-  }, [families, inventoryToUse]);
+    }, {} as Record<string, number | null>);
+  }, [families, regions]);
 
-  const filteredServers = useMemo(() => {
-    return inventoryToUse.filter(
-      (server) =>
-        (!selectedTier || server.family === selectedTier) &&
-        (selectedRegion ? server.region === selectedRegion : true) &&
-        (showSoldOut ? true : server.available),
+  const flattenedModels: FlattenedModel[] = useMemo(() => {
+    if (!selectedRegionData) return [];
+    const familiesScope = selectedFamily
+      ? selectedRegionData.families.filter((fam) => fam.id === selectedFamily)
+      : selectedRegionData.families;
+
+    return familiesScope.flatMap((family) =>
+      (family.models || []).map((model) => ({
+        ...model,
+        regionId: selectedRegionData.id,
+        regionName: selectedRegionData.name,
+        familyId: family.id,
+        familyLabel: family.label,
+      })),
     );
-  }, [inventoryToUse, selectedRegion, selectedTier, showSoldOut]);
+  }, [selectedFamily, selectedRegionData]);
 
-  const selectedMeta = familyMeta[selectedTier] ?? defaultFamilyMeta;
+  const filteredModels = useMemo(
+    () => flattenedModels.filter((model) => (showSoldOut ? true : model.available)),
+    [flattenedModels, showSoldOut],
+  );
+
+  const selectedFamilyInfo = useMemo(
+    () => families.find((family) => family.id === selectedFamily) || null,
+    [families, selectedFamily],
+  );
+
+  const hasInventory = regions.some((region) => region.families?.some((family) => family.models?.length));
 
   return (
     <div className="space-y-12">
@@ -245,29 +222,30 @@ export function DedicatedConfigurator() {
                 <div className="text-sm text-muted-foreground">No families available.</div>
               ) : (
                 families.map((family) => {
-                  const Icon = familyIcons[family] ?? Cpu;
-                  const isSelected = family === selectedTier;
-                  const price = tierPrices[family];
+                  const Icon = familyIcons[family.id] ?? familyIcons.default;
+                  const isSelected = family.id === selectedFamily;
+                  const price = tierPrices[family.id];
                   const priceLabel = isLoading
                     ? "Loading…"
                     : price !== null
                       ? `${priceFormatter.format(price)}`
                       : "Pricing unavailable";
-                  const meta = familyMeta[family] ?? defaultFamilyMeta;
+                  const meta = { ...defaultFamilyMeta, cpuFamily: family.label };
                   return (
                     <button
-                      key={family}
+                      key={family.id}
                       className={cn(
                         "relative glass-card text-left p-4 rounded-2xl border transition-all duration-300",
                         "hover:-translate-y-1 hover:shadow-[0_10px_35px_rgba(0,229,255,0.15)]",
                         isSelected ? "border-primary ring-2 ring-primary/40" : "border-glass-border",
                       )}
-                      onClick={() => setSelectedTier(family)}
+                      onClick={() => setSelectedFamily(family.id)}
+                      disabled={!familiesForRegion.some((fam) => fam.id === family.id)}
                     >
                       <div className="absolute inset-0 rounded-2xl opacity-70 bg-gradient-to-br from-primary/10 to-secondary/10" />
                       <div className="relative flex items-start justify-between gap-3">
                         <div className="space-y-1">
-                          <p className="text-sm font-semibold uppercase tracking-wide text-primary">{family}</p>
+                          <p className="text-sm font-semibold uppercase tracking-wide text-primary">{family.label}</p>
                           <p className="text-sm text-muted-foreground font-inter">{meta.description}</p>
                           <p className="text-lg font-semibold text-foreground">
                             From {priceLabel} <span className="text-xs text-muted-foreground ml-2">/mo</span>
@@ -293,21 +271,18 @@ export function DedicatedConfigurator() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-xs text-muted-foreground">Service Details</p>
-                <h3 className="text-xl font-bold text-foreground">{selectedMeta?.cpuFamily || "—"}</h3>
+                <h3 className="text-xl font-bold text-foreground">{selectedFamilyInfo?.label || "—"}</h3>
               </div>
               <Gauge className="w-6 h-6 text-primary" />
             </div>
-            {selectedMeta ? (
+            {selectedFamilyInfo ? (
               <div className="space-y-3 text-sm text-muted-foreground">
-                <DetailRow label="CPU Family" value={selectedMeta.cpuFamily} />
-                <DetailRow label="Clock Speed" value={selectedMeta.clock} />
-                <DetailRow label="Geekbench" value={selectedMeta.geekbench} />
-                <DetailRow label="Price per GB" value={selectedMeta.pricePerGb} />
-                <DetailRow label="CNX Markup" value={selectedMeta.markup} />
-                <p className="text-foreground/90 leading-relaxed pt-1">{selectedMeta.description}</p>
+                <DetailRow label="CPU Family" value={selectedFamilyInfo.label} />
+                <DetailRow label="Clock Speed" value={defaultFamilyMeta.clock} />
+                <p className="text-foreground/90 leading-relaxed pt-1">{defaultFamilyMeta.description}</p>
               </div>
             ) : (
-              <p className="text-muted-foreground">Loading details…</p>
+              <p className="text-muted-foreground">{isLoading ? "Loading details…" : "No family selected."}</p>
             )}
           </Card>
         </div>
@@ -324,28 +299,29 @@ export function DedicatedConfigurator() {
               <Badge className="bg-secondary/15 text-secondary border border-secondary/30">{regions.length} Regions</Badge>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {regions.length === 0 && inventoryToUse.length > 0 ? (
+              {regions.length === 0 && hasInventory === false ? (
                 <div className="text-muted-foreground text-sm">No regions available yet.</div>
               ) : (
                 regions.map((region) => {
-                  const isSelected = region === selectedRegion;
-                  const availabilityLabel = getRegionHealthLabel(inventoryToUse, region);
+                  const isSelected = region.id === selectedRegion;
+                  const familiesCount = region.families?.length || 0;
                   return (
                     <button
-                      key={region}
-                      onClick={() => setCurrentRegion(region)}
+                      key={region.id}
+                      onClick={() => setSelectedRegion(region.id)}
                       className={cn(
                         "glass-card p-4 rounded-2xl border text-left transition-all duration-300",
                         "hover:-translate-y-1 hover:shadow-[0_10px_35px_rgba(138,92,255,0.15)]",
                         isSelected ? "border-secondary ring-2 ring-secondary/30" : "border-glass-border",
                       )}
+                      disabled={!familiesCount}
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-semibold text-foreground capitalize">{formatRegionName(region)}</p>
-                          <p className="text-xs text-muted-foreground">High-density metro location.</p>
+                          <p className="text-sm font-semibold text-foreground capitalize">{formatRegionName(region.name || region.id)}</p>
+                          <p className="text-xs text-muted-foreground">{familiesCount} family options.</p>
                         </div>
-                        <Badge className="bg-primary/10 text-primary border border-primary/30">{availabilityLabel}</Badge>
+                        <Badge className="bg-primary/10 text-primary border border-primary/30">{familiesCount ? "Available" : "Coming Soon"}</Badge>
                       </div>
                     </button>
                   );
@@ -375,85 +351,85 @@ export function DedicatedConfigurator() {
               </div>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="px-4 py-2 rounded-full bg-black/40 border border-primary/30 text-xs text-primary backdrop-blur">
-                  Any-to-any 10Gbps blend
+                  Live edge fabric
                 </div>
               </div>
             </div>
           </Card>
         </div>
-      </section>
 
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-orbitron tracking-[0.2em] text-primary">STEP 3 — LIVE INVENTORY</p>
-            <h3 className="text-2xl font-orbitron font-bold text-foreground">
-              Available servers in {selectedRegion ? formatRegionName(selectedRegion) : "region"}
-            </h3>
-          </div>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" /> Available
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-orbitron tracking-[0.2em] text-primary">STEP 3 — CONFIGURE</p>
+              <h3 className="text-2xl font-orbitron font-bold text-foreground">Select Server</h3>
+              {error && <p className="text-xs text-amber-400 mt-1">{error}</p>}
             </div>
-            <div className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-rose-400" /> Sold Out
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" /> Available
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-rose-400" /> Sold Out
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-primary/30 text-primary"
+                onClick={() => setShowSoldOut((prev) => !prev)}
+                disabled={!flattenedModels.length}
+              >
+                {showSoldOut ? "Hide sold out" : "Show sold out"}
+              </Button>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-primary/30 text-primary"
-              onClick={() => setShowSoldOut((prev) => !prev)}
-            >
-              {showSoldOut ? "Hide sold out" : "Show sold out"}
-            </Button>
           </div>
-        </div>
-        <div className="glass-card p-4 rounded-2xl border border-glass-border">
-          {isLoading && (
-            <div className="py-2 text-xs text-muted-foreground">Syncing live inventory…</div>
-          )}
-          {!inventoryToUse.length ? (
-            <div className="py-6 text-sm text-center text-muted-foreground">Inventory sources are temporarily unavailable.</div>
-          ) : filteredServers.length === 0 && inventoryToUse.length > 0 ? (
-            <EmptyState message="No servers match this tier/region yet—try another region or tier." />
-          ) : (
-            <div className="overflow-hidden">
-              <Table className="text-sm">
-                <TableHeader>
-                  <TableRow className="border-b border-glass-border">
-                    <TableHead>CPU Model</TableHead>
-                    <TableHead>RAM</TableHead>
-                    <TableHead>Storage</TableHead>
-                    <TableHead>Bandwidth</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredServers.map((server) => (
-                    <TableRow key={server.id} className="border-b border-glass-border transition-all duration-200">
-                      <TableCell className="font-semibold text-foreground">{server.cpu}</TableCell>
-                      <TableCell className="text-muted-foreground">{server.ramGb}GB</TableCell>
-                      <TableCell className="text-muted-foreground">{server.storage}</TableCell>
-                      <TableCell className="text-muted-foreground">{server.bandwidth}</TableCell>
-                      <TableCell className="font-semibold text-primary">${server.priceMonthly.toFixed(2)}</TableCell>
-                      <TableCell>
-                        {server.available ? (
-                          <Badge className="bg-emerald-500/15 text-emerald-200 border border-emerald-400/40">Available</Badge>
-                        ) : (
-                          <Badge className="bg-rose-500/15 text-rose-200 border border-rose-400/40">Sold Out</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button className={gradientButton}>Purchase</Button>
-                      </TableCell>
+          <div className="glass-card p-4 rounded-2xl border border-glass-border">
+            {isLoading && <div className="py-2 text-xs text-muted-foreground">Syncing live inventory…</div>}
+            {!hasInventory && !isLoading ? (
+              <div className="py-6 text-sm text-center text-muted-foreground">Inventory sources are temporarily unavailable.</div>
+            ) : filteredModels.length === 0 && hasInventory ? (
+              <EmptyState message="No servers match this tier/region yet—try another region or tier." />
+            ) : (
+              <div className="overflow-hidden">
+                <Table className="text-sm">
+                  <TableHeader>
+                    <TableRow className="border-b border-glass-border">
+                      <TableHead>CPU Model</TableHead>
+                      <TableHead>Clock</TableHead>
+                      <TableHead>RAM</TableHead>
+                      <TableHead>Bandwidth</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                  </TableHeader>
+                  <TableBody>
+                    {filteredModels.map((model) => (
+                      <TableRow key={`${model.regionId}-${model.familyId}-${model.id}`} className="border-b border-glass-border transition-all duration-200">
+                        <TableCell className="font-semibold text-foreground">{model.cpu}</TableCell>
+                        <TableCell className="text-muted-foreground">{model.clock}</TableCell>
+                        <TableCell className="text-muted-foreground">{model.ram}</TableCell>
+                        <TableCell className="text-muted-foreground">{model.bandwidth}</TableCell>
+                        <TableCell className="font-semibold text-primary">{priceFormatter.format(model.price)}</TableCell>
+                        <TableCell>
+                          {model.available ? (
+                            <Badge className="bg-emerald-500/15 text-emerald-200 border border-emerald-400/40">Available</Badge>
+                          ) : (
+                            <Badge className="bg-rose-500/15 text-rose-200 border border-rose-400/40">Sold Out</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button className={gradientButton} disabled={!model.available}>
+                            {model.available ? "Purchase" : "Notify"}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 

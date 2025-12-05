@@ -1,0 +1,25 @@
+{
+  "regions": [
+    {
+      "id": "NYC",
+      "name": "New York City",
+      "families": [
+        {
+          "id": "R7",
+          "label": "Ryzen 7",
+          "models": [
+            {
+              "id": "7950X",
+              "cpu": "Ryzen 9 7950X",
+              "clock": "4.0 GHz",
+              "ram": "128GB DDR5",
+              "bandwidth": "10Gbps",
+              "price": 129,
+              "available": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
