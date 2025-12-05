@@ -7,7 +7,7 @@ function formatPrice(recurring: number | null, hourly: boolean = false) {
   return hourly ? `$${recurring.toFixed(2)}/hr` : `$${recurring.toFixed(2)}/mo`;
 }
 
-export default function DedicatedConfigurator() {
+export function DedicatedConfigurator() {
   const { data, loading, error } = useServersList();
 
   if (loading) {
@@ -72,4 +72,6 @@ export default function DedicatedConfigurator() {
     </div>
   );
 }
+
+export default DedicatedConfigurator;
 
