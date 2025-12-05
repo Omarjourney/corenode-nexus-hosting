@@ -45,24 +45,24 @@ const familyMeta: Record<FamilyId, TierMeta> = {
     cpuFamily: "Intel Xeon E5",
     clock: "2.3GHz",
     geekbench: "8000",
-    pricePerGb: "$1.50",
-    markup: "10%",
+    pricePerGb: "",
+    markup: "",
     description: "Balanced performance for general workloads.",
   },
   ELITE: {
     cpuFamily: "AMD EPYC",
     clock: "2.8GHz",
     geekbench: "12000",
-    pricePerGb: "$1.20",
-    markup: "8%",
+    pricePerGb: "",
+    markup: "",
     description: "High performance for demanding applications.",
   },
   CREATOR: {
     cpuFamily: "Intel Xeon Gold",
     clock: "3.0GHz",
     geekbench: "15000",
-    pricePerGb: "$1.00",
-    markup: "5%",
+    pricePerGb: "",
+    markup: "",
     description: "Top-tier performance for mission-critical workloads.",
   },
   BASIC: {
@@ -112,41 +112,7 @@ const familyIcons: Record<FamilyId, any> = {
   VELOCITY: Rocket,
 };
 
-const STATIC_INVENTORY: UiServer[] = [
-  {
-    id: "static-1",
-    family: "CORE",
-    region: "miami",
-    cpu: "Ryzen 5600X",
-    ramGb: 32,
-    storage: "1TB NVMe",
-    bandwidth: "20TB",
-    priceMonthly: 69,
-    available: true,
-  },
-  {
-    id: "static-2",
-    family: "ELITE",
-    region: "london",
-    cpu: "Ryzen 7950X",
-    ramGb: 64,
-    storage: "2TB NVMe",
-    bandwidth: "30TB",
-    priceMonthly: 139,
-    available: true,
-  },
-  {
-    id: "static-3",
-    family: "CREATOR",
-    region: "dallas",
-    cpu: "Xeon Gold 6338",
-    ramGb: 128,
-    storage: "2x1.92TB NVMe",
-    bandwidth: "40TB",
-    priceMonthly: 229,
-    available: true,
-  },
-];
+const STATIC_INVENTORY: UiServer[] = [];
 
 function mapDbToUi(server: any): UiServer {
   return {

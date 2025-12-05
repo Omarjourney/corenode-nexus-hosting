@@ -77,7 +77,7 @@ const MinecraftPage = () => (
     <SEO
       title="Minecraft Server Hosting | CodeNodeX"
       description={`Fast Minecraft hosting with CNX CommandCenter™ and CorePanel Lite™ starting at ${startPrice}.`}
-      keywords="minecraft server hosting, fast minecraft hosting, miami servers"
+      keywords="minecraft server hosting, fast minecraft hosting"
     />
     <Navigation />
 
