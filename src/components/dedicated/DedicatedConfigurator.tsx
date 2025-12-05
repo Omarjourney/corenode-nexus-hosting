@@ -32,6 +32,19 @@ type InventoryResponse = {
   regions: InventoryRegion[];
 };
 
+type ApiServer = {
+  rs_id?: string;
+  family?: string;
+  location?: string;
+  cpu?: string;
+  ram?: string;
+  storage?: string;
+  bandwidth?: string;
+  base_price?: number | string;
+  cnx_price?: number | string;
+  qty?: number | string;
+};
+
 type FlattenedModel = InventoryModel & {
   regionId: string;
   regionName: string;
@@ -84,12 +97,66 @@ function normalizeInventory(data: InventoryResponse): InventoryResponse {
   };
 }
 
+function buildRegionId(value: string | undefined): string {
+  const normalized = (value || "unknown").toString().toLowerCase();
+  return normalized.replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "") || "unknown";
+}
+
+function formatFamilyLabel(family: string) {
+  const clean = family.toLowerCase();
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
+}
+
+function mapServersToInventory(servers: ApiServer[]): InventoryResponse {
+  const regionMap = new Map<string, InventoryRegion>();
+
+  servers.forEach((server) => {
+    const regionName = formatRegionName(server.location || "Unknown");
+    const regionId = buildRegionId(server.location);
+    const familyId = (server.family || "core").toString().toLowerCase();
+    const familyLabel = formatFamilyLabel(familyId);
+    const price = Number(server.cnx_price ?? server.base_price ?? 0) || 0;
+    const available = Number(server.qty ?? 0) > 0;
+
+    const model: InventoryModel = {
+      id: server.rs_id || `${familyId}-${regionId}-${server.cpu || "unknown"}`,
+      cpu: server.cpu || "Unknown CPU",
+      clock: defaultFamilyMeta.clock,
+      ram: server.ram || "—",
+      bandwidth: server.bandwidth || "—",
+      price,
+      available,
+    };
+
+    let region = regionMap.get(regionId);
+    if (!region) {
+      region = { id: regionId, name: regionName, families: [] };
+      regionMap.set(regionId, region);
+    }
+
+    let family = region.families.find((f) => f.id === familyId);
+    if (!family) {
+      family = { id: familyId, label: familyLabel, models: [] };
+      region.families.push(family);
+    }
+
+    family.models.push(model);
+  });
+
+  return { regions: Array.from(regionMap.values()) };
+}
+
 async function fetchInventory(url: string): Promise<InventoryResponse> {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
   }
-  const data = (await response.json()) as InventoryResponse;
+  const data = (await response.json()) as { success?: boolean; servers?: ApiServer[]; regions?: InventoryRegion[] };
+
+  if (data?.success && Array.isArray(data.servers)) {
+    return normalizeInventory(mapServersToInventory(data.servers));
+  }
+
   const regions = Array.isArray(data.regions) ? data.regions : [];
   return normalizeInventory({ regions });
 }
@@ -117,7 +184,7 @@ export function DedicatedConfigurator() {
       try {
         setIsLoading(true);
         setError(null);
-        const live = await fetchInventory("/api/dedicated/inventory");
+        const live = await fetchInventory("/api/servers.php");
         if (isMounted) {
           setInventory(live);
         }
