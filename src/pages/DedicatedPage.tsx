@@ -5,7 +5,7 @@ import { ComparisonTable } from "@/components/ComparisonTable";
 import { FaqSection } from "@/components/FaqSection";
 import { Card } from "@/components/ui/card";
 import AddOns from "@/components/AddOns";
-import { DedicatedConfigurator } from "@/components/dedicated/DedicatedConfigurator";
+import DedicatedConfigurator from "@/components/dedicated/DedicatedConfigurator";
 
 const DedicatedPage = () => (
   <div className="min-h-screen bg-gradient-hero">
