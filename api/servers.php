@@ -1,5 +1,11 @@
 <?php
+// Suppress PHP notices from leaking into JSON responses
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+error_reporting(E_ALL);
+
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate');
 
 require_once __DIR__ . '/../includes/db.php';
 
@@ -7,7 +13,8 @@ try {
     $mysqli = get_db_connection();
 
     $family   = $_GET['family']   ?? null;
-    $location = $_GET['location'] ?? null;
+    // Allow both `location` and the older `region` parameter name
+    $location = $_GET['location'] ?? ($_GET['region'] ?? null);
 
     $where  = ['qty > 0'];
     $params = [];
@@ -42,7 +49,11 @@ try {
     }
 
     $stmt->execute();
-    $result  = $stmt->get_result();
+    $result = $stmt->get_result();
+    if ($result === false) {
+        throw new RuntimeException('Query failed: ' . $stmt->error);
+    }
+
     $servers = $result->fetch_all(MYSQLI_ASSOC);
 
     $stmt->close();
@@ -52,12 +63,12 @@ try {
         'success' => true,
         'count'   => count($servers),
         'servers' => $servers,
-    ]);
+    ], JSON_INVALID_UTF8_SUBSTITUTE);
 } catch (Throwable $e) {
     error_log('[api/servers] ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'success' => false,
         'error'   => $e->getMessage(),
-    ]);
+    ], JSON_INVALID_UTF8_SUBSTITUTE);
 }
