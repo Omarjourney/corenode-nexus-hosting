@@ -434,7 +434,7 @@ const HomePage = () => {
               }}
             >
               <img
-                src="https://illustrations.popsy.co/amber/rocket-launch.svg"
+                src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&auto=format&fm=webp"
                 alt="Fast Deployment"
                 loading="lazy"
                 width="80"
@@ -443,7 +443,8 @@ const HomePage = () => {
                   width: '80px',
                   height: '80px',
                   margin: '0 auto 12px',
-                  objectFit: 'contain',
+                  objectFit: 'cover',
+                  borderRadius: '12px',
                   display: 'block',
                 }}
               />
@@ -515,7 +516,7 @@ const HomePage = () => {
               }}
             >
               <img
-                src="https://illustrations.popsy.co/amber/one-click.svg"
+                src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&auto=format&fm=webp"
                 alt="1-Click Mods"
                 loading="lazy"
                 width="80"
@@ -524,7 +525,8 @@ const HomePage = () => {
                   width: '80px',
                   height: '80px',
                   margin: '0 auto 12px',
-                  objectFit: 'contain',
+                  objectFit: 'cover',
+                  borderRadius: '12px',
                   display: 'block',
                 }}
               />
